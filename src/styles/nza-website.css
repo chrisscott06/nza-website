@@ -1,0 +1,2105 @@
+/* =========================================================================
+   NZA Website - v2 stylesheet
+   Aligned to uploads/nza-design-system.md (the locked spec).
+
+   Inherits everything from colors_and_type.css (tokens, type bases,
+   .canvas-paper / .canvas-navy, coral rules, lens dots).
+
+   Layout language:
+     · Five distinct screens - Home, Capabilities, Approach, Products, Clients
+     · Paper / navy alternation as the visual rhythm
+     · One screen per section (Approach uses click-to-reveal to compress)
+     · Hairline rules over container backgrounds
+     · ~720 - 880px text measure inside a 1280px content frame
+     · Generous whitespace; 8px grid
+
+   No snap-paging, no floating jump-menu - those were v1 patterns.
+   The site is a single editorial document; users scroll between screens
+   and the nav stays fixed at the top.
+   ========================================================================= */
+
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* =========================================================================
+   PAGE FRAME
+   ========================================================================= */
+.frame {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+@media (max-width: 720px) {
+  .frame { padding: 0 24px; }
+}
+
+/* =========================================================================
+   SCREEN - one viewport-tall section, alternates paper / navy
+   ========================================================================= */
+.screen {
+  position: relative;
+  /* dvh = dynamic viewport height, accounts for collapsing browser chrome.
+     Falls back to vh on older browsers. */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Padding accounts for the floating nav at the top (~36px pill + 12px gap)
+     plus a comfortable margin. Bottom is symmetrical so the content optically
+     centres in the viewport \u2014 not stuck to the top with a long bottom gap. */
+  padding: 72px 0 56px;
+  box-sizing: border-box;
+}
+/* When the content is taller than the viewport (e.g. Products on small / chromed
+   viewports), let the screen grow rather than clip its bottom edge. */
+.screen > .frame { width: 100%; }
+.screen.canvas-paper { background: var(--paper); color: var(--ink); }
+.screen.canvas-navy  { background: var(--ink-navy); color: var(--fg-on-navy-1); }
+
+/* =========================================================================
+   SNAP-PAGING - JS-driven so we control duration. Default scroll-snap
+   would snap as fast as the browser allows (feels rushed). Instead, a
+   wheel/key listener calls window.scrollTo() with our own ~700ms ease.
+   The Approach screen has class .screen-scrolls and is exempted so its
+   inset panel can grow without fighting the snap.
+   ========================================================================= */
+html { scroll-behavior: auto; /* JS owns the smoothing */ }
+@media (max-width: 720px) {
+  /* On narrow screens, drop JS snap entirely - set in JS by checking width */
+}
+
+/* =========================================================================
+   NAV - pill-shaped floating bar. Logo left, link pills right.
+   Backdrop: solid paper (with hairline) on paper screens; translucent
+   blur on navy. JS toggles body.on-navy in lockstep with the active screen.
+   ========================================================================= */
+.nav {
+  position: fixed;
+  top: 12px; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  pointer-events: none; /* shell catches it */
+}
+.nav-shell {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  height: 36px;
+  padding: 4px 9px 4px 16px;
+  border-radius: 999px;
+  background: rgba(250, 247, 240, 0.88);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border: 1px solid var(--rule);
+  box-shadow: 0 4px 20px rgba(14, 17, 32, 0.06);
+  transition: background 360ms var(--ease-reveal),
+              border-color 360ms var(--ease-reveal),
+              color 360ms var(--ease-reveal),
+              box-shadow 360ms var(--ease-reveal);
+}
+body.on-navy .nav-shell {
+  background: rgba(14, 17, 32, 0.72);
+  backdrop-filter: saturate(140%) blur(18px);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  border-color: var(--rule-dark);
+  color: var(--fg-on-navy-1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
+}
+
+.nav-mark {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.nav-logo {
+  display: block;
+  height: 22px;
+  width: auto;
+  color: var(--ink); /* SVG inherits via fill="currentColor" */
+  transition: color 360ms var(--ease-reveal);
+}
+body.on-navy .nav-logo { color: var(--fg-on-navy-1); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-link {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: inherit;
+  opacity: 0.74;
+  text-decoration: none;
+  padding: 5px 11px;
+  border-radius: 999px;
+  position: relative;
+  transition: opacity var(--dur-fast) var(--ease-reveal),
+              background var(--dur-fast) var(--ease-reveal),
+              color var(--dur-fast) var(--ease-reveal);
+}
+.nav-link:hover { opacity: 1; background: rgba(14, 17, 32, 0.06); }
+body.on-navy .nav-link:hover { background: rgba(245, 241, 232, 0.10); }
+.nav-link.active {
+  opacity: 1;
+  background: var(--coral);
+  color: var(--paper);
+}
+body.on-navy .nav-link.active {
+  background: var(--coral);
+  color: var(--paper);
+}
+
+/* =========================================================================
+   EYEBROW - coral 24px rule + small caps label
+   This is the §5 "coral rule as section marker" in the spec.
+   ========================================================================= */
+/* =========================================================================
+   EYEBROW + ORBIT MARKER
+   Every section heading opens with the same atom: a small "orbit" - a
+   hairline ring with a coral dot sitting on its edge. The dot's angle
+   varies per section (set via --orbit-angle on the section, or directly
+   on the eyebrow), so each page has a unique marker position while the
+   system stays consistent. Echoes the circle+dot vocabulary of the
+   three-lens diagram and the hero scope landscape; preserves coral as
+   a moment-only accent (4px dot, not chrome).
+   ========================================================================= */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+/* Orbit marker. Outer hairline ring + solid coral inner dot. Used on
+   every section eyebrow (incl. hero) as the unified brand glyph. */
+.eyebrow .orbit-marker {
+  --orbit-size: 14px;
+  position: relative;
+  display: inline-block;
+  width: var(--orbit-size);
+  height: var(--orbit-size);
+  flex-shrink: 0;
+}
+/* Outer ring */
+.eyebrow .orbit-marker::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ink-3);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+/* Solid coral inner disc (~45% of outer) */
+.eyebrow .orbit-marker::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 45%;
+  height: 45%;
+  background: var(--coral);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+/* On navy: brighter ring tint so the hairline stays visible. */
+.canvas-navy .eyebrow { color: var(--fg-on-navy-3); }
+.canvas-navy .eyebrow .orbit-marker::before { border-color: var(--fg-on-navy-3); }
+
+/* Hero variant: small triangle marker (echoes the brand mark's triangle
+   geometry), mixed-weight wordmark.
+   "Net Zero" sits in Stolzl Medium, "Advisory" in Stolzl Light - reads as
+   a quiet wordmark. The default eyebrow's coral hyphen is replaced by
+   an outlined triangle in the same muted ink tone as the text. */
+.eyebrow-hero {
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 12px;
+  gap: 10px;
+}
+.eyebrow-hero::before {
+  /* Suppressed: the orbit-marker span now provides the leading glyph
+     for the hero eyebrow, so the triangle pseudo-marker is hidden. */
+  display: none;
+}
+.eyebrow-hero .eyebrow-mark  { font-weight: 500; }   /* Stolzl Medium */
+.eyebrow-hero .eyebrow-light { font-weight: 300; }   /* Stolzl Light  */
+
+/* =========================================================================
+   TYPE - display headlines, two-sentence variant, lede
+   ========================================================================= */
+.headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(42px, 5vw, 76px);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: inherit;
+  margin: 0;
+  text-wrap: pretty;
+}
+.headline em {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+}
+  color: var(--coral);
+  /* DM Serif Display has tall caps but a smaller x-height than Stolzl Light.
+     lowercase reads slightly shorter but that's correct for italic emphasis
+     - the italic should feel a touch lighter, not bulkier. */
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+}
+/* Two-sentence headlines on screens after the hero. The second sentence
+   is set in Stolzl Light italic at the same size - quieter than the main
+   line, but in the same family. */
+.headline-second {
+  display: block;
+  margin-top: 0.15em;
+  font-style: italic;
+  color: inherit;
+  opacity: 0.72;
+}
+
+.lede {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 60ch;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.canvas-navy .lede { color: var(--fg-on-navy-2); }
+
+.body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 64ch;
+}
+.canvas-navy .body { color: var(--fg-on-navy-2); }
+
+/* =========================================================================
+   HERO - Home screen
+   Two-column: text left, GHG illustration right. Sequenced reveal.
+   ========================================================================= */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 80px;
+  align-items: center;
+}
+@media (max-width: 960px) {
+  .hero { grid-template-columns: 1fr; gap: 48px; }
+}
+.hero-text { max-width: 540px; }
+.hero-text .eyebrow { margin-bottom: 32px; }
+.hero-text .headline { margin-bottom: 28px; }
+.hero-text .lede { color: var(--fg-on-navy-2); }
+
+/* Hero headline italic emphasis: starts in soft cream and warms into the
+   brand coral as the home screen reveals. The base .headline already
+   fades up via .reveal-layer; this layers a color shift on top so the
+   "decode decarbonisation" phrase actively LIGHTS UP rather than just
+   appearing in coral. The transition runs once on first reveal and stays.
+   Initial state - cream, before in-view. */
+#home:not(.in-view) .hero-text .headline em { color: var(--cream); }
+/* In-view state - drift to coral over a slow 1.4s, gently delayed so the
+   warm-up reads after the line itself has resolved. */
+#home.in-view .hero-text .headline em {
+  color: var(--coral);
+  transition: color 1400ms var(--ease-out-soft) 700ms;
+}
+
+/* Hero visual is now an atmospheric watermark of the NZA brand mark.
+   Anchored TOP-RIGHT of the home screen, sized large enough that most of
+   the mark bleeds upward + rightward off-canvas and only the BOTTOM-LEFT
+   corner of the mark is visible inside the page. Painted in cream via
+   mask-image so it reads cleanly on the navy ground (the source SVG's
+   gradient fills go almost invisible at watermark opacity on navy).
+   Sits behind/around the headline + pitch with no collision. */
+.hero-visual {
+  /* The right column of the .hero grid is now a layout placeholder so the
+     text column keeps its sizing; the actual watermark is positioned
+     against the home screen itself, not this cell. */
+  position: relative;
+  align-self: stretch;
+  min-height: 60vh;
+  width: 100%;
+}
+#home.screen { position: relative; overflow: hidden; }
+.hero-mark {
+  position: absolute;
+  /* Sits in the right half of the hero, slightly off-canvas right so the
+     mark crops cleanly. Vertically centered to the hero text block. */
+  top: 50%;
+  right: -8%;
+  transform: translateY(-50%);
+  width: clamp(620px, 65vw, 920px);
+  aspect-ratio: 300 / 298;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  /* Two layers stacked through the same SVG silhouette:
+       ::before  the always-on faint base (nearly invisible)
+       ::after   a slow diagonal glimmer that sweeps across, briefly
+                 illuminating a slice of the mark before fading away
+     Together: the mark is mostly hidden but bits catch light every now
+     and then, like an etched-glass logo. */
+  --mark-blur: 6px;
+  filter: blur(var(--mark-blur));
+  transform-origin: 50% 50%;
+  /* No drift animation - movement was distracting given the new glimmer.
+     If you want gentle drift back, re-add hero-mark-drift here. */
+}
+.hero-mark::before,
+.hero-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url(/assets/nza-mark-clean.svg) center / contain no-repeat;
+          mask: url(/assets/nza-mark-clean.svg) center / contain no-repeat;
+}
+/* BASE: barely-there warm wash. Opacity is the main "subtlety" knob. */
+.hero-mark::before {
+  background: rgba(247, 90, 85, 0.55);
+  opacity: 0.10;
+}
+/* GLIMMER: a narrow bright band travels across the mark on a slow loop.
+   The band is positioned with background-position-x animated from off-left
+   to off-right, so most of the time the mark just shows the base wash;
+   when the band passes over, a slice of the mark briefly lights up. */
+.hero-mark::after {
+  background:
+    linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 36%,
+      rgba(255, 200, 170, 0.10) 47%,
+      rgba(247, 150, 130, 0.22) 50%,
+      rgba(255, 200, 170, 0.10) 53%,
+      transparent 64%,
+      transparent 100%
+    );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  background-position-x: -130%;
+  mix-blend-mode: screen;
+  animation: hero-mark-glimmer 75s linear infinite;
+  /* Negative delay starts the animation mid-cycle so the band is already
+     well across the mark on first paint - users see it moving immediately
+     instead of waiting for the band to enter. Tune this if you want the
+     band to start further along (more negative = further along). */
+  animation-delay: -22s;
+}
+@keyframes hero-mark-glimmer {
+  /* Slow, continuous creep across the mark. The band is in motion almost
+     the whole cycle - a negative animation-delay above starts it mid-pass
+     on first paint so there's no wait before the user sees movement. */
+  0%   { background-position-x: -130%; opacity: 0; }
+  4%   { opacity: 1; }
+  96%  { opacity: 1; }
+  100% { background-position-x: 230%;  opacity: 0; }
+}
+/* Lift the hero text above the watermark layer. */
+.hero { position: relative; z-index: 1; }
+@keyframes hero-mark-drift {
+  0%   { transform: translate(0, -50%) scale(1.00); }
+  100% { transform: translate(8px, calc(-50% + 10px)) scale(1.03); }
+}
+@media (max-width: 960px) {
+  .hero-visual { min-height: 220px; }
+  .hero-mark { top: -40%; right: -25%; width: clamp(460px, 130vw, 720px); }
+}
+
+/* =========================================================================
+   HERO MARQUE - "energy transition / climate change / digital intelligence"
+   Three labelled gradient curves that converge on the bottom-vertex of the
+   top triangle. Plays once on home load: each row fades in (top, then
+   middle, then bottom), holds, then the whole marque fades out.
+
+   ALIGNMENT: the source SVG uses a 548x298 viewBox with the logo on the
+   right side (centred around x~395). Our shimmer hero-mark uses a 300x298
+   viewBox (logo only). To make the marque's logo region overlap the
+   shimmer logo's screen position, the marque is sized 1.827x the mark
+   width (548/300) and right-aligned to the same right edge. The actual
+   logo art inside the source SVG is intentionally NOT included here -
+   we use the curve coordinates only.
+   ========================================================================= */
+.hero-marque {
+  /* TEMP: marque animation disabled - simpler hero for now.
+     Remove this `display: none` to switch it back on. */
+  display: none;
+  position: absolute;
+  /* Match hero-mark's vertical centring exactly so the curve endpoints
+     land at the bottom-vertex of the top triangle in the shimmer mark. */
+  top: 50%;
+  right: -8%;
+  transform: translateY(-50%);
+  /* MARQUE WIDTH math: we want the three label dots (at SVG-x 234.34
+     in the 548-wide marque viewBox) to land exactly on the LEFT
+     PERIMETER of the brand-mark circle (which sits at SVG-x ~17.5 in
+     the mark's 300-wide viewBox). Solving for the ratio:
+       marque_w * (1 - 234.34/548) = mark_w * (1 - 17.5/300)
+       marque_w * 0.5724           = mark_w * 0.9417
+       marque_w                    = mark_w * 1.645
+     SUBTLETY: we then scale this DOWN further (to ~0.78x) so the
+     marque is a more delicate accent rather than full-bleed. The dots
+     now sit slightly inside the circle's left perimeter, which reads
+     as more deliberate composition. */
+  width: clamp(795px, 83.5vw, 1180px);
+  aspect-ratio: 548 / 298;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  /* Sits above the shimmer wash but below the hero text. */
+}
+.hero-marque > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+/* Label type: muted grey, brand sans, wide-tracked, all-caps. The SVG
+   text nodes inherit fill + font from here. Smaller and tighter than
+   the original artwork - reads as a quiet system note next to the mark. */
+.hero-marque .marque-label {
+  fill: #6a6e78;             /* darker grey - sits quietly next to gradient */
+  font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+  font-size: 5px;            /* SVG-units (viewBox is 548x298) - deliberately small */
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+/* Each row is a unit (label + dot + curve). Hidden until the home screen
+   has .in-view AND a small delay has passed, then the whole row wipes in
+   from left to right with a soft trailing fade. Order: top -> middle ->
+   bottom. After a hold the whole marque dissolves. */
+.hero-marque .marque-row {
+  opacity: 0;
+  /* Initial state: fully clipped from the right - nothing visible. */
+  clip-path: inset(0 100% 0 0);
+}
+/* Trigger animation only once the home screen is in view (which it is on
+   load). Animation runs once, holds final state via fill: forwards. */
+#home.in-view .hero-marque .marque-row {
+  animation: marque-wipe 14s var(--ease-out-soft) forwards;
+}
+/* Stagger: top first, then middle, then bottom. The shimmer reveal lets
+   the eye settle for ~1.8s before the marque starts. Stagger is wider
+   than before (1.4s gap) because each row's wipe is now slower. */
+#home.in-view .hero-marque .marque-row-top { animation-delay: 1.8s; }
+#home.in-view .hero-marque .marque-row-mid { animation-delay: 3.2s; }
+#home.in-view .hero-marque .marque-row-bot { animation-delay: 4.6s; }
+@keyframes marque-wipe {
+  /* Phase 1 (0 -> 43%, ~6s): wipe in from left. clip-path opens
+     0% -> 100% while opacity ramps 0 -> 1 in step with the wipe so the
+     leading edge feels soft rather than a hard reveal line.
+     Phase 2 (43 -> 57%, ~2s): hold full visibility.
+     Phase 3 (57 -> 100%, ~6s): plain fade out. */
+  0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+  43%  { clip-path: inset(0 0%   0 0); opacity: 1; }
+  57%  { clip-path: inset(0 0%   0 0); opacity: 1; }
+  100% { clip-path: inset(0 0%   0 0); opacity: 0; }
+}
+/* Reduced motion: skip the marque entirely - keeps things calm. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-marque { display: none; }
+}
+/* On narrow viewports the marque would push label text off-canvas to the
+   left. Hide it on mobile - the shimmer logo carries the hero alone. */
+@media (max-width: 960px) {
+  .hero-marque { display: none; }
+}
+
+/* Sequenced reveal - layers fade + lift in once their parent screen has
+   .in-view. Home screen gets .in-view synchronously on load (it's above
+   the fold); other screens get it from the IntersectionObserver. */
+.screen:not(.in-view) .reveal-layer {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.reveal-layer {
+  transition: opacity 800ms var(--ease-out-soft),
+              transform 800ms var(--ease-out-soft);
+}
+.screen.in-view .reveal-layer { opacity: 1; transform: translateY(0); }
+.screen.in-view .reveal-layer[data-d="0"] { transition-delay: 0ms; }
+.screen.in-view .reveal-layer[data-d="1"] { transition-delay: 100ms; }
+.screen.in-view .reveal-layer[data-d="2"] { transition-delay: 250ms; }
+.screen.in-view .reveal-layer[data-d="3"] { transition-delay: 400ms; }
+.screen.in-view .reveal-layer[data-d="4"] { transition-delay: 600ms; }
+.screen.in-view .reveal-layer[data-d="5"] { transition-delay: 850ms; }
+.screen.in-view .reveal-layer[data-d="6"] { transition-delay: 1100ms; }
+.screen.in-view .reveal-layer[data-d="7"] { transition-delay: 1400ms; }
+.screen.in-view .reveal-layer[data-d="8"] { transition-delay: 1700ms; }
+
+/* Slow, image-friendly fade variant. The .three-lens-mark on Approach uses
+   this to gently fade in (no upward translate - just opacity) once the
+   screen is in view, ~3s for a soft settle. */
+.reveal-layer.reveal-slow {
+  transition: opacity 5500ms var(--ease-out-soft);
+  transform: none;
+}
+.screen:not(.in-view) .reveal-layer.reveal-slow {
+  opacity: 0;
+  transform: none;
+}
+.screen.in-view .reveal-layer.reveal-slow {
+  opacity: 1;
+  transform: none;
+  transition-delay: 700ms;
+}
+
+/* =========================================================================
+   CAPABILITIES - connected-system diagram
+   Two-column on large screens: GHG illustration left, text right.
+   (Flipped from the original text-left arrangement so the eye lands on
+    the diagram first.)
+   ========================================================================= */
+.capabilities {
+  display: grid;
+  /* GHG diagram on the left gets the lion's share. Text column kept tight
+     so the gap can breathe. */
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.55fr);
+  gap: 160px;
+  align-items: center;
+}
+@media (max-width: 960px) {
+  .capabilities { grid-template-columns: 1fr; gap: 48px; }
+  .capabilities-text { order: 1; }
+  .capabilities .diagram { order: 2; }
+}
+.capabilities-text {
+  max-width: 480px;
+  /* Sits in the right column on wide screens. */
+  order: 2;
+  justify-self: end;
+}
+.capabilities .diagram { order: 1; }
+.capabilities-text .eyebrow { margin-bottom: 32px; }
+.capabilities-text .headline { margin-bottom: 24px; }
+
+.diagram {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.diagram svg { width: 100%; height: 100%; display: block; }
+/* GHG illustration variant - landscape, native aspect 1336 / 1038.
+   No max-width cap - we want the diagram to fill its column on the
+   Capabilities screen. The grid column already constrains horizontal
+   size; aspect-ratio drives the height. */
+.diagram.diagram-ghg {
+  aspect-ratio: 1289 / 934;
+  /* Don't let the diagram fill the entire column edge-to-edge - leave a
+     comfortable buffer on the right so it has breathing room before the
+     text column starts. The grid `gap` only kicks in between the column
+     edges; once the SVG fills the column, the eye reads it as touching
+     the text. Width cap creates implicit margin on the inside edge. */
+  width: 88%;
+  max-width: none;
+  margin: 0;
+}
+.diagram.diagram-ghg svg { width: 100%; height: 100%; display: block; }
+
+/* =========================================================================
+   GHG illustration - per-layer reveal is driven by JS (see setupGhgReveal in
+   the page script). The runner sets `opacity` and `transform` attributes
+   directly on each <g id="_x3N__-...">. No CSS animation here - keeping it
+   in CSS would race the imperative runner.
+   ========================================================================= */
+
+.diagram-caption {
+  position: absolute;
+  bottom: -32px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-on-navy-3);
+  opacity: 0.7;
+}
+
+/* =========================================================================
+   APPROACH - three-lens band + 3×2 click-to-reveal grid
+   Paper canvas. Cards are compact; click reveals an inset panel between
+   the rows.
+   ========================================================================= */
+/* Header: title left, three-lens mark right. The mark stands in for the
+   prose explanation - it IS the explanation - so the right column is
+   sized to accommodate it without crowding the headline. */
+.approach-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: center;
+  margin-bottom: 36px;
+}
+@media (max-width: 880px) {
+  .approach-header { grid-template-columns: 1fr; gap: 24px; align-items: start; }
+}
+.approach-header-left .eyebrow { margin-bottom: 24px; }
+.approach-header-left .headline { margin: 0; }
+.approach-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.three-lens-mark {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0;
+  /* Pull up slightly so the diagram's optical centre aligns with the
+     headline's x-height, not the eyebrow. */
+  transform: translateY(-6px);
+}
+@media (max-width: 880px) {
+  .three-lens-mark {
+    max-width: 260px;
+    margin: 8px 0 0;
+    transform: none;
+  }
+  .approach-header-right { justify-content: flex-start; }
+}
+.approach-header-right .lede {
+  color: var(--ink-2);
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 44ch;
+}
+
+/* Capability grid - 3×2 compact cards. Container is positioned so the
+   expanded overlay can absolutely fill the grid area. */
+.cap-grid-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  /* Lock height so the grid doesn't reflow when one card "expands" via overlay */
+  min-height: 360px;
+}
+@media (max-width: 880px) {
+  .cap-grid { grid-template-columns: 1fr; min-height: 0; }
+}
+
+/* Closed card - compact, icon + number on top, title + arrow on bottom. */
+.cap-card {
+  background: var(--paper);
+  padding: 22px 22px 20px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  min-height: 180px;
+  transition: background var(--dur-fast) var(--ease-reveal);
+  text-align: left;
+  border: none;
+  font-family: inherit;
+  color: inherit;
+}
+.cap-card:hover { background: var(--cream); }
+.cap-card:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: -2px;
+}
+
+.cap-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cap-icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--cream);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.cap-icon svg { width: 22px; height: 22px; display: block; }
+.cap-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--ink-3);
+}
+
+.cap-card-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cap-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  margin: 0;
+  max-width: 14ch;
+}
+.cap-title em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.10em;
+  letter-spacing: -0.005em;
+}
+.cap-arrow {
+  width: 28px; height: 28px;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+  flex-shrink: 0;
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+}
+.cap-card:hover .cap-arrow {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.cap-arrow svg { width: 12px; height: 12px; display: block; }
+
+/* The disruptive sixth card - Co-built platforms. Navy fill, coral accent,
+   bridge label sits in the foot row in place of the title-only layout. */
+.cap-card.disrupt {
+  background: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+  position: relative;
+  overflow: hidden;
+}
+.cap-card.disrupt::before {
+  content: "";
+  position: absolute;
+  bottom: -40%; right: -30%;
+  width: 80%; height: 80%;
+  background: radial-gradient(circle at center, var(--coral-glow), transparent 65%);
+  pointer-events: none;
+}
+.cap-card.disrupt > * { position: relative; }
+.cap-card.disrupt .cap-num { color: var(--fg-on-navy-3); }
+.cap-card.disrupt .cap-title { color: var(--fg-on-navy-1); }
+.cap-card.disrupt .cap-icon {
+  background: rgba(255,255,255,0.06);
+  color: var(--coral);
+}
+.cap-card.disrupt .cap-arrow {
+  border-color: var(--rule-dark);
+  color: var(--coral);
+}
+.cap-card.disrupt:hover { background: var(--ink-navy-2); }
+.cap-card.disrupt:hover .cap-arrow {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+
+/* Hide the originating card while expanded so the overlay reads as that
+   card growing in place. */
+.cap-card.is-source {
+  visibility: hidden;
+}
+
+/* Expanded overlay — quadrant layout with coral accent bar (4px left edge) */
+.cap-expanded {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--coral);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  height: 100%;
+  /* Entrance state */
+  transform: scale(0.97);
+  transform-origin: center top;
+  opacity: 0;
+  transition: transform 360ms var(--ease-reveal),
+              opacity 280ms var(--ease-reveal);
+}
+
+/* Top half: icon column + descriptor column (no title) */
+.cap-expanded-top-half {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--rule);
+  min-height: auto;
+  gap: 0;
+}
+
+/* Icon + number column (compact, left) */
+.cap-expanded-header-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  align-items: center;
+  justify-content: flex-start;
+  border-right: 1px solid var(--rule);
+  min-width: 100px;
+}
+.cap-expanded-header-icon .cap-icon {
+  width: 56px; height: 56px;
+  background: var(--coral);
+  border: 0;
+  color: var(--paper);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cap-expanded-header-icon .cap-icon svg {
+  width: 28px; height: 28px;
+  stroke-width: 1.6;
+}
+.cap-expanded-header-icon .cap-icon img {
+  width: 28px; height: 28px;
+  display: block;
+}
+.cap-expanded-header-icon .cap-expanded-num {
+  font-family: "Inter Tight", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin: 0;
+}
+
+/* Descriptor (right, full height, with close button) */
+.cap-expanded-descriptor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  justify-content: flex-start;
+  position: relative;
+}
+.cap-expanded-descriptor .cap-expanded-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(26,29,32,0.15);
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-2);
+  transition: all 200ms ease;
+  padding: 0;
+}
+.cap-expanded-descriptor .cap-expanded-close:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.cap-expanded-descriptor .cap-expanded-close svg {
+  width: 16px; height: 16px;
+}
+  transform: scale(1);
+  opacity: 1;
+}
+/* Content fade: while the panel is resizing, hold the inner content at
+   opacity 0 so the user sees a clean shape grow. Once the box reaches the
+   full grid rect, JS adds .is-open and the content fades up smoothly.
+   This is what removes the "jitter" - inner reflow during a size animation
+   is what reads as jumpy; gating the content behind a fade smooths it. */
+.cap-expanded-head   { flex-shrink: 0; padding: 20px 28px; border-bottom: 1px solid var(--rule); }
+.cap-expanded-rule   { display: none; }
+.cap-expanded-desc   { flex-shrink: 0; padding: 16px 28px 20px; border-bottom: 1px solid var(--rule); }
+.cap-expanded-lenses { flex: 1; padding: 16px 28px 20px; min-height: 0; }
+.cap-expanded-close-wrap { display: none; }
+
+.cap-expanded > * {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 280ms var(--ease-reveal),
+              transform 280ms var(--ease-reveal);
+}
+.cap-expanded.is-open > * { opacity: 1; transform: translateY(0); }
+.cap-expanded.is-open .cap-expanded-header-icon { transition-delay: 60ms; }
+.cap-expanded.is-open .cap-expanded-descriptor { transition-delay: 100ms; }
+.cap-expanded.disrupt {
+  background: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+  border-color: var(--rule-dark);
+  border-left-color: var(--coral);
+}
+.cap-expanded.disrupt::before {
+  content: "";
+  position: absolute;
+  bottom: -30%; right: -20%;
+  width: 70%; height: 70%;
+  background: radial-gradient(circle at center, var(--coral-glow), transparent 65%);
+  pointer-events: none;
+}
+.cap-expanded.disrupt > * { position: relative; }
+/* `hidden` attr defaults to `display:none`, but our display:flex overrides
+   it - re-assert. Without this, after close the empty panel remains in the
+   document flow as an outlined coral box below the grid. */
+.cap-expanded[hidden] { display: none !important; }
+
+.cap-expanded-head {
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  gap: 24px;
+  align-items: center;
+}
+/* Filled coral disc - reads as a brand "stamp" rather than a generic
+   bordered icon chip. Bigger than the closed-card version to match the
+   bigger title scale beside it. */
+.cap-expanded-head .cap-icon {
+  width: 56px; height: 56px;
+  background: var(--coral);
+  border: 0;
+  color: var(--paper);
+}
+.cap-expanded-head .cap-icon svg { width: 28px; height: 28px; stroke-width: 1.6; }
+.cap-expanded-head .cap-icon img { width: 28px; height: 28px; display: block; }
+.cap-expanded.disrupt .cap-icon {
+  background: var(--coral);
+  color: var(--ink-navy);
+}
+.cap-expanded-titlewrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.cap-expanded-num {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--coral);
+  text-transform: uppercase;
+}
+.cap-expanded.disrupt .cap-expanded-num { color: var(--coral); }
+.cap-expanded-title {
+  font-family: "DM Serif Display", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 32px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: inherit;
+}
+.cap-expanded-title em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  color: var(--coral);
+  font-size: 1.10em;
+}
+.cap-expanded-close {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+  flex-shrink: 0;
+}
+.cap-expanded-close:hover {
+  background: var(--cream);
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+.cap-expanded.disrupt .cap-expanded-close {
+  border-color: var(--rule-dark);
+  color: var(--fg-on-navy-2);
+}
+.cap-expanded.disrupt .cap-expanded-close:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.cap-expanded-close svg { width: 14px; height: 14px; display: block; }
+
+/* Hairline divider sits below the head in the layout flow - softer than
+   the original border-top-only look and gives the head room to breathe. */
+.cap-expanded-rule {
+  height: 1px;
+  background: var(--rule);
+  margin: 0;
+  border: 0;
+  width: 100%;
+}
+.cap-expanded.disrupt .cap-expanded-rule { background: var(--rule-dark); }
+
+.cap-expanded-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cap-expanded-desc-lead {
+  font-family: "Inter Tight", system-ui, sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+.cap-expanded-desc-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin: 0;
+}
+.cap-expanded.disrupt .cap-expanded-desc-lead { color: var(--cream); }
+.cap-expanded.disrupt .cap-expanded-desc-body { color: var(--cream-muted); }
+
+.cap-expanded-lenses {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  flex-shrink: 0;
+  padding: 24px;
+  border-top: 1px solid var(--rule);
+  min-height: 0;
+}
+.cap-expanded.disrupt .cap-expanded-lenses { border-top-color: var(--rule-dark); }
+@media (max-width: 880px) {
+  .cap-expanded-lenses { grid-template-columns: 1fr; gap: 24px; padding-top: 20px; }
+}
+/* Vertical hairlines between the three lens columns - more architectural
+   than spacing alone, gives the trio editorial structure. */
+.cap-expanded-lens {
+  padding: 0 20px;
+  border-left: 1px solid var(--rule);
+}
+.cap-expanded-lens:first-child { padding-left: 0; border-left: 0; }
+.cap-expanded-lens:last-child  { padding-right: 0; }
+.cap-expanded.disrupt .cap-expanded-lens { border-left-color: var(--rule-dark); }
+.cap-expanded.disrupt .cap-expanded-lenses { border-top-color: var(--rule-dark); }
+.cap-expanded-lens-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-caps);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--coral-deep);
+  margin-bottom: 8px;
+}
+.cap-expanded.disrupt .cap-expanded-lens-head { color: var(--fg-on-navy-1); }
+.cap-expanded-lens-head .lens-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+}
+.cap-expanded-lens-head .lens-dot.data     { background: var(--lens-data); }
+.cap-expanded-lens-head .lens-dot.tools    { background: var(--lens-tools); }
+.cap-expanded-lens-head .lens-dot.strategy { background: var(--lens-strategy); }
+/* Lens markers — 32px, no background, just the icon */
+.cap-expanded-lens-head .lens-mark {
+  width: 32px; height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+}
+.cap-expanded-lens-head .lens-mark img {
+  width: 18px; height: 18px;
+  display: block;
+}
+.cap-expanded-lens-head .lens-mark svg {
+  width: 16px; height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* No color overrides needed — icons inherit SVG colours */
+.cap-expanded.disrupt .cap-expanded-lens-head .lens-mark { color: var(--fg-on-navy-1); }
+.cap-expanded-lens p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0;
+}
+.cap-expanded-lens p .lead {
+  color: var(--ink);
+  font-weight: 600;
+}
+.cap-expanded.disrupt .cap-expanded-lens p { color: var(--fg-on-navy-2); }
+.cap-expanded.disrupt .cap-expanded-lens p .lead { color: var(--fg-on-navy-1); }
+
+/* =========================================================================
+   PLACEHOLDER SECTIONS - Products and Clients
+   Drafted as spec'd-to-brief calm placeholders, not built-out designs.
+   ========================================================================= */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 720px;
+}
+.placeholder-tag {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--coral);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.placeholder-tag::before {
+  content: "";
+  width: 24px; height: 1px;
+  background: var(--coral);
+}
+.placeholder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.canvas-navy .placeholder-list { border-top-color: var(--rule-dark); }
+.placeholder-item {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr) auto;
+  gap: 24px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.canvas-navy .placeholder-item { border-bottom-color: var(--rule-dark); }
+.placeholder-item-num {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--ink-3);
+}
+.canvas-navy .placeholder-item-num { color: var(--fg-on-navy-3); }
+.placeholder-item-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: inherit;
+}
+.placeholder-item-title em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  color: var(--coral);
+  font-size: 1.10em;
+}
+.placeholder-item-meta {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.canvas-navy .placeholder-item-meta { color: var(--fg-on-navy-3); }
+.placeholder-item-desc {
+  grid-column: 2 / 3;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 56ch;
+  margin: 8px 0 0;
+}
+.canvas-navy .placeholder-item-desc { color: var(--fg-on-navy-2); }
+
+/* =========================================================================
+   PRODUCTS - gateway page
+   Header (eyebrow + headline left, lede right) + 3 cards in a 1×3 row.
+   Cards live on --ink-navy-2 with a per-product accent (indigo/coral/amber).
+   Whole-card click. Hover lifts 2px and intensifies the accent.
+   ========================================================================= */
+:root {
+  --pablo-violet:  #7B6FE0;   /* PABLO indigo/violet */
+  --decoded-teal:  #22C39A;   /* decodED + NZ:AI teal */
+  --pablo-tint:    rgba(123, 111, 224, 0.06); /* card background tint */
+  --decoded-tint:  rgba(34, 195, 154, 0.05);
+  --nzai-tint:     rgba(34, 195, 154, 0.04);
+}
+/* Header - same baseline-aligned two-column treatment as Approach */
+.products-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 64px;
+  align-items: end;
+  margin-bottom: 40px;
+}
+@media (max-width: 880px) {
+  .products-header { grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; }
+}
+.products-header-left .eyebrow { margin-bottom: 24px; }
+.products-header-left .headline { margin: 0; }
+.products-header-right { padding-bottom: 6px; }
+.products-header-right .lede { margin: 0; max-width: 52ch; }
+/* italic emphasis WITHIN prose - body italic, not headline coral */
+.products-header-right .lede i {
+  font-style: italic;
+  font-family: var(--font-body);
+  color: inherit;
+}
+
+/* Card grid */
+.product-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .product-cards { grid-template-columns: 1fr; gap: 20px; }
+}
+
+/* Card */
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px 28px 28px;
+  background: var(--ink-navy-2);
+  border: 1px solid var(--rule-dark);
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--fg-on-navy-1);
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform 250ms var(--ease-reveal),
+              box-shadow 250ms var(--ease-reveal),
+              border-color 250ms var(--ease-reveal);
+}
+.product-card::before {
+  /* hover-glow layer - coloured per accent, hidden by default */
+  content: "";
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 80%;
+  background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%);
+  opacity: 0;
+  transition: opacity 280ms var(--ease-reveal);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Top hairline, accent colour */
+.product-card-rule {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+  transition: opacity 250ms var(--ease-reveal),
+              height 250ms var(--ease-reveal);
+}
+
+/* Per-accent CSS variables */
+.product-card[data-accent="indigo"] {
+  --accent: var(--pablo-violet);
+  --accent-glow: rgba(123, 111, 224, 0.22);
+  --accent-tint: var(--pablo-tint);
+}
+.product-card[data-accent="coral"] {
+  --accent: var(--decoded-teal);
+  --accent-glow: rgba(34, 195, 154, 0.20);
+  --accent-tint: var(--nzai-tint);
+}
+.product-card[data-accent="amber"] {
+  --accent: var(--decoded-teal);
+  --accent-glow: rgba(34, 195, 154, 0.20);
+  --accent-tint: var(--decoded-tint);
+}
+
+/* Subtle accent-tint background - picked up from reference */
+.product-card { background: linear-gradient(180deg, var(--accent-tint), transparent 60%), var(--ink-navy-2); }
+
+/* Tag - small caps with a coloured dot */
+.product-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 4px 0 0;
+}
+.product-card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 var(--accent-glow);
+  transition: box-shadow 250ms var(--ease-reveal),
+              transform 250ms var(--ease-reveal);
+}
+
+/* Product name */
+.product-card-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 34px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--cream);
+  margin: 8px 0 0;
+}
+/* PABLO inline logo \u2014 sized to read at the same optical weight as NZ:AI / decodED wordmarks */
+.product-card-name--logo {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+.pablo-logo {
+  display: block;
+  height: 44px;
+  width: auto;
+  color: var(--cream);
+}
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* decodED - ED in teal, even when the host card isn't the teal card */
+.decoded-ed { color: var(--decoded-teal); }
+/* NZ:AI - colon in teal */
+.nzai-colon { color: var(--decoded-teal); }
+
+/* Italic tagline - body italic (Inter Tight), avoids DM Serif rendering at small size */
+.product-card-tagline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--cream);
+  letter-spacing: -0.005em;
+  opacity: 0.92;
+}
+.product-card-tagline em { font-style: italic; }
+
+/* Description */
+.product-card-desc {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(245, 241, 232, 0.78);
+  max-width: 38ch;
+}
+
+/* CTA - pushed to card foot via auto-margin */
+.product-card-cta {
+  margin-top: auto;
+  padding-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+.product-card-arrow {
+  display: inline-block;
+  transition: transform 220ms var(--ease-reveal);
+}
+
+/* Hover / focus - lift, glow, arrow advance */
+.product-card:hover,
+.product-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(245, 241, 232, 0.22);
+  box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.55);
+  outline: none;
+}
+.product-card:hover::before,
+.product-card:focus-visible::before { opacity: 1; }
+.product-card:hover .product-card-rule,
+.product-card:focus-visible .product-card-rule { opacity: 1; height: 2px; }
+.product-card:hover .product-card-arrow,
+.product-card:focus-visible .product-card-arrow { transform: translateX(4px); }
+.product-card:hover .product-card-dot,
+.product-card:focus-visible .product-card-dot {
+  box-shadow: 0 0 0 4px var(--accent-glow);
+  transform: scale(1.1);
+}
+.product-card:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   VARIANT B - EDITORIAL ROWS
+   Activated by data-variant="rows" on .product-cards (Tweaks toggle).
+   Three full-width rows. Each row: wordmark + tag on the left (~40%),
+   tagline + description + CTA on the right (~60%). Top hairline rule
+   in accent colour; the rows feel like magazine spreads.
+   ============================================================ */
+.product-cards[data-variant="rows"] {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.product-cards[data-variant="rows"] .product-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr);
+  gap: 56px;
+  padding: 48px 32px 44px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--rule-dark);
+  border-radius: 0;
+  align-items: start;
+}
+.product-cards[data-variant="rows"] .product-card:last-child {
+  border-bottom: 1px solid var(--rule-dark);
+}
+.product-cards[data-variant="rows"] .product-card-rule {
+  /* repurpose the rule as a left-edge marker on the wordmark column */
+  top: 48px; left: 32px; right: auto; bottom: auto;
+  width: 32px; height: 1px;
+  opacity: 0.7;
+}
+.product-cards[data-variant="rows"] .product-card-tag {
+  grid-column: 1;
+  margin-top: 0;
+  padding-top: 16px; /* space below the left rule */
+}
+.product-cards[data-variant="rows"] .product-card-name {
+  grid-column: 1;
+  font-size: 64px;
+  margin-top: 12px;
+  align-self: end;
+}
+.product-cards[data-variant="rows"] .product-card-name--logo { min-height: 80px; }
+.product-cards[data-variant="rows"] .pablo-logo { height: 76px; }
+.product-cards[data-variant="rows"] .product-card-tagline {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: start;
+  font-size: 18px;
+  line-height: 1.4;
+  max-width: 38ch;
+  padding-top: 18px; /* align baseline near the tag */
+}
+.product-cards[data-variant="rows"] .product-card-desc {
+  grid-column: 2;
+  grid-row: 3;
+  font-size: 15px;
+  max-width: 52ch;
+  margin-top: 8px;
+}
+.product-cards[data-variant="rows"] .product-card-cta {
+  grid-column: 2;
+  grid-row: 4;
+  margin-top: 20px;
+  padding-top: 0;
+}
+/* Hover on rows: no lift, just rule + arrow + dot intensify */
+.product-cards[data-variant="rows"] .product-card:hover,
+.product-cards[data-variant="rows"] .product-card:focus-visible {
+  transform: none;
+  background: linear-gradient(180deg, var(--accent-tint), transparent 80%);
+  box-shadow: none;
+  border-color: var(--rule-dark);
+}
+.product-cards[data-variant="rows"] .product-card:hover::before,
+.product-cards[data-variant="rows"] .product-card:focus-visible::before { opacity: 0; }
+.product-cards[data-variant="rows"] .product-card:hover .product-card-rule {
+  width: 80px;
+  opacity: 1;
+}
+@media (max-width: 900px) {
+  .product-cards[data-variant="rows"] .product-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 32px 0 28px;
+  }
+  .product-cards[data-variant="rows"] .product-card-rule { left: 0; }
+  .product-cards[data-variant="rows"] .product-card-name { font-size: 44px; }
+  .product-cards[data-variant="rows"] .pablo-logo { height: 56px; }
+  .product-cards[data-variant="rows"] .product-card-tagline,
+  .product-cards[data-variant="rows"] .product-card-desc,
+  .product-cards[data-variant="rows"] .product-card-cta {
+    grid-column: 1; grid-row: auto;
+  }
+}
+
+/* ============================================================
+   TWEAKS PANEL - Products variant toggle
+   Floating bottom-right pill. Hidden until the host activates
+   edit mode (toolbar Tweaks toggle) via __activate_edit_mode.
+   ============================================================ */
+.tweaks-panel {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px;
+  background: rgba(14, 17, 32, 0.92);
+  backdrop-filter: saturate(140%) blur(18px);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  border: 1px solid var(--rule-dark);
+  border-radius: 12px;
+  color: var(--cream);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  font-family: var(--font-display);
+  min-width: 240px;
+}
+.tweaks-panel[data-active="true"] { display: flex; }
+.tweaks-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.tweaks-panel-title {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream);
+  opacity: 0.9;
+}
+.tweaks-panel-close {
+  background: transparent;
+  border: 0;
+  color: var(--cream);
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.tweaks-panel-close:hover { opacity: 1; }
+.tweaks-panel-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tweaks-panel-label {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 232, 0.6);
+}
+.tweaks-segmented {
+  display: inline-flex;
+  background: rgba(245, 241, 232, 0.06);
+  border: 1px solid var(--rule-dark);
+  border-radius: 999px;
+  padding: 3px;
+}
+.tweaks-segmented button {
+  background: transparent;
+  border: 0;
+  padding: 7px 14px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--cream);
+  opacity: 0.6;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: opacity 200ms, background 200ms;
+}
+.tweaks-segmented button:hover { opacity: 0.9; }
+.tweaks-segmented button[aria-pressed="true"] {
+  background: var(--coral);
+  color: var(--paper);
+  opacity: 1;
+}
+
+/* =========================================================================
+   FOOTER - minimal, hairline-ruled
+   ========================================================================= */
+.footer {
+  padding: 48px 0 56px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.canvas-navy .footer { border-top-color: var(--rule-dark); color: var(--fg-on-navy-3); }
+.footer .wordmark { color: inherit; opacity: 0.75; }
+.footer .footer-mark { color: inherit; opacity: 0.75; font-family: var(--font-display); }
+
+/* =========================================================================
+   CLIENTS CAROUSEL
+   Auto-rotating ribbon of client logos on the paper canvas. Cells are
+   ~200px wide; ~6 visible at once on a 1200px viewport. Hover pauses;
+   click opens the popover.
+   ========================================================================= */
+.screen-clients .frame { display: flex; flex-direction: column; }
+.clients-header { max-width: 720px; margin-bottom: 40px; }
+.clients-header .eyebrow { margin-bottom: 28px; }
+.clients-header .headline { margin-bottom: 20px; }
+
+.clients-carousel {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.carousel-arrow {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--font-display);
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+}
+.carousel-arrow:hover {
+  background: var(--coral-soft);
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+.carousel-track {
+  display: flex;
+  gap: 0;
+  width: max-content;
+  align-items: center;
+  will-change: transform;
+}
+.client-cell {
+  flex: 0 0 220px;
+  height: 120px;
+  border: none;
+  border-right: 1px solid var(--rule);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px;
+  transition: background var(--dur-fast);
+  font-family: inherit;
+  color: var(--ink-2);
+}
+.client-cell:hover { background: var(--cream); color: var(--ink); }
+.client-cell:hover .client-name { color: var(--coral); }
+
+/* Logo images: greyscale at rest, full colour on hover */
+.client-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  min-width: 80px;
+}
+.client-logo-initials {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  opacity: 0.85;
+}
+.client-cell:hover .client-logo-initials { color: var(--coral); opacity: 1; }
+.client-logo-img { 
+  max-height: 56px; 
+  max-width: 160px; 
+  width: 100%;
+  object-fit: contain; 
+  /* Black SVG → dark grey at rest */
+  filter: brightness(0) opacity(0.35); 
+  transition: filter 200ms ease;
+}
+/* On hover: convert black → coral #F75A55 */
+.client-cell:hover .client-logo-img { 
+  filter: brightness(0) saturate(100%) invert(42%) sepia(99%) saturate(600%) hue-rotate(328deg) brightness(100%);
+}
+.client-name {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color var(--dur-fast);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.clients-meta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.clients-meta-progress { font-variant-numeric: tabular-nums; display: none; }
+
+/* Coral terminus — full-width rule ending in a filled circle */
+.clients-terminus {
+  display: flex;
+  align-items: center;
+  padding: 48px 0 0;
+}
+.clients-terminus-line {
+  flex: 1;
+  height: 1px;
+  background: var(--coral);
+  display: block;
+}
+.clients-terminus-circle {
+  flex-shrink: 0;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--coral);
+  background: var(--paper);
+  display: block;
+  margin-left: -6px;
+  box-sizing: border-box;
+}
+
+/* Clients page footer — sits below the coral terminus, no border */
+.clients-footer {
+  border-top: none;
+  padding: 24px 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-nza-logo {
+  height: 18px;
+  width: auto;
+  color: var(--ink-3);
+  opacity: 0.45;
+}
+.footer-copy {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  opacity: 0.55;
+}
+
+/* =========================================================================
+   CLIENT POPOVER — three-zone layout
+   Header: logo mark (96px sq) + meta block (sector tag / name / context)
+   Body: two-column (60% what we did / 40% capabilities), hairline divider
+   Footer: hairline-top meta facts in small caps
+   ========================================================================= */
+/* Popover */
+.client-popover {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-reveal);
+}
+.client-popover.open { opacity: 1; pointer-events: auto; }
+.client-popover-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(14, 17, 32, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.client-popover-panel {
+  position: relative;
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 0;
+  width: min(760px, calc(100vw - 48px));
+  box-shadow: 0 32px 80px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(12px);
+  transition: transform 240ms var(--ease-reveal);
+  overflow: hidden;
+}
+.client-popover.open .client-popover-panel { transform: translateY(0); }
+.client-popover-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(14,17,32,0.15);
+  background: var(--paper);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1;
+  color: var(--ink-2);
+  z-index: 2;
+  transition: background 160ms, border-color 160ms;
+}
+.client-popover-close:hover { background: var(--cream); border-color: var(--ink-3); }
+
+/* ── Header zone ── navy-tinted cream strip with large logo left */
+.client-popover-header {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: stretch;
+  border-bottom: 1px solid var(--rule);
+  min-height: 140px;
+}
+.client-popover-mark {
+  background: var(--cream);
+  border-right: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.client-popover-mark .client-logo-initials {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 36px;
+  color: var(--ink);
+}
+.client-popover-mark .client-logo-img {
+  max-height: 100px; max-width: 108px;
+  width: 100%;
+  object-fit: contain;
+  filter: none;
+}
+.client-popover-meta-block {
+  padding: 28px 56px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+.client-popover-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 2px;
+}
+.client-popover-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 18px; height: 1px;
+  background: var(--coral);
+  flex-shrink: 0;
+}
+.client-popover-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.client-popover-context {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 4px 0 0;
+  max-width: 52ch;
+}
+
+/* ── Body zone: two columns ── */
+.client-popover-body {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+}
+.client-popover-col {
+  padding: 24px 28px;
+}
+.client-popover-col-wide {
+  border-right: 1px solid var(--rule);
+}
+.client-popover-col-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+.client-popover-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--coral);
+  flex-shrink: 0;
+}
+.client-popover-col-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+/* ── Capabilities checklist ── */
+.client-popover-caps {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.client-popover-caps li {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ink-2);
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.client-popover-caps li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  margin-top: 0;
+  border-radius: 3px;
+  background-color: var(--coral);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpolyline points='3,8 6.5,11.5 13,4.5' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* ── Footer zone — three meta chips ── */
+.client-popover-footer {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--rule);
+  background: var(--cream);
+}
+.client-popover-footer-chip {
+  flex: 1;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid var(--rule);
+}
+.client-popover-footer-chip:last-child { border-right: none; }
+.client-popover-footer-chip-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.client-popover-footer-chip-value {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.3;
+}

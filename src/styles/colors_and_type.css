@@ -1,0 +1,315 @@
+/* =========================================================================
+   NZA Design System - colors_and_type.css
+   v2 - aligned to uploads/nza-design-system.md (the locked spec).
+
+   Three faces, each with a distinct job:
+     · Stolzl - display / headlines / nav / eyebrows
+     · Söhne (Inter Tight) - body / descriptions / 13 - 17px running text
+     · DM Serif Display - italic emphasis ONLY, in coral, inside Stolzl
+                             headlines, bumped 1.10 - 1.13em
+
+   Coral is locked at #F75A55 and reserved for moments, never surfaces.
+   Three lens accents (Data / Tools / Strategy) for taxonomic distinction.
+   Paper / cream / navy as the canvas system. No gradients.
+   ========================================================================= */
+
+/* ---------- Stolzl (display) ---------- */
+@font-face {
+  font-family: "Stolzl";
+  src: url("/fonts/stolzl_thin.otf") format("opentype");
+  font-weight: 100;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Stolzl";
+  src: url("/fonts/stolzl_light.otf") format("opentype");
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Stolzl";
+  src: url("/fonts/stolzl_book.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Stolzl";
+  src: url("/fonts/stolzl_regular.otf") format("opentype");
+  font-weight: 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Stolzl";
+  src: url("/fonts/stolzl_medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Stolzl";
+  src: url("/fonts/stolzl_bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ---------- Body + italic emphasis ----------
+   Söhne is the spec'd body face (Adobe Fonts, licensed by Chris).
+   Inter Tight is the documented working substitute via Google Fonts - both are humanist sans serifs with similar proportions; the swap is
+   graceful. DM Serif Display is the italic-emphasis face. */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=DM+Serif+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* =====================================================================
+     COLOUR - BRAND ANCHORS (locked per design system §4)
+     ===================================================================== */
+  --paper:        #FAF7F0;                    /* primary cream paper */
+  --cream:        #F5F1E8;                    /* secondary cream for cards on paper */
+  --ink:          #1A1D20;                    /* near-black body on cream */
+  --ink-2:        #52565C;                    /* mid grey for descriptions */
+  --ink-3:        #8D9099;                    /* light grey for meta/captions */
+  --ink-navy:     #0E1120;                    /* deep navy inverted sections */
+  --ink-navy-2:   #161A2E;                    /* slightly lifted navy for cards on navy */
+
+  --coral:        #F75A55;                    /* THE coral. Moments only. */
+  --coral-soft:   rgba(247, 90, 85, 0.10);    /* faint wash for active states */
+  --coral-glow:   rgba(247, 90, 85, 0.18);    /* radial glow on Co-built platforms card */
+
+  --rule:         rgba(14, 17, 32, 0.10);     /* hairline rule on cream */
+  --rule-soft:    rgba(14, 17, 32, 0.06);
+  --rule-dark:    rgba(245, 241, 232, 0.14);  /* hairline rule on navy */
+  --rule-dark-soft: rgba(245, 241, 232, 0.08);
+
+  /* =====================================================================
+     COLOUR - THREE LENS ACCENTS (taxonomic only)
+     Used as small dots (6 - 8px), tag colour, category marker.
+     Never as a card background or major chrome.
+     ===================================================================== */
+  --lens-data:        #2F4C6B;   /* deep navy-blue */
+  --lens-tools:       #7A5DAE;   /* purple - also PABLO product accent */
+  --lens-strategy:    #3a7d7e;   /* NZA teal */
+
+  /* On navy surfaces, lens dots brighten for legibility */
+  --lens-data-on-navy:     #8AA0C0;
+  --lens-tools-on-navy:    #B79DD9;
+  --lens-strategy-on-navy: #6EAEA9;
+
+  /* =====================================================================
+     COLOUR - TEXT (semantic shortcuts)
+     ===================================================================== */
+  --fg-on-paper-1:   var(--ink);
+  --fg-on-paper-2:   var(--ink-2);
+  --fg-on-paper-3:   var(--ink-3);
+  --fg-on-navy-1:    #F5F1E8;
+  --fg-on-navy-2:    #C8D3E4;
+  --fg-on-navy-3:    #8AA0C0;
+
+  /* =====================================================================
+     COLOUR - DATA (charts / report visualisations only, never brand)
+     Carried from v1; reports continue to use these.
+     ===================================================================== */
+  --data-teal:        #009FA0;
+  --data-amber:       #E8A33D;
+  --data-navy:        #2F4C6B;
+  --data-rust:        #B8502E;
+  --data-sage:        #7A9278;
+  --data-blue:        #4A7FB5;
+  --data-ochre:       #D09A3D;
+  --data-terracotta:  #BC6148;
+
+  --flag-red:         #B8502E;
+  --flag-yellow:      #D09A3D;
+  --flag-green:       #7A9278;
+  --flag-grey:        #8D9099;
+  --status-primary:   #3EC687;
+  --status-proxy:     #F0A23C;
+  --status-missing:   #6F86A8;
+
+  /* =====================================================================
+     TYPOGRAPHY - FAMILIES
+     ===================================================================== */
+  --font-display:   "Stolzl", system-ui, sans-serif;
+  --font-body:      "Inter Tight", "Söhne", system-ui, sans-serif;
+  --font-italic:    "DM Serif Display", "Times New Roman", serif;
+  --font-mono:      "JetBrains Mono", ui-monospace, monospace;
+
+  /* =====================================================================
+     TYPOGRAPHY - SCALE
+     ===================================================================== */
+  --text-display:  clamp(2.5rem, 3.6vw, 3.5rem);   /* 40 - 56px hero */
+  --text-h1:       clamp(2rem, 2.6vw, 2.5rem);     /* 32 - 40px */
+  --text-h2:       1.875rem;                       /* 30px */
+  --text-h3:       1.375rem;                       /* 22px */
+  --text-body:     1rem;                           /* 16px */
+  --text-small:    0.875rem;                       /* 14px */
+  --text-micro:    0.75rem;                        /* 12px eyebrows / caption */
+
+  /* =====================================================================
+     SPACING / RADII / SHADOW / MOTION
+     ===================================================================== */
+  --space-1:       0.25rem;
+  --space-2:       0.5rem;
+  --space-3:       0.75rem;
+  --space-4:       1rem;
+  --space-gutter:  1.5rem;
+  --space-6:       2rem;
+  --space-section: 4rem;
+  --space-page:    6rem;
+
+  --radius-sm:    4px;
+  --radius-md:    6px;
+  --radius-lg:    8px;
+  --radius-xl:    12px;
+  --radius-pill:  999px;
+
+  --shadow-sm: 0 1px 2px rgba(10, 14, 23, 0.08);
+  --shadow-md: 0 4px 12px rgba(10, 14, 23, 0.10);
+  --shadow-lg: 0 16px 40px rgba(10, 14, 23, 0.14);
+  --shadow-xl: 0 24px 60px rgba(10, 14, 23, 0.20);
+  --shadow-card-dark: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:   cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-reveal:   cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:      180ms;
+  --dur-base:      360ms;
+  --dur-slow:      800ms;
+}
+
+/* =========================================================================
+   SEMANTIC ELEMENT BASES
+   Body defaults to paper canvas. Apply .canvas-navy for inverted screens.
+   ========================================================================= */
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  background-color: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display headlines - Stolzl Light, tight tracking. The signature italic
+   word inside is DM Serif Display in coral, bumped 1.10em. Use <em> inside
+   .h1/.h-display for emphasis; that triggers the italic-coral rule below. */
+.h-display, h1.h-display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--text-display);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+.h1, h1 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--text-h1);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.h2, h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--text-h2);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.h3, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-h3);
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+
+/* --- The italic-coral signature --- */
+.h-display em, .h1 em, .h2 em,
+h1 em, h2 em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.15em;             /* x-height + cap-height compromise -
+                                    measured: at 1.15em, DM's ascender ~80
+                                    matches Stolzl's 78 within 3%, and its
+                                    x-height ~51 is only 6% shy of Stolzl's
+                                    54. Better balance than 1.10 (lowercase
+                                    too small) or 1.18 (everything too big). */
+  letter-spacing: -0.01em;
+}
+/* Body italic emphasis sits closer to surrounding type */
+.h3 em, h3 em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.08em;
+  letter-spacing: -0.005em;
+}
+
+p, li, td, label, input, textarea, select, button {
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+p { line-height: 1.55; color: var(--ink-2); }
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+code, pre, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+/* =========================================================================
+   CANVAS UTILITIES
+   ========================================================================= */
+.canvas-paper {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+.canvas-navy {
+  background-color: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+}
+.canvas-navy p { color: var(--fg-on-navy-2); }
+.canvas-navy .eyebrow { color: var(--fg-on-navy-3); }
+
+/* =========================================================================
+   SIGNATURE ACCENTS - coral rules (used as section markers, never chrome)
+   ========================================================================= */
+.coral-rule-eyebrow {
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--coral);
+  vertical-align: middle;
+  margin-right: 0.75rem;
+}
+.coral-rule-section {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--coral);
+  margin: 1rem 0;
+}
+
+/* Lens dot - small taxonomic marker, 8px on light surfaces */
+.lens-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+.lens-dot--data     { background: var(--lens-data); }
+.lens-dot--tools    { background: var(--lens-tools); }
+.lens-dot--strategy { background: var(--lens-strategy); }
+
+.canvas-navy .lens-dot--data     { background: var(--lens-data-on-navy); }
+.canvas-navy .lens-dot--tools    { background: var(--lens-tools-on-navy); }
+.canvas-navy .lens-dot--strategy { background: var(--lens-strategy-on-navy); }

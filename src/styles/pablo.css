@@ -1,0 +1,856 @@
+/* =========================================================================
+   PABLO product page — own visual language, NZA chrome retained
+   Inherits tokens from colors_and_type.css + nza-website.css
+
+   PABLO ground = a deeper, more violet navy than the NZA navy.
+   Primary accent = violet. Secondary = amber. Tertiary = coral.
+   Coral matches NZA's --coral (#F75A55) so the chrome reads continuous.
+   ========================================================================= */
+
+:root {
+  /* PABLO product palette (per design system board) */
+  --p-cream:        #F2F2E6;
+  --p-slate:        #1A1E2B;     /* slate panel — for cards on the violet-navy ground */
+  --p-navy:         #0E1120;     /* matches NZA navy */
+  --p-ground:       #15132A;     /* PABLO's signature deep violet-navy */
+  --p-ground-2:     #1B1736;     /* slightly lifted variant for cards */
+
+  --p-coral:        #FF5A7D;     /* hot coral (sharper than NZA coral, but compatible) */
+  --p-amber:        #FF9A3C;     /* amber/orange */
+  --p-violet:       #806BFF;     /* violet — primary PABLO accent */
+  --p-violet-soft:  rgba(128, 107, 255, 0.14);
+  --p-violet-glow:  rgba(128, 107, 255, 0.28);
+  --p-amber-soft:   rgba(255, 154, 60, 0.14);
+  --p-coral-soft:   rgba(255, 90, 125, 0.14);
+
+  /* Chart palette per brief */
+  --p-chart-demand:   #F2F2E6;             /* "black" demand line — on dark ground we read it as cream */
+  --p-chart-solar:    #FFB347;             /* yellow/gold */
+  --p-chart-grid:     rgba(178, 188, 210, 0.55);  /* grid import — translucent grey */
+  --p-chart-battery:  var(--p-violet);
+  --p-chart-export:   var(--p-coral);
+  --p-chart-charge:   #6FE0A8;             /* soft green */
+  --p-chart-discharge:#FFB17A;             /* soft amber */
+  --p-chart-indigo:   #6A5CFF;             /* deeper indigo for stacked cost layers */
+
+  --p-rule:           rgba(242, 242, 230, 0.10);
+  --p-rule-soft:      rgba(242, 242, 230, 0.06);
+  --p-rule-strong:    rgba(242, 242, 230, 0.18);
+
+  --p-fg-1:           #F2F2E6;
+  --p-fg-2:           #C8C5D9;
+  --p-fg-3:           #8E8CA8;
+}
+
+/* =========================================================================
+   PAGE GROUND
+   The body switches to the deep violet-navy when on PABLO. The nav
+   reuses the NZA "on-navy" treatment so coral CTA + cream text apply.
+   ========================================================================= */
+body.pablo-page {
+  background: var(--p-ground);
+  color: var(--p-fg-1);
+  /* allow normal scroll \u2014 long-form page, no snap */
+}
+body.pablo-page .nav-shell {
+  background: rgba(20, 18, 40, 0.78);
+  border: 1px solid var(--p-rule);
+}
+body.pablo-page .nav-link { color: var(--p-fg-2); }
+body.pablo-page .nav-link:hover { color: var(--p-fg-1); }
+body.pablo-page .nav-link.active {
+  background: var(--p-violet);
+  color: var(--p-fg-1);
+}
+
+/* Footer — slightly lifted from ground */
+body.pablo-page .footer {
+  border-top: 1px solid var(--p-rule);
+  color: var(--p-fg-3);
+}
+
+/* Frame matches site width */
+.pablo-frame {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+  box-sizing: border-box;
+}
+@media (max-width: 720px) {
+  .pablo-frame { padding: 0 24px; }
+}
+
+/* =========================================================================
+   SECTION SCAFFOLD
+   Each section vertical-rhythms ~140px gap. Hairline divider on top.
+   ========================================================================= */
+.p-section {
+  position: relative;
+  padding: 96px 0 96px;
+}
+.p-section + .p-section { border-top: 1px solid var(--p-rule-soft); }
+
+.p-eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--p-fg-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 28px;
+}
+.p-eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: var(--p-coral);
+}
+
+.p-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--p-fg-1);
+  margin: 0 0 24px;
+  max-width: 22ch;
+}
+.p-headline em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--p-coral);
+  font-size: 1.10em;
+  letter-spacing: -0.01em;
+}
+
+.p-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.55;
+  color: var(--p-fg-2);
+  max-width: 56ch;
+  margin: 0 0 24px;
+}
+.p-caption {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+  margin: 16px 0 0;
+}
+
+/* =========================================================================
+   HERO
+   Two-column: text 40% / visual 60%. Bill explosion sits right.
+   ========================================================================= */
+.p-hero {
+  display: grid;
+  grid-template-columns: minmax(380px, 5fr) minmax(420px, 7fr);
+  gap: 64px;
+  align-items: center;
+  min-height: calc(100vh - 56px);
+  padding: 120px 0 80px;
+}
+@media (max-width: 980px) {
+  .p-hero { grid-template-columns: 1fr; gap: 40px; min-height: 0; padding: 120px 0 60px; }
+}
+.p-hero-text { max-width: 28ch; }
+.p-hero-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: var(--p-fg-1);
+  margin: 0 0 28px;
+}
+.p-hero-headline em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--p-coral);
+  font-size: 1.10em;
+  letter-spacing: -0.01em;
+}
+.p-hero-sub {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.55;
+  color: var(--p-fg-2);
+  max-width: 48ch;
+  margin: 0;
+}
+
+.p-hero-visual {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 7 / 5;
+  background: linear-gradient(180deg, rgba(128,107,255,0.05), transparent 60%);
+  border: 1px solid var(--p-rule-soft);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.p-hero-visual svg { width: 100%; height: 100%; display: block; }
+
+/* PABLO wordmark accent header (right column eyebrow) */
+.p-hero-wordmark {
+  position: absolute;
+  top: 16px; left: 18px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+  z-index: 2;
+}
+.p-hero-wordmark .p-logo-mini { width: 56px; color: var(--p-coral); }
+
+/* =========================================================================
+   SECTION 1 — DECOMPOSITION
+   Two stacked-bar columns side by side, then a forward projection.
+   ========================================================================= */
+.p-decomp {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+}
+.p-decomp-head { max-width: 64ch; }
+.p-decomp-vis {
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--p-rule-soft);
+  border-radius: 4px;
+  padding: 32px;
+  min-height: 460px;
+}
+
+/* Stacked bar visualization */
+.p-decomp-bars {
+  display: grid;
+  grid-template-columns: 110px 110px 1fr;
+  gap: 32px;
+  align-items: end;
+  height: 360px;
+}
+.p-decomp-bar {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+}
+.p-decomp-bar-label {
+  position: absolute;
+  bottom: -28px;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+}
+.p-decomp-segment {
+  width: 100%;
+  position: relative;
+  transition: opacity 600ms var(--ease-out-soft),
+              transform 600ms var(--ease-out-soft);
+  opacity: 0;
+  transform: translateY(20px);
+}
+.p-decomp.in-view .p-decomp-segment { opacity: 1; transform: translateY(0); }
+.p-decomp-segment:hover::after {
+  content: attr(data-label) " · " attr(data-rate);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--p-slate);
+  border: 1px solid var(--p-rule);
+  border-radius: 3px;
+  padding: 6px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--p-fg-1);
+  white-space: nowrap;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Forward projection chart pane */
+.p-decomp-projection {
+  height: 360px;
+  position: relative;
+}
+
+.p-decomp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-top: 56px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+}
+.p-decomp-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.p-decomp-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+/* =========================================================================
+   SECTION 2 — STRATEGIC TRANSITION (prose only, narrow column, hairlines)
+   ========================================================================= */
+.p-transition {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 0;
+  text-align: left;
+}
+.p-transition-rule {
+  width: 100%; height: 1px;
+  background: var(--p-violet);
+  opacity: 0.5;
+  margin: 0 0 56px;
+}
+.p-transition-rule.bottom { margin: 56px 0 0; }
+.p-transition .p-headline {
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
+  max-width: 24ch;
+  margin: 0 0 24px;
+}
+
+/* =========================================================================
+   SECTION 3 — TEST AN INTERVENTION (the interactive moment)
+   ========================================================================= */
+.p-test {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.p-test-canvas {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--p-rule-soft);
+  border-radius: 4px;
+  padding: 28px 28px 32px;
+}
+.p-test-chart-top {
+  height: 240px;
+  position: relative;
+}
+.p-test-toggles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--p-rule-soft);
+  border-bottom: 1px solid var(--p-rule-soft);
+}
+@media (max-width: 720px) {
+  .p-test-toggles { grid-template-columns: 1fr; }
+}
+.p-test-toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font-family: var(--font-display);
+}
+.p-test-toggle-box {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border-radius: 2px;
+  border: 1px solid var(--p-rule-strong);
+  position: relative;
+  transition: all 200ms var(--ease-reveal);
+}
+.p-test-toggle[aria-pressed="true"] .p-test-toggle-box {
+  background: var(--toggle-color);
+  border-color: var(--toggle-color);
+}
+.p-test-toggle[aria-pressed="true"] .p-test-toggle-box::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid var(--p-ground);
+  border-top: 0; border-right: 0;
+  transform: rotate(-45deg);
+  border-radius: 1px;
+}
+.p-test-toggle-name {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--p-fg-1);
+  font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+}
+.p-test-toggle-name::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--toggle-color);
+}
+.p-test-toggle-cap {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--p-fg-3);
+  letter-spacing: 0;
+  text-transform: none;
+  margin-top: 2px;
+}
+.p-test-toggle[aria-pressed="false"] .p-test-toggle-name { color: var(--p-fg-3); }
+.p-test-toggle[aria-pressed="false"] .p-test-toggle-name::before { background: var(--p-rule-strong); }
+
+.p-test-toggle[data-tog="solar"]    { --toggle-color: var(--p-chart-solar); }
+.p-test-toggle[data-tog="battery"]  { --toggle-color: var(--p-chart-battery); }
+.p-test-toggle[data-tog="peak"]     { --toggle-color: var(--p-chart-export); }
+
+.p-test-chart-bot {
+  height: 180px;
+  position: relative;
+}
+
+/* Derived output strip */
+.p-test-derived {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 40px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--p-rule-soft);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--p-fg-2);
+}
+.p-test-derived-item {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.p-test-derived-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+}
+.p-test-derived-vals {
+  display: flex; align-items: baseline; gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  color: var(--p-fg-1);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+.p-test-derived-from { color: var(--p-fg-3); text-decoration: line-through; text-decoration-color: rgba(200,197,217,0.4); }
+.p-test-derived-arrow { color: var(--p-violet); font-size: 14px; }
+.p-test-derived-to { color: var(--p-coral); }
+.p-test-derived.idle .p-test-derived-from { color: var(--p-fg-1); text-decoration: none; }
+.p-test-derived.idle .p-test-derived-to,
+.p-test-derived.idle .p-test-derived-arrow { display: none; }
+
+/* =========================================================================
+   SECTION 4 — LIFECYCLE
+   ========================================================================= */
+.p-lifecycle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 32px;
+  align-items: stretch;
+}
+@media (max-width: 980px) {
+  .p-lifecycle { grid-template-columns: 1fr; }
+}
+.p-lifecycle-canvas {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--p-rule-soft);
+  border-radius: 4px;
+  padding: 28px;
+  min-height: 440px;
+  position: relative;
+}
+.p-lifecycle-chart { height: 380px; position: relative; }
+
+.p-params {
+  background: var(--p-slate);
+  border: 1px solid var(--p-rule);
+  border-radius: 4px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.p-params-head {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--p-rule-soft);
+}
+.p-param {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.p-param-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--p-fg-2);
+}
+.p-param-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--p-violet);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.p-param input[type=range] {
+  width: 100%;
+  -webkit-appearance: none; appearance: none;
+  height: 2px;
+  background: var(--p-rule-strong);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+.p-param input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  background: var(--p-violet);
+  border: 2px solid var(--p-ground);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--p-violet);
+}
+.p-param input[type=range]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  background: var(--p-violet);
+  border: 2px solid var(--p-ground);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--p-violet);
+}
+
+/* Payback marker label inside the chart */
+.p-lifecycle-payback {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--p-coral);
+  background: rgba(255, 90, 125, 0.10);
+  border: 1px solid var(--p-coral);
+  padding: 4px 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity 400ms ease, left 600ms var(--ease-out-soft);
+}
+
+/* =========================================================================
+   SECTION 5 — BREADTH CANVAS (auto-cycle)
+   ========================================================================= */
+.p-breadth {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.p-breadth-canvas {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--p-rule-soft);
+  border-radius: 4px;
+  padding: 32px;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+}
+.p-breadth-stage {
+  position: relative;
+  height: 420px;
+}
+.p-breadth-module {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 28px;
+  opacity: 0;
+  transition: opacity 800ms var(--ease-out-soft);
+  pointer-events: none;
+}
+.p-breadth-module.active { opacity: 1; pointer-events: auto; }
+.p-breadth-module-chart { flex: 1; min-width: 0; position: relative; }
+.p-breadth-module-aside {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 8px 0;
+  border-left: 1px solid var(--p-rule-soft);
+  padding-left: 24px;
+}
+.p-breadth-module-readout {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.p-breadth-module-readout-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--p-fg-3);
+}
+.p-breadth-module-readout-val {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--p-fg-1);
+}
+.p-breadth-module-readout-val.coral { color: var(--p-coral); }
+.p-breadth-module-readout-val.violet { color: var(--p-violet); }
+.p-breadth-module-readout-val.amber { color: var(--p-amber); }
+
+.p-breadth-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 8px;
+}
+.p-breadth-dots {
+  display: flex; gap: 10px;
+}
+.p-breadth-dot {
+  width: 28px; height: 4px; border-radius: 2px;
+  background: var(--p-rule-strong);
+  cursor: pointer;
+  border: 0;
+  position: relative;
+  overflow: hidden;
+  transition: background 200ms;
+}
+.p-breadth-dot.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--p-violet);
+  transform-origin: left;
+  animation: p-breadth-fill 9s linear forwards;
+}
+.p-breadth-dot.complete { background: var(--p-violet); }
+@keyframes p-breadth-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.p-breadth-pause {
+  background: transparent;
+  border: 1px solid var(--p-rule-strong);
+  color: var(--p-fg-2);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.p-breadth-pause:hover { color: var(--p-fg-1); border-color: var(--p-violet); }
+
+.p-breadth-label {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--p-fg-2);
+  border-top: 1px solid var(--p-rule-soft);
+  padding-top: 18px;
+}
+.p-breadth-label-name {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--p-violet);
+  font-weight: 500;
+}
+
+/* =========================================================================
+   SECTION 6 — WHY PABLO (differentiators)
+   ========================================================================= */
+.p-why {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 64px;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .p-why { grid-template-columns: 1fr; gap: 32px; }
+}
+.p-why-list {
+  display: flex; flex-direction: column;
+  gap: 28px;
+}
+.p-why-item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 20px;
+  padding: 20px 0;
+  border-top: 1px solid var(--p-rule-soft);
+}
+.p-why-item:first-child { border-top: 0; padding-top: 0; }
+.p-why-icon {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--p-violet);
+  background: var(--p-violet-soft);
+  border-radius: 4px;
+}
+.p-why-icon svg { width: 22px; height: 22px; }
+.p-why-body h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.005em;
+  color: var(--p-fg-1);
+  margin: 0 0 8px;
+}
+.p-why-body p {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--p-fg-2);
+  margin: 0;
+}
+
+/* =========================================================================
+   SECTION 7 — WHO PABLO IS FOR (3 columns)
+   ========================================================================= */
+.p-who {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 56px;
+}
+@media (max-width: 980px) {
+  .p-who { grid-template-columns: 1fr; gap: 32px; }
+}
+.p-who-block h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--p-violet);
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--p-rule-soft);
+}
+.p-who-block p {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--p-fg-2);
+  margin: 0;
+}
+
+/* =========================================================================
+   SECTION 8 — CTA
+   ========================================================================= */
+.p-cta {
+  text-align: center;
+  padding: 96px 0 72px;
+  border-top: 1px solid var(--p-coral);
+}
+.p-cta .p-headline {
+  margin: 0 auto 24px;
+  text-align: center;
+  max-width: 18ch;
+}
+.p-cta-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(17px, 1.3vw, 19px);
+  color: var(--p-fg-2);
+  max-width: 56ch;
+  margin: 0 auto 36px;
+  line-height: 1.55;
+}
+.p-cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px 14px 24px;
+  background: var(--p-coral);
+  color: var(--p-fg-1);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 200ms;
+}
+.p-cta-button:hover { background: #ff7593; }
+.p-cta-trust {
+  margin-top: 32px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--p-fg-3);
+  max-width: 44ch;
+  margin-left: auto; margin-right: auto;
+}
+
+/* =========================================================================
+   REVEAL — fade-up on viewport entry, identical to home page pattern
+   ========================================================================= */
+.p-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 800ms var(--ease-out-soft),
+              transform 800ms var(--ease-out-soft);
+}
+.in-view .p-reveal,
+.p-reveal.in-view { opacity: 1; transform: translateY(0); }
+.p-reveal[data-d="0"] { transition-delay: 80ms; }
+.p-reveal[data-d="1"] { transition-delay: 200ms; }
+.p-reveal[data-d="2"] { transition-delay: 360ms; }
+.p-reveal[data-d="3"] { transition-delay: 520ms; }
+.p-reveal[data-d="4"] { transition-delay: 680ms; }
+
+/* SVG axes / labels reused */
+.p-axis text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--p-fg-3);
+}
+.p-axis line, .p-axis path {
+  stroke: var(--p-rule-soft);
+  fill: none;
+}
+.p-grid line { stroke: var(--p-rule-soft); }
