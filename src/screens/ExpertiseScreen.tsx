@@ -1,6 +1,8 @@
 import { GhgProtocolDiagram } from '../components/svg/GhgProtocolDiagram'
+import { useGhgReveal } from '../hooks/useGhgReveal'
 
 export function ExpertiseScreen() {
+  useGhgReveal()
   return (
     <section className="screen canvas-navy" id="capabilities" data-screen-label="02 Expertise">
       <div className="frame">

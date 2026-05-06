@@ -48,6 +48,12 @@ export function useActiveScreen(screenIds: string[]) {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          // Mark the screen .in-view once it intersects the viewport.
+          // The CSS in nza-website.css drives the reveal-layer fades off
+          // this class — the home screen sets it synchronously in the JSX
+          // so its hero animates from first paint, every other screen
+          // gets it here.
+          if (entry.isIntersecting) entry.target.classList.add('in-view')
           ratios.set(entry.target as HTMLElement, entry.intersectionRatio)
         })
         const best = pickActive()

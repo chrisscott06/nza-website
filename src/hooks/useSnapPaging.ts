@@ -120,6 +120,9 @@ export function useSnapPaging(screenIds: string[]) {
     function onWheel(e: WheelEvent) {
       if (isCompactViewport()) return
       if (reducedMotionRef.current) return
+      // Bail when a cap-card is expanded — let the user scroll inside the
+      // panel naturally without triggering a page-flip.
+      if (document.body.dataset.capOpen === 'true') return
       if (animatingRef.current) {
         e.preventDefault()
         return
@@ -149,6 +152,7 @@ export function useSnapPaging(screenIds: string[]) {
     function onKey(e: KeyboardEvent) {
       if (isCompactViewport()) return
       if (reducedMotionRef.current) return
+      if (document.body.dataset.capOpen === 'true') return
       const tag = (e.target as HTMLElement | null)?.tagName ?? ''
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return
       if ((e.target as HTMLElement | null)?.isContentEditable) return
