@@ -254,7 +254,7 @@ body.on-navy .nav-link.active {
   text-wrap: pretty;
 }
 .headline em {
-  font-family: "Times New Roman", serif;
+  font-family: var(--font-italic);
   font-style: italic;
   font-weight: 400;
   color: var(--coral);
