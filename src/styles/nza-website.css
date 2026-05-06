@@ -258,10 +258,6 @@ body.on-navy .nav-link.active {
   font-style: italic;
   font-weight: 400;
   color: var(--coral);
-  font-size: 1.15em;
-  letter-spacing: -0.01em;
-}
-  color: var(--coral);
   /* DM Serif Display has tall caps but a smaller x-height than Stolzl Light.
      lowercase reads slightly shorter but that's correct for italic emphasis
      - the italic should feel a touch lighter, not bulkier. */
@@ -947,9 +943,6 @@ body.on-navy .nav-link.active {
 }
 .cap-expanded-descriptor .cap-expanded-close svg {
   width: 16px; height: 16px;
-}
-  transform: scale(1);
-  opacity: 1;
 }
 /* Content fade: while the panel is resizing, hold the inner content at
    opacity 0 so the user sees a clean shape grow. Once the box reaches the
