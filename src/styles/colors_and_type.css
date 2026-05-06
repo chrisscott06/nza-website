@@ -1,3 +1,9 @@
+/* @import statements must precede all other CSS statements (PostCSS strict).
+   Inter Tight, DM Serif Display, JetBrains Mono — Google Fonts.
+   Söhne is the spec'd body face (Adobe Fonts, licensed by Chris); until then,
+   Inter Tight is the working substitute. */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=DM+Serif+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 /* =========================================================================
    NZA Design System - colors_and_type.css
    v2 - aligned to uploads/nza-design-system.md (the locked spec).
@@ -52,10 +58,10 @@
 }
 
 /* ---------- Body + italic emphasis ----------
-   Söhne is the spec'd body face (Adobe Fonts, licensed by Chris).
-   Inter Tight is the documented working substitute via Google Fonts - both are humanist sans serifs with similar proportions; the swap is
-   graceful. DM Serif Display is the italic-emphasis face. */
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=DM+Serif+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+   Imported above (PostCSS requires @import to precede all other statements).
+   Söhne is the spec'd body face (Adobe Fonts, licensed by Chris); Inter Tight
+   is the working substitute via Google Fonts. DM Serif Display is the
+   italic-emphasis face. */
 
 :root {
   /* =====================================================================

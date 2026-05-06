@@ -1,4 +1,7 @@
 /* eslint-disable */
+// @ts-nocheck — mechanically converted from SVG; some valid SVG2 presentation
+// attributes (e.g. `isolation`) aren't in React's static SVGAttribute types.
+// Runtime is fine — React passes unknown props through to the DOM unchanged.
 // GHG Protocol value-chain diagram. Inline so the layered reveal animation
 // (useGhgReveal) can target the top-level <g id="_X_-_…"> elements directly
 // — vite-plugin-svgr would mangle the IDs, breaking the contract.

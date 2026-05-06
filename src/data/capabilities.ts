@@ -7,8 +7,6 @@
  * Card #6 ("Co-built platforms") carries the navy-register disrupt
  * variant — the only place navy + coral appears on the paper canvas.
  */
-export type CapabilityIcon = (props: { className?: string }) => JSX.Element
-
 export type Capability = {
   id: number
   title: string

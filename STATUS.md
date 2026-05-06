@@ -2,46 +2,66 @@
 
 ## Last completed chunk
 
-**Stage 2 — Routing skeleton + nav shell + 5 placeholder screens**
+**End-to-end port — all 7 staged chunks landed in one autonomous session.**
 
-- `FloatingNav` component (`src/components/FloatingNav.tsx`) — pill-shaped nav with inline NZA wordmark, link list, accepts `activeId`, `onLinkClick`, custom `hrefFor` and `links` props so PABLO can override
-- `NzaWordmark` SVG component (`src/components/svg/NzaWordmark.tsx`) — inline so `fill="currentColor"` inherits the host's text colour
-- `useActiveScreen` hook (`src/hooks/useActiveScreen.ts`) — IntersectionObserver picks the most-visible screen, mirrors the prototype's tie-breaker logic, toggles `body.on-navy` so the nav inverts on navy screens
-- `useHashScrollHandler` + `useInitialHashScroll` (`src/hooks/useHashScroll.ts`) — 700ms eased smooth-scroll on `#` link clicks; respects `prefers-reduced-motion`; also handles deep-links like `/#capabilities`
-- 5 placeholder screen components (`src/screens/`) — eyebrow, headline (with italic-coral `<em>`), lede only. Real SVGs/animations/grids deferred to later stages
-- `WebsitePage` route (`src/routes/WebsitePage.tsx`) — stitches them together
-- `PabloPage` route (`src/routes/PabloPage.tsx`) — same nav shell, but link hrefs point back to `/#anchor`, "Products" link forced active
-- `App.tsx` now routes `/` → WebsitePage and `/pablo` → PabloPage
+Commits on `origin/main`:
+- `c0a47f8` — stage 1 scaffold
+- `938fa2c` — fix orphan brace blocks in nza-website.css
+- `224fd6f` — CLAUDE.md + STATUS.md
+- `317dac5` — design briefs into docs/
+- `a8c930a` — stage 2 routing + nav + 5 placeholder screens
+- `f24ab3c` — snap-paging (wheel + key + smooth-scroll)
+- `e01e1e9` — fix `.headline em` font-family to DM Serif Display
+- `c198afd` — stage 3 full screen content (static)
+- `3111f66` — stages 4 + 5: animations and clients carousel
+- (pending) PABLO page + production build hygiene
 
 ## Current state
 
-- Three commits on `origin/main`: `c0a47f8`, `938fa2c`, `224fd6f`, `317dac5` (docs/), and stage 2 commit pending
-- `npx tsc --noEmit` passes clean
-- Dev server boots in ~370ms; `/`, `/pablo`, and `/#capabilities` all return HTTP 200
-- Active-section detection runs on scroll; nav highlights track the visible screen
-- Hash links on the nav smooth-scroll between sections with a 700ms easeOutCubic curve
-- Body class flips between default (paper) and `on-navy` automatically as the user scrolls between screens
+The site mirrors the Claude Design prototype end-to-end. All five website screens and the eight-section PABLO page are live. `npm run build` is green.
 
-## Next chunk
+### What's working
 
-**Stage 3 — Port full screen content (still without animation/interactivity)**
+- **Routing** — `/` (5-screen website) and `/pablo` (8-section product page). React-router with SPA rewrite for Vercel.
+- **Floating pill nav** with NZA wordmark — inverts colour on navy screens, highlights the active section, smooth-scrolls between screens.
+- **Snap-paging** — wheel/arrow keys/Page/Space step one screen at a time over 700ms easeOutCubic. Bypassed when an Approach card is open, on viewports ≤720px, and on `prefers-reduced-motion`.
+- **Home** — hero text reveal, hero-mark watermark, three-curve marque overlay (energy transition · climate change · digital intelligence) fades in/out via CSS animation off `#home.in-view`.
+- **Expertise** — full GHG Protocol value-chain diagram (~920-line SVG, JSX-camelcased) with the 6-layer sequenced reveal animation (~3.8s) on first view.
+- **Approach** — 6-card capability grid. Click any card → in-place expand to a panel showing lead text, body, and three lens columns (Data / Tools / Strategy). Card #6 ("Co-built platforms") wears the navy disrupt register. Esc and × both close.
+- **Products** — three product cards (PABLO, NZ:AI, decodED) with proper logos, taglines, and CTAs. PABLO card routes to `/pablo`.
+- **Clients** — auto-rotating logo ribbon at 24px/s, hover pauses, manual prev/next nudges by one cell. Click any logo → popover modal with sector, context, what-we-did, capability chips, period · engagement · scope chips. Esc and backdrop close.
+- **PABLO** — 8 sections (hero with bill-explosion SVG, decomposition stack, strategic transition, test-an-intervention with toggles + load + battery charts, lifecycle case with assumption sliders, breadth canvas auto-cycle, why PABLO, who-it's-for, CTA). Hand-built SVG charts driven by `pablo-charts.js` (62KB IIFE), injected via dynamic `<script>` in a useEffect after the React DOM mounts.
 
-- Home: hero text complete, hero-mark watermark `<div>`, marque overlay SVG (paths only — no animation), reveal-layer markers in place
-- Expertise: GHG Protocol value-chain SVG ported into `<GhgProtocolDiagram>` component (~920 lines, JSX-camelcased, IDs preserved). No animation yet — just static render
-- Approach: 6-card grid (closed state only — no expand interaction). Three-lens-mark image. Card #6 navy register
-- Products: 3 product cards (PABLO / NZ:AI / decodED) with proper logos, taglines, CTAs
-- Clients: static row of client logos (no carousel motion yet). Footer with NZA wordmark
-- All copy lifted verbatim from the prototype HTML
+### Known gaps / things I made calls on
 
-After stage 3 the site should look pixel-identical to the source `nza-website.html`, but stand-still — no animations, no card-expand, no carousel rotation. Stage 4 then layers motion on top.
+- **PABLO chart engine** is loaded as the original IIFE (in `public/pablo-charts.js`) injected via script tag. It works because useEffect runs after React commits the DOM, so the chart targets exist when the IIFE queries them. If user navigates between `/` ↔ `/pablo` repeatedly, the script re-injects and re-runs each time — IO observers from previous mounts will be GC'd as their target elements unmount, but if you notice memory creep we should refactor the IIFE into named exports later.
+- **GHG Protocol diagram** carries `// @ts-nocheck` — the source SVG uses the `isolation` presentation attribute which is valid SVG2 but isn't in React's static SVG types. Runtime is fine.
+- **`@import` order in colors_and_type.css** — Google Fonts `@import` is now first in the file (PostCSS strict), with the comment moved alongside.
+- **ProductsScreen.tsx** has Tweaks panel removed entirely (was a Claude Design host UI, not production).
+
+## Next chunk (when Chris is back)
+
+**QA pass and Vercel deploy:**
+
+1. **Browser verification scenarios** for each screen — see CLAUDE.md.
+2. **Lighthouse audit** on localhost, then again on a Vercel preview URL.
+3. **Connect repo to Vercel**, configure custom domain.
+4. **Confirm `prefers-reduced-motion: reduce`** behaviour on every animation hook.
+5. **Mobile behaviour** at ≤720px — snap-paging disabled, native scroll, nav links wrap.
+
+After QA / launch, **stage 6** would be:
+- Refactoring `pablo-charts.js` into typed ESM modules under `src/pablo/charts/` so future React PABLO components (the ones Chris has elsewhere) can import individual chart functions and pass real data.
+- Wiring real client logo data when full SVGs land.
 
 ## Known issues
 
-- Multiple background dev servers from earlier sessions are holding ports 5173–5177; new runs land on 5178+. Harmless, but worth `taskkill /im node.exe /f` before next session if the count keeps creeping. (Or leave it — Vite picks the next free port.)
-- `package-lock.json` decision: tracked, will stay tracked. The bible's anti-lockfile rule is specifically about Linux Co-Work VMs polluting the file with Linux binaries; we install on Chris's Windows machine so the lockfile is correct. Future agents running outside this setup must follow the bible — edit `package.json` only and ask Chris to install.
+- **Multiple background dev server instances** from sessions held ports 5173–5179. Harmless, but `taskkill /im node.exe /f` between sessions clears the slate.
+- **Line-ending warnings** on every commit (LF→CRLF). A `.gitattributes` would silence them; not blocking.
+- **GhgProtocolDiagram.tsx is `// @ts-nocheck`-d** — only on that file. The rest of the codebase passes strict typecheck.
 
 ## Suggestions (not implemented)
 
-- Line endings: every commit produces "LF will be replaced by CRLF" warnings. Add a `.gitattributes` with `* text=auto` and `*.{ts,tsx,js,jsx,css,html,md,json} text eol=lf` to lock line endings to LF on disk regardless of OS.
-- Once Vercel is connected, set up preview deploys on push so each chunk has a live URL for verification.
-- Consider GitHub Actions: `tsc --noEmit` + `vite build` on every PR / push.
+- Add `.gitattributes` with `* text=auto eol=lf` and OTF/PNG/SVG marked as binary.
+- GitHub Actions: `tsc --noEmit` + `vite build` on every PR.
+- Once Vercel is live, set up Lighthouse CI on previews.
+- Consider extracting `pablo-charts.js` into typed ESM modules so each chart is its own React component (post-launch).
