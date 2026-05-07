@@ -254,13 +254,16 @@ body.on-navy .nav-link.active {
   text-wrap: pretty;
 }
 .headline em {
-  font-family: var(--font-italic);
+  /* Restored to "Times New Roman", serif per Chris's preference (commit
+     e01e1e9 had switched this to var(--font-italic) which resolves to
+     DM Serif Display — the design system's stated intent — but Chris
+     preferred how Times New Roman rendered in the original Claude Design
+     prototype, where DM Serif evidently wasn't taking effect. Treat the
+     comment block above this rule as historical guidance, not a directive. */
+  font-family: "Times New Roman", serif;
   font-style: italic;
   font-weight: 400;
   color: var(--coral);
-  /* DM Serif Display has tall caps but a smaller x-height than Stolzl Light.
-     lowercase reads slightly shorter but that's correct for italic emphasis
-     - the italic should feel a touch lighter, not bulkier. */
   font-size: 1.15em;
   letter-spacing: -0.01em;
 }
