@@ -771,7 +771,12 @@ body.on-navy .nav-link.active {
   gap: 12px;
 }
 .cap-title {
-  font-family: var(--font-display);
+  /* DM Serif Display per the prototype's per-card inline styles
+     (every cap-title h3 except card #6 wore `style="font-family: 'DM Serif
+     Display'"` in nza-website.html). The disrupt override below keeps card
+     #6 in Stolzl so the coral italic "platforms" still has typographic
+     contrast within the title. */
+  font-family: var(--font-italic);
   font-weight: 400;
   font-size: 22px;
   line-height: 1.15;
@@ -779,6 +784,9 @@ body.on-navy .nav-link.active {
   letter-spacing: -0.015em;
   margin: 0;
   max-width: 14ch;
+}
+.cap-card.disrupt .cap-title {
+  font-family: var(--font-display);
 }
 .cap-title em {
   font-family: var(--font-italic);
@@ -958,6 +966,17 @@ body.on-navy .nav-link.active {
 .cap-expanded-lenses { flex: 1; padding: 16px 28px 20px; min-height: 0; }
 .cap-expanded-close-wrap { display: none; }
 
+/* Outer panel entrance — restored per the design intent. The original
+   source CSS had this rule with a missing opening selector (it read as a
+   bare `transform: scale(1); opacity: 1; }` orphan block), which I'd
+   removed as a parser fix in commit 938fa2c. Without it the panel sat
+   permanently at scale(0.97)/opacity:0 — the source card hid via
+   .is-source but the overlay never came into view. Restoring the rule
+   makes the panel scale up + fade in over 360/280ms. */
+.cap-expanded.is-open {
+  transform: scale(1);
+  opacity: 1;
+}
 .cap-expanded > * {
   opacity: 0;
   transform: translateY(6px);
