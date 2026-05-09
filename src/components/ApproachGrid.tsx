@@ -173,7 +173,7 @@ function CapExpanded({
         <div className="cap-expanded-lens">
           <div className="cap-expanded-lens-head">
             <span className="lens-mark data" aria-hidden="true">
-              <img src="/assets/icon-data-layers.svg" alt="" />
+              <img src="/assets/lens-data.svg" alt="" />
             </span>
             Data visualisation
           </div>
