@@ -899,7 +899,13 @@ body.on-navy .nav-link.active {
   border-left: 4px solid var(--coral);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  /* overflow: hidden clips the disrupt-card radial glow (.cap-expanded
+     .disrupt::before sits at bottom: -30%, right: -20%) — without this,
+     overflow-y: auto auto-upgrades overflow-x to auto too (per spec)
+     and both X+Y scrollbars appear on the Co-built panel. If content
+     ever overflows on very small viewports, the inner sections can take
+     overflow with the .sleek-scroll utility added later. */
+  overflow: hidden;
   height: 100%;
   /* Entrance state */
   transform: scale(0.97);

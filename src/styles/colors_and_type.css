@@ -319,3 +319,45 @@ code, pre, .mono {
 .canvas-navy .lens-dot--data     { background: var(--lens-data-on-navy); }
 .canvas-navy .lens-dot--tools    { background: var(--lens-tools-on-navy); }
 .canvas-navy .lens-dot--strategy { background: var(--lens-strategy-on-navy); }
+
+/* =========================================================================
+   SLEEK-SCROLL UTILITY — Apple-glass-style scrollbar
+   Apply to any scrollable container that should fade into the surface
+   instead of declaring itself with chunky default chrome.
+
+     - 6px / 7px wide (just thick enough to grab)
+     - Track: fully transparent (the surface shows through)
+     - Thumb: translucent ink on light, translucent cream on dark
+     - Brightens slightly on hover for affordance, no border, no buttons
+
+   Modern: scrollbar-color (Firefox 64+, Safari TP, Chromium 121+).
+   Webkit fallback: ::-webkit-scrollbar pseudos for older Chromium/Safari.
+   ========================================================================= */
+.sleek-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(14, 17, 32, 0.18) transparent;
+}
+.canvas-navy .sleek-scroll,
+.on-navy .sleek-scroll,
+.sleek-scroll.on-navy {
+  scrollbar-color: rgba(245, 241, 232, 0.20) transparent;
+}
+.sleek-scroll::-webkit-scrollbar              { width: 7px; height: 7px; }
+.sleek-scroll::-webkit-scrollbar-track        { background: transparent; }
+.sleek-scroll::-webkit-scrollbar-thumb {
+  background: rgba(14, 17, 32, 0.18);
+  border-radius: 999px;
+  transition: background 200ms ease;
+}
+.sleek-scroll::-webkit-scrollbar-thumb:hover  { background: rgba(14, 17, 32, 0.32); }
+.sleek-scroll::-webkit-scrollbar-corner       { background: transparent; }
+.canvas-navy .sleek-scroll::-webkit-scrollbar-thumb,
+.on-navy .sleek-scroll::-webkit-scrollbar-thumb,
+.sleek-scroll.on-navy::-webkit-scrollbar-thumb {
+  background: rgba(245, 241, 232, 0.20);
+}
+.canvas-navy .sleek-scroll::-webkit-scrollbar-thumb:hover,
+.on-navy .sleek-scroll::-webkit-scrollbar-thumb:hover,
+.sleek-scroll.on-navy::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 241, 232, 0.36);
+}
