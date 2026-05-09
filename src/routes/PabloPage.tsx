@@ -12,7 +12,7 @@ const PABLO_NAV_LINKS: NavLink[] = [
 ]
 
 /**
- * PABLO product page — 8 sections of editorial + interactive charts.
+ * PABLO product page - 8 sections of editorial + interactive charts.
  *
  * The chart engine (pablo-charts.js) is a self-contained IIFE that
  * looks up DOM elements by ID, mounts hand-built SVG charts, and runs
@@ -50,7 +50,7 @@ export function PabloPage() {
         links={PABLO_NAV_LINKS}
       />
 
-      {/* ========== HERO — bill explosion animation ========== */}
+      {/* ========== HERO - bill explosion animation ========== */}
       <header className="p-section" id="hero" data-screen-label="00 PABLO Hero">
         <div className="pablo-frame">
           <div className="p-hero">
@@ -77,7 +77,7 @@ export function PabloPage() {
         </div>
       </header>
 
-      {/* ========== SECTION 1 — DECOMPOSITION DEEP-DIVE ========== */}
+      {/* ========== SECTION 1 - DECOMPOSITION DEEP-DIVE ========== */}
       <section className="p-section" id="decomposition" data-screen-label="01 Decomposition">
         <div className="pablo-frame">
           <div className="p-decomp" id="decompSection">
@@ -89,7 +89,7 @@ export function PabloPage() {
               <p className="p-body p-reveal" data-d="2">
                 A <em style={{ fontFamily: 'var(--font-italic)', fontStyle: 'italic', color: 'var(--p-coral)' }}>p/kWh rate</em> is a lie of omission.
                 The real bill is DUoS by RAG band, TNUoS residual and locational, BSUoS, Capacity Market
-                levy, CfD and RO subsidies, FIT, CCL, supplier margin — each with its own published rate,
+                levy, CfD and RO subsidies, FIT, CCL, supplier margin - each with its own published rate,
                 each escalating independently. PABLO decomposes every charge against real half-hourly
                 consumption, then projects the stack forward at component-specific rates.
                 The result is the only forecast that doesn't pretend network charges grow at the same
@@ -114,7 +114,7 @@ export function PabloPage() {
         </div>
       </section>
 
-      {/* ========== SECTION 2 — STRATEGIC TRANSITION ========== */}
+      {/* ========== SECTION 2 - STRATEGIC TRANSITION ========== */}
       <section className="p-section" id="transition">
         <div className="pablo-frame">
           <div className="p-transition">
@@ -124,8 +124,8 @@ export function PabloPage() {
             </h2>
             <p className="p-body p-reveal" data-d="2">
               Most energy strategy work uses flat rates and simple paybacks. PABLO doesn't.
-              With every cost component decomposed and forecast independently, every intervention —
-              solar, storage, capacity reform, electrification — is modelled against the bill structure
+              With every cost component decomposed and forecast independently, every intervention -
+              solar, storage, capacity reform, electrification - is modelled against the bill structure
               that's actually changing. A solar array doesn't just offset wholesale; it changes DUoS exposure
               and capacity charge profiles. A battery doesn't just store energy; it arbitrages the gap
               between Red and Green DUoS bands. Once the bill is decomposed, the strategy becomes specific.
@@ -135,7 +135,7 @@ export function PabloPage() {
         </div>
       </section>
 
-      {/* ========== SECTION 3 — TEST AN INTERVENTION ========== */}
+      {/* ========== SECTION 3 - TEST AN INTERVENTION ========== */}
       <section className="p-section" id="test" data-screen-label="03 Test an intervention">
         <div className="pablo-frame">
           <div className="p-decomp-head">
@@ -143,7 +143,7 @@ export function PabloPage() {
             <h2 className="p-headline p-reveal" data-d="1">Test an intervention.</h2>
             <p className="p-body p-reveal" data-d="2">
               Add solar. Add a battery. Set a peak-shave limit. The load curve and the battery dispatch
-              reorganise around the changes — modelled at half-hourly resolution against your real demand.
+              reorganise around the changes - modelled at half-hourly resolution against your real demand.
               Solar and storage aren't two features; they're one coupled system.
             </p>
           </div>
@@ -213,7 +213,7 @@ export function PabloPage() {
         </div>
       </section>
 
-      {/* ========== SECTION 4 — LIFECYCLE PICTURE ========== */}
+      {/* ========== SECTION 4 - LIFECYCLE PICTURE ========== */}
       <section className="p-section" id="lifecycle" data-screen-label="04 Lifecycle">
         <div className="pablo-frame">
           <div className="p-decomp-head">
@@ -222,11 +222,11 @@ export function PabloPage() {
               The lifecycle case, <em>defended</em> over the right horizon.
             </h2>
             <p className="p-body p-reveal" data-d="2">
-              Not a 25-year template. The right lifecycle for the asset under consideration —
+              Not a 25-year template. The right lifecycle for the asset under consideration -
               10 years for a battery, 25 for solar, 40 for an electrified heat strategy.
               Replacement cycles modelled. Degradation curves applied. Each cost component
               escalating at its own rate. Every parameter visible. Change the discount rate, the
-              lifecycle horizon, the replacement assumption — the case redraws in real time.
+              lifecycle horizon, the replacement assumption - the case redraws in real time.
               PABLO produces the only investment case that holds up when an investor, a finance
               director, or a regulator opens the methodology.
             </p>
@@ -276,7 +276,7 @@ export function PabloPage() {
         </div>
       </section>
 
-      {/* ========== SECTION 5 — BREADTH CANVAS ========== */}
+      {/* ========== SECTION 5 - BREADTH CANVAS ========== */}
       <section className="p-section" id="breadth" data-screen-label="05 Breadth canvas">
         <div className="pablo-frame">
           <div className="p-decomp-head">
@@ -313,7 +313,7 @@ export function PabloPage() {
         </div>
       </section>
 
-      {/* ========== SECTION 6 — WHY PABLO ========== */}
+      {/* ========== SECTION 6 - WHY PABLO ========== */}
       <section className="p-section" id="why" data-screen-label="06 Why PABLO">
         <div className="pablo-frame">
           <div className="p-why">
@@ -336,14 +336,14 @@ export function PabloPage() {
                 <div className="p-why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3v18" /></svg></div>
                 <div className="p-why-body">
                   <h4>UK tariff depth</h4>
-                  <p>PABLO decomposes commercial electricity bills into every constituent charge — DUoS by RAG band, TNUoS residual and locational, BSUoS, Capacity Market, CfD, RO, FIT, CCL, supplier margin. No other building-level tool models UK network charges at this resolution. Every intervention is modelled against the real cost stack, not a flat rate.</p>
+                  <p>PABLO decomposes commercial electricity bills into every constituent charge - DUoS by RAG band, TNUoS residual and locational, BSUoS, Capacity Market, CfD, RO, FIT, CCL, supplier margin. No other building-level tool models UK network charges at this resolution. Every intervention is modelled against the real cost stack, not a flat rate.</p>
                 </div>
               </li>
               <li className="p-why-item p-reveal" data-d="1">
                 <div className="p-why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 18l6-12 4 8 3-5 5 9" /></svg></div>
                 <div className="p-why-body">
                   <h4>Half-hourly resolution</h4>
-                  <p>Every calculation runs at half-hourly granularity against the site's actual demand profile. Solar dispatch, battery charge/discharge, peak shaving, arbitrage — all modelled period by period, not as monthly or annual averages.</p>
+                  <p>Every calculation runs at half-hourly granularity against the site's actual demand profile. Solar dispatch, battery charge/discharge, peak shaving, arbitrage - all modelled period by period, not as monthly or annual averages.</p>
                 </div>
               </li>
               <li className="p-why-item p-reveal" data-d="2">
@@ -372,7 +372,7 @@ export function PabloPage() {
         </div>
       </section>
 
-      {/* ========== SECTION 7 — WHO PABLO IS FOR ========== */}
+      {/* ========== SECTION 7 - WHO PABLO IS FOR ========== */}
       <section className="p-section" id="who" data-screen-label="07 Who it's for">
         <div className="pablo-frame">
           <div className="p-eyebrow p-reveal" data-d="0">Who it's for</div>
@@ -387,13 +387,13 @@ export function PabloPage() {
             </div>
             <div className="p-who-block">
               <h4>Building owners &amp; estate managers</h4>
-              <p>Making investment decisions on solar, batteries, electrification — usually based on proposals from providers each presenting their own numbers. PABLO is the tool that lets you interrogate a tender response, running every proposal through the same lifecycle model against your actual demand.</p>
+              <p>Making investment decisions on solar, batteries, electrification - usually based on proposals from providers each presenting their own numbers. PABLO is the tool that lets you interrogate a tender response, running every proposal through the same lifecycle model against your actual demand.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ========== SECTION 8 — CTA ========== */}
+      {/* ========== SECTION 8 - CTA ========== */}
       <section className="p-section" id="pablo-cta" data-screen-label="08 CTA">
         <div className="pablo-frame">
           <div className="p-cta">

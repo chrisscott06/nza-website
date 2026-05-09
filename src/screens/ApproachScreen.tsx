@@ -19,7 +19,7 @@ export function ApproachScreen() {
               className="three-lens-mark reveal-layer reveal-slow"
               data-d="3"
               src="/assets/three-lens-mark.png"
-              alt="Three lenses: data visualisation, digital tool creation, strategy development — the NZA approach mark."
+              alt="Three lenses: data visualisation, digital tool creation, strategy development - the NZA approach mark."
             />
           </div>
         </header>

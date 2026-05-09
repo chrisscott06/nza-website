@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { PabloLogo } from '../components/svg/PabloLogo'
 
 /**
- * Products screen — 1×3 row of product cards previewing each destination
+ * Products screen - 1×3 row of product cards previewing each destination
  * page (PABLO / NZ:AI / decodED). Each card has a small product-specific
  * accent dot and an embedded logo or wordmark.
  *
@@ -24,7 +24,7 @@ export function ProductsScreen() {
           </div>
           <div className="products-header-right reveal-layer" data-d="2">
             <p className="lede">
-              NZA is moving from <i>advisory</i> to <i>intelligence</i> — from
+              NZA is moving from <i>advisory</i> to <i>intelligence</i> - from
               reports that depreciate, to systems that keep working long after
               the engagement ends. Three things sit alongside the consulting
               practice: a digital tool, a way of working, and a movement we're
@@ -34,12 +34,12 @@ export function ProductsScreen() {
         </header>
 
         <div className="product-cards" data-density="editorial" data-variant="cards">
-          {/* Card 1 — PABLO · indigo accent */}
+          {/* Card 1 - PABLO · indigo accent */}
           <Link
             className="product-card"
             data-accent="indigo"
             to="/pablo"
-            aria-label="See PABLO — the energy intelligence platform"
+            aria-label="See PABLO - the energy intelligence platform"
           >
             <div className="product-card-rule" aria-hidden="true" />
             <div className="product-card-tag">
@@ -64,12 +64,12 @@ export function ProductsScreen() {
             </span>
           </Link>
 
-          {/* Card 2 — NZ:AI · coral accent (the colon is the coral moment) */}
+          {/* Card 2 - NZ:AI · coral accent (the colon is the coral moment) */}
           <a
             className="product-card"
             data-accent="coral"
             href="#"
-            aria-label="How NZ:AI works — Net Zero Intelligence partnership model"
+            aria-label="How NZ:AI works - Net Zero Intelligence partnership model"
           >
             <div className="product-card-rule" aria-hidden="true" />
             <div className="product-card-tag">
@@ -82,7 +82,7 @@ export function ProductsScreen() {
             <p className="product-card-tagline">Net Zero Intelligence, built around you.</p>
             <p className="product-card-desc">
               Every NZ:AI engagement produces a bespoke greenhouse gas inventory
-              and net zero strategy — delivered as a living digital system the
+              and net zero strategy - delivered as a living digital system the
               client owns, not a static report filed annually. AI makes it
               possible to build something tailored for every client; partnership
               makes it work.
@@ -93,12 +93,12 @@ export function ProductsScreen() {
             </span>
           </a>
 
-          {/* Card 3 — decodED · amber accent */}
+          {/* Card 3 - decodED · amber accent */}
           <a
             className="product-card"
             data-accent="amber"
             href="#"
-            aria-label="Try your postcode — decodED Climate Action platform"
+            aria-label="Try your postcode - decodED Climate Action platform"
           >
             <div className="product-card-rule" aria-hidden="true" />
             <div className="product-card-tag">
@@ -113,7 +113,7 @@ export function ProductsScreen() {
               A platform for the 33,000 nurseries, schools, colleges and
               universities required to produce a Climate Action Plan. decodED
               turns a postcode into a working baseline across decarbonisation,
-              adaptation, biodiversity, and climate education — using open data
+              adaptation, biodiversity, and climate education - using open data
               and the people who know the site to build something credible from
               a standing start.
             </p>

@@ -1,10 +1,10 @@
 /* eslint-disable */
-// @ts-nocheck — mechanically converted from SVG; some valid SVG2 presentation
+// @ts-nocheck - mechanically converted from SVG; some valid SVG2 presentation
 // attributes (e.g. `isolation`) aren't in React's static SVGAttribute types.
-// Runtime is fine — React passes unknown props through to the DOM unchanged.
+// Runtime is fine - React passes unknown props through to the DOM unchanged.
 // GHG Protocol value-chain diagram. Inline so the layered reveal animation
 // (useGhgReveal) can target the top-level <g id="_X_-_…"> elements directly
-// — vite-plugin-svgr would mangle the IDs, breaking the contract.
+// - vite-plugin-svgr would mangle the IDs, breaking the contract.
 // Original markup ported verbatim from
 // uploads/design-extracted/nza-design-system/project/nza-website.html lines 186-1108.
 //
@@ -20,7 +20,7 @@ export function GhgProtocolDiagram({ className }: Props) {
   return (
     <div
       className={'diagram diagram-ghg' + (className ? ' ' + className : '')}
-      aria-label="GHG Protocol value chain — Scope 1, Scope 2, Scope 3 and Beyond Value Chain Mitigation, with Net Zero Advisory shown across the corporate value chain."
+      aria-label="GHG Protocol value chain - Scope 1, Scope 2, Scope 3 and Beyond Value Chain Mitigation, with Net Zero Advisory shown across the corporate value chain."
     >
       <svg id="ghgArt" className="ghg-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 1289.12 933.75">
         <defs>

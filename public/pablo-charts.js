@@ -1,5 +1,5 @@
 /* =========================================================================
-   PABLO — chart engine (no Recharts dependency)
+   PABLO - chart engine (no Recharts dependency)
    Hand-built SVG charts for full control over PABLO's visual language.
 
    Each chart:
@@ -52,7 +52,7 @@
   };
 
   // ============================================================
-  //  REVEAL — IntersectionObserver across all .p-reveal
+  //  REVEAL - IntersectionObserver across all .p-reveal
   // ============================================================
   const reveals = document.querySelectorAll('.p-reveal');
   const sections = document.querySelectorAll('.p-section');
@@ -75,7 +75,7 @@
   sections.forEach((s) => io.observe(s));
 
   // ============================================================
-  //  HERO — bill explosion animation
+  //  HERO - bill explosion animation
   //  A simple two-component bill bar at left → fractures into 7
   //  stacked components → forward-projects to the right with each
   //  component growing at its own escalation rate.
@@ -103,7 +103,7 @@
       { name: 'Wholesale',      share: 0.41, esc: 0.012, color: C.wholesale },
     ];
 
-    // Stage 1 — naive 2-component bar (unit-rate + standing-charge)
+    // Stage 1 - naive 2-component bar (unit-rate + standing-charge)
     const naiveX = 80, naiveW = 70;
     const naiveBar = el('g', { id: 'naiveBar', opacity: 1 });
     const unitH = totalH * 0.85;
@@ -127,7 +127,7 @@
     naiveBar.appendChild(lblNaive);
     heroSvg.appendChild(naiveBar);
 
-    // Stage 2 — exploded stack (decomposed)
+    // Stage 2 - exploded stack (decomposed)
     const explodeX = 200, explodeW = 70;
     const explodedBar = el('g', { id: 'explodedBar', opacity: 0 });
     let cy = baseY;
@@ -153,7 +153,7 @@
     explodedBar.appendChild(lblExp);
     heroSvg.appendChild(explodedBar);
 
-    // Stage 3 — forward projection: 7 yearly bars at increasing total
+    // Stage 3 - forward projection: 7 yearly bars at increasing total
     const projStartX = 320, projEndX = 640;
     const projBarW = 28;
     const years = 8;
@@ -198,13 +198,13 @@
           'font-family': 'JetBrains Mono, monospace',
           'font-size': 9, fill: C.fg3,
         });
-        t.textContent = 'Y' + (yi * 2);  // Y0 Y2 Y4 Y6 Y8 (visual sketch — not literal)
+        t.textContent = 'Y' + (yi * 2);  // Y0 Y2 Y4 Y6 Y8 (visual sketch - not literal)
         projGroup.appendChild(t);
       }
     });
     heroSvg.appendChild(projGroup);
 
-    // Stage 4 — wedge annotation (the gap between naive and real)
+    // Stage 4 - wedge annotation (the gap between naive and real)
     const wedge = el('g', { id: 'wedge', opacity: 0 });
     const wedgeY1 = baseY - totalH * 0.85; // top of naive
     const wedgeY2 = baseY - yearStacks[years-1].total * yScale; // top of last projected
@@ -226,7 +226,7 @@
     wedgeLabel.textContent = 'THE WIDENING WEDGE';
     wedge.appendChild(wedgeLabel);
 
-    // Connecting hairline — top of naive to top of last projection
+    // Connecting hairline - top of naive to top of last projection
     const wedgeLine = el('line', {
       x1: naiveX + naiveW + 8, y1: wedgeY1,
       x2: projEndX + projBarW + 8, y2: wedgeY2,
@@ -318,7 +318,7 @@
   const heroAnimate = buildHero();
 
   // ============================================================
-  //  SECTION 1 — DECOMPOSITION CHART
+  //  SECTION 1 - DECOMPOSITION CHART
   //  Three columns: contracted bar (naive) · reconstructed bar
   //  (exploded) · forward-projection 25-year ribbon
   // ============================================================
@@ -340,7 +340,7 @@
       { name: 'Wholesale',      share: 0.41, esc: 0.012, color: C.wholesale },
     ];
 
-    // ----- Column A — naive (2 components) -----
+    // ----- Column A - naive (2 components) -----
     const colW = 60;
     const xA = 80;
     const naiveTotal = 1.0;
@@ -376,7 +376,7 @@
     lA2.textContent = 'two components';
     svg.appendChild(lA2);
 
-    // ----- Column B — reconstructed -----
+    // ----- Column B - reconstructed -----
     const xB = 200;
     let yB = baseY;
     const compRates = ['p-band 12.4', 'res 4.1', 'BSUoS 0.8', '1.6', '0.7', '4%', 'mkt'];
@@ -409,7 +409,7 @@
     lB2.textContent = 'sixteen components';
     svg.appendChild(lB2);
 
-    // ----- Column C — 25-year forward projection -----
+    // ----- Column C - 25-year forward projection -----
     const projX0 = 340, projX1 = 1040;
     const years = 25;
     const yearW = (projX1 - projX0) / years;
@@ -526,7 +526,7 @@
   const decompAnimate = buildDecompChart();
 
   // ============================================================
-  //  SECTION 3 — TEST AN INTERVENTION (interactive)
+  //  SECTION 3 - TEST AN INTERVENTION (interactive)
   // ============================================================
   // Build 14 days × 48 half-hours = 672 points
   const HALF_HOURS = 48;
@@ -580,7 +580,7 @@
   const demand = genDemand();
   const solarGen = genSolar(250);  // 250kWp
 
-  // Battery dispatch — simplified rules:
+  // Battery dispatch - simplified rules:
   //  - charge when surplus solar OR off-peak grid (00-05)
   //  - discharge when high-tariff (16-20) OR (peak-shave) when demand > limit
   function simulate({ solar, battery, peakShave, peakLimit }) {
@@ -729,7 +729,7 @@
       }));
     }
 
-    // 3) export area below baseline (when surplus > 0) — rendered as small downward fills
+    // 3) export area below baseline (when surplus > 0) - rendered as small downward fills
     const exportOn = state.exportArr.some(v => v > 0);
     if (exportOn) {
       let pExport = '';
@@ -852,7 +852,7 @@
         'font-style': 'italic',
         'font-size': 12, fill: C.fg3,
       });
-      t.textContent = 'Battery off — no dispatch';
+      t.textContent = 'Battery off - no dispatch';
       svg.appendChild(t);
     }
 
@@ -938,7 +938,7 @@
   if (testCanvas) testCanvas.addEventListener('mouseenter', cancelTestAutoplay);
 
   // ============================================================
-  //  SECTION 4 — LIFECYCLE PICTURE
+  //  SECTION 4 - LIFECYCLE PICTURE
   // ============================================================
   function buildLifecycleChart() {
     const svg = $('lifecycleChart');
@@ -986,7 +986,7 @@
         INT_CASHFLOW.push({ y, c: cumINT });
       }
 
-      // Compute payback year — where INT cumulative > BAU cumulative
+      // Compute payback year - where INT cumulative > BAU cumulative
       let paybackY = null;
       for (let i = 1; i <= yrs; i++) {
         if (INT_CASHFLOW[i].c > BAU_CASHFLOW[i].c) { paybackY = i; break; }
@@ -1165,7 +1165,7 @@
   }
 
   // ============================================================
-  //  SECTION 5 — BREADTH CANVAS
+  //  SECTION 5 - BREADTH CANVAS
   //  Six modules cycled at 9s each. Each has its own renderer.
   // ============================================================
   const BREADTH_MODULES = [
@@ -1217,7 +1217,7 @@
 
   function renderModuleNetwork(svg, t) {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
-    // Two horizontal bands representing supply capacity bracket — animation drops the bracket
+    // Two horizontal bands representing supply capacity bracket - animation drops the bracket
     const W = 800, H = 380, X0 = 40, X1 = 760, Y0 = 60, Y1 = 320;
     // demand line (same as test demand but smoothed)
     let pd = '';
@@ -1230,7 +1230,7 @@
     svg.appendChild(el('path', {
       d: pd, fill: 'none', stroke: C.cream, 'stroke-width': 1.4,
     }));
-    // capacity band — drops from 600 to 400 over t (interaction at 3-6s of 9s)
+    // capacity band - drops from 600 to 400 over t (interaction at 3-6s of 9s)
     const bandStart = 600;
     const bandEnd = 400;
     const reduceP = Math.min(1, Math.max(0, (t - 3) / 3));
@@ -1617,7 +1617,7 @@
   }
 
   // ============================================================
-  //  CHART HOOKS — fire when their section enters viewport
+  //  CHART HOOKS - fire when their section enters viewport
   // ============================================================
   const CHART_HOOKS = {
     hero: () => { if (heroAnimate) heroAnimate(); },

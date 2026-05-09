@@ -1,7 +1,7 @@
 import { NzaWordmark } from './svg/NzaWordmark'
 
 export type NavLink = {
-  /** Anchor target (without the leading `#`) — e.g. "home", "capabilities". */
+  /** Anchor target (without the leading `#`) - e.g. "home", "capabilities". */
   id: string
   /** Display label in the nav. */
   label: string
@@ -22,7 +22,7 @@ type Props = {
   homeHref?: string
   /** Custom href builder; defaults to `#${id}` for in-page anchors. */
   hrefFor?: (link: NavLink) => string
-  /** Hook intercept for click — e.g. for smooth-scroll. Return `false` to allow default browser nav. */
+  /** Hook intercept for click - e.g. for smooth-scroll. Return `false` to allow default browser nav. */
   onLinkClick?: (link: NavLink, event: React.MouseEvent<HTMLAnchorElement>) => void
   links?: NavLink[]
 }

@@ -50,7 +50,7 @@ export function useActiveScreen(screenIds: string[]) {
         entries.forEach((entry) => {
           // Mark the screen .in-view once it intersects the viewport.
           // The CSS in nza-website.css drives the reveal-layer fades off
-          // this class — the home screen sets it synchronously in the JSX
+          // this class - the home screen sets it synchronously in the JSX
           // so its hero animates from first paint, every other screen
           // gets it here.
           if (entry.isIntersecting) entry.target.classList.add('in-view')
@@ -67,7 +67,7 @@ export function useActiveScreen(screenIds: string[]) {
 
     elements.forEach((el) => io.observe(el))
 
-    // Seed the active state from initial layout — useful when the user lands
+    // Seed the active state from initial layout - useful when the user lands
     // mid-page via a hash link.
     elements.forEach((el) => {
       const rect = el.getBoundingClientRect()

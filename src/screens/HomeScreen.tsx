@@ -27,7 +27,7 @@ export function HomeScreen() {
             <p className="lede reveal-layer" data-d="2">
               NZA is a specialist sustainability consultancy for the people who design,
               build and operate buildings and estates. We work at the intersection of
-              the energy transition, climate change and digital intelligence — turning
+              the energy transition, climate change and digital intelligence - turning
               the complex into clear, practical action.
             </p>
           </div>

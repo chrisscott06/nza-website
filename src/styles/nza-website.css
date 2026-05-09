@@ -256,7 +256,7 @@ body.on-navy .nav-link.active {
 .headline em {
   /* Restored to "Times New Roman", serif per Chris's preference (commit
      e01e1e9 had switched this to var(--font-italic) which resolves to
-     DM Serif Display — the design system's stated intent — but Chris
+     DM Serif Display - the design system's stated intent - but Chris
      preferred how Times New Roman rendered in the original Claude Design
      prototype, where DM Serif evidently wasn't taking effect. Treat the
      comment block above this rule as historical guidance, not a directive. */
@@ -281,12 +281,10 @@ body.on-navy .nav-link.active {
 .lede {
   font-family: var(--font-body);
   font-weight: 300; /* Inter Light */
-  /* Sized to match the non-bold lens-body paragraph in the Approach
-     expanded panel (.cap-expanded-lens p, 14px). Per Chris's call —
-     the lede was clamp(17px, 1.3vw, 19px), which read smaller than
-     the 14px / 400 lens body because the lede sits at lighter 300
-     weight. Equal pixels now; weight differs intentionally. */
-  font-size: 14px;
+  /* Restored editorial lede size after the brief 14px experiment in
+     commit 22d2003 - the lens-body match-up only made sense in the
+     context of the expanded panel, not site-wide. */
+  font-size: clamp(17px, 1.3vw, 19px);
   line-height: 1.55;
   color: var(--ink-2);
   max-width: 60ch;
@@ -695,7 +693,7 @@ body.on-navy .nav-link.active {
 .approach-header-right .lede {
   color: var(--ink-2);
   margin: 0;
-  font-size: 14px; /* Matches global .lede after the lens-body alignment */
+  font-size: 16px; /* Restored after the 14px experiment was rolled back */
   line-height: 1.5;
   max-width: 44ch;
 }
@@ -769,10 +767,19 @@ body.on-navy .nav-link.active {
   width: 60px;
   height: 60px;
   display: block;
+}
+/* Smart-energy, carbon-pathways and climate-resilience artwork sits with
+   more whitespace inside its viewBox than the other three; bumping each
+   ~25% so they fill the disc in the same proportion. */
+.cap-icon img[src$="smart-energy.svg"],
+.cap-icon img[src$="carbon-pathways.svg"],
+.cap-icon img[src$="climate-resilience.svg"] {
+  width: 76px;
+  height: 76px;
   /* THREE-STATE BESPOKE ICON BEHAVIOUR (per Chris):
-     1. At rest — greyscale + slight fade so the card doesn't shout.
-     2. On hover — full native NZA palette (coral / navy / white) comes alive.
-     3. When the card is expanded into the panel header — forced to white
+     1. At rest - greyscale + slight fade so the card doesn't shout.
+     2. On hover - full native NZA palette (coral / navy / white) comes alive.
+     3. When the card is expanded into the panel header - forced to white
         on the coral disc (handled by .cap-expanded-header-icon below).
      Transition runs on the cap-card hover too so the colour swell feels deliberate. */
   filter: grayscale(1) opacity(0.55);
@@ -782,7 +789,7 @@ body.on-navy .nav-link.active {
 .cap-card:focus-visible .cap-icon img {
   filter: none;
 }
-/* Disrupt card #6 — sits on navy ground; greyscale/fade reads wrong on dark.
+/* Disrupt card #6 - sits on navy ground; greyscale/fade reads wrong on dark.
    Let the bespoke SVG's coral-on-navy palette sit naturally here. */
 .cap-card.disrupt .cap-icon img {
   filter: none;
@@ -888,7 +895,7 @@ body.on-navy .nav-link.active {
   visibility: hidden;
 }
 
-/* Expanded overlay — quadrant layout with coral accent bar (4px left edge) */
+/* Expanded overlay - quadrant layout with coral accent bar (4px left edge) */
 .cap-expanded {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -900,7 +907,7 @@ body.on-navy .nav-link.active {
   display: flex;
   flex-direction: column;
   /* overflow: hidden clips the disrupt-card radial glow (.cap-expanded
-     .disrupt::before sits at bottom: -30%, right: -20%) — without this,
+     .disrupt::before sits at bottom: -30%, right: -20%) - without this,
      overflow-y: auto auto-upgrades overflow-x to auto too (per spec)
      and both X+Y scrollbars appear on the Co-built panel. If content
      ever overflows on very small viewports, the inner sections can take
@@ -940,7 +947,7 @@ body.on-navy .nav-link.active {
   min-width: 100px;
 }
 .cap-expanded-header-icon .cap-icon {
-  /* Bumped per Chris (expanded panel): 56 → 120 disc — the icon is the
+  /* Bumped per Chris (expanded panel): 56 → 120 disc - the icon is the
      brand stamp at the top of the open card and earns the real estate. */
   width: 120px; height: 120px;
   background: var(--coral);
@@ -960,14 +967,22 @@ body.on-navy .nav-link.active {
   width: 76px; height: 76px;
   display: block;
   /* Force the bespoke coral/navy/white SVG to pure white on the coral
-     disc background — overrides the cap-card greyscale+hover ladder
+     disc background - overrides the cap-card greyscale+hover ladder
      above so the expanded panel header reads as a single brand stamp. */
   filter: brightness(0) invert(1);
   opacity: 1;
 }
+/* Same boost as the closed-card cap-icon for the three icons whose
+   artwork has more internal padding. ~28% bigger inside the 120px disc. */
+.cap-expanded-header-icon .cap-icon img[src$="smart-energy.svg"],
+.cap-expanded-header-icon .cap-icon img[src$="carbon-pathways.svg"],
+.cap-expanded-header-icon .cap-icon img[src$="climate-resilience.svg"] {
+  width: 98px;
+  height: 98px;
+}
 
 /* Descriptor (right, full height, with close button). Top padding
-   tightened to match the icon column — the lead/body pair now sits
+   tightened to match the icon column - the lead/body pair now sits
    higher in the panel, less white space between the top edge and
    the headline. */
 .cap-expanded-descriptor {
@@ -1012,26 +1027,58 @@ body.on-navy .nav-link.active {
 .cap-expanded-lenses { flex: 1; padding: 16px 28px 20px; min-height: 0; }
 .cap-expanded-close-wrap { display: none; }
 
-/* Outer panel entrance — restored per the design intent. The original
+/* Outer panel entrance - restored per the design intent. The original
    source CSS had this rule with a missing opening selector (it read as a
    bare `transform: scale(1); opacity: 1; }` orphan block), which I'd
    removed as a parser fix in commit 938fa2c. Without it the panel sat
-   permanently at scale(0.97)/opacity:0 — the source card hid via
+   permanently at scale(0.97)/opacity:0 - the source card hid via
    .is-source but the overlay never came into view. Restoring the rule
    makes the panel scale up + fade in over 360/280ms. */
 .cap-expanded.is-open {
   transform: scale(1);
   opacity: 1;
 }
-.cap-expanded > * {
+/* Staggered reveal of the panel contents in reading order:
+     1. Top half  (icon + headline + body)  - ~80ms after panel opens
+     2. Lens 1    (Data visualisation)      - ~240ms
+     3. Lens 2    (Digital tool creation)   - ~340ms
+     4. Lens 3    (Strategy development)    - ~440ms
+   Each fades up over 320ms with an 8px slide. The whole choreography
+   completes ~760ms after the click; the panel scale-up has its own
+   360ms transition on .cap-expanded itself. Reduced motion shortcuts
+   to the final state via the @media block at the bottom. */
+.cap-expanded .cap-expanded-top-half,
+.cap-expanded .cap-expanded-lens {
   opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 280ms var(--ease-reveal),
-              transform 280ms var(--ease-reveal);
+  transform: translateY(8px);
+  transition: opacity 320ms var(--ease-reveal),
+              transform 320ms var(--ease-reveal);
 }
-.cap-expanded.is-open > * { opacity: 1; transform: translateY(0); }
-.cap-expanded.is-open .cap-expanded-header-icon { transition-delay: 60ms; }
-.cap-expanded.is-open .cap-expanded-descriptor { transition-delay: 100ms; }
+.cap-expanded.is-open .cap-expanded-top-half {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 80ms;
+}
+.cap-expanded.is-open .cap-expanded-lens:nth-child(1) {
+  opacity: 1; transform: translateY(0);
+  transition-delay: 240ms;
+}
+.cap-expanded.is-open .cap-expanded-lens:nth-child(2) {
+  opacity: 1; transform: translateY(0);
+  transition-delay: 340ms;
+}
+.cap-expanded.is-open .cap-expanded-lens:nth-child(3) {
+  opacity: 1; transform: translateY(0);
+  transition-delay: 440ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cap-expanded .cap-expanded-top-half,
+  .cap-expanded .cap-expanded-lens {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
 .cap-expanded.disrupt {
   background: var(--ink-navy);
   color: var(--fg-on-navy-1);
@@ -1142,7 +1189,7 @@ body.on-navy .nav-link.active {
 }
 .cap-expanded-desc-lead {
   /* Per Chris: switched from Inter SemiBold to DM Serif Display
-     (var(--font-italic) — same family as the curvier serif used on
+     (var(--font-italic) - same family as the curvier serif used on
      the cap-titles and italic emphasis throughout). DM Serif ships
      at 400 and 700 only, so weight 400 is the natural choice. Now
      bumped from 22 → 28px so the headline-of-the-card jumps out
@@ -1158,7 +1205,7 @@ body.on-navy .nav-link.active {
 }
 .cap-expanded-desc-body {
   font-family: var(--font-body);
-  font-weight: 400; /* Bumped from 300 inheritance — small text (13px) needs more weight */
+  font-weight: 400; /* Bumped from 300 inheritance - small text (13px) needs more weight */
   font-size: 13px;
   line-height: 1.6;
   color: var(--ink-2);
@@ -1213,7 +1260,7 @@ body.on-navy .nav-link.active {
 .cap-expanded-lens-head .lens-dot.data     { background: var(--lens-data); }
 .cap-expanded-lens-head .lens-dot.tools    { background: var(--lens-tools); }
 .cap-expanded-lens-head .lens-dot.strategy { background: var(--lens-strategy); }
-/* Lens markers — bigger per Chris's call (was 32px container / 18px icon). */
+/* Lens markers - bigger per Chris's call (was 32px container / 18px icon). */
 .cap-expanded-lens-head .lens-mark {
   width: 56px; height: 56px;
   display: inline-flex;
@@ -1236,11 +1283,11 @@ body.on-navy .nav-link.active {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* No color overrides needed — icons inherit SVG colours */
+/* No color overrides needed - icons inherit SVG colours */
 .cap-expanded.disrupt .cap-expanded-lens-head .lens-mark { color: var(--fg-on-navy-1); }
 .cap-expanded-lens p {
   font-family: var(--font-body);
-  font-weight: 400; /* Explicit 400 over the global 300 — small text needs more weight on cream */
+  font-weight: 400; /* Explicit 400 over the global 300 - small text needs more weight on cream */
   /* Trimmed per Chris: with the lens header now bumped to 16px Stolzl Medium,
      the 14px body was reading heavier than the head; 13px restores the
      hierarchy (head is the loud element, body is the calm explainer). */
@@ -1901,7 +1948,7 @@ body.on-navy .nav-link.active {
 }
 .clients-meta-progress { font-variant-numeric: tabular-nums; display: none; }
 
-/* Coral terminus — full-width rule ending in a filled circle */
+/* Coral terminus - full-width rule ending in a filled circle */
 .clients-terminus {
   display: flex;
   align-items: center;
@@ -1924,7 +1971,7 @@ body.on-navy .nav-link.active {
   box-sizing: border-box;
 }
 
-/* Clients page footer — sits below the coral terminus, no border */
+/* Clients page footer - sits below the coral terminus, no border */
 .clients-footer {
   border-top: none;
   padding: 24px 0 48px;
@@ -1948,7 +1995,7 @@ body.on-navy .nav-link.active {
 }
 
 /* =========================================================================
-   CLIENT POPOVER — three-zone layout
+   CLIENT POPOVER - three-zone layout
    Header: logo mark (96px sq) + meta block (sector tag / name / context)
    Body: two-column (60% what we did / 40% capabilities), hairline divider
    Footer: hairline-top meta facts in small caps
@@ -2137,7 +2184,7 @@ body.on-navy .nav-link.active {
   background-repeat: no-repeat;
 }
 
-/* ── Footer zone — three meta chips ── */
+/* ── Footer zone - three meta chips ── */
 .client-popover-footer {
   display: flex;
   align-items: stretch;

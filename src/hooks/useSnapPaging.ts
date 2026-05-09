@@ -27,7 +27,7 @@ function prefersReducedMotion() {
  *   · viewports ≤ 720px (mobile uses native scroll)
  *   · `prefers-reduced-motion: reduce` (instant scroll, no wheel hijack)
  *   · screens with class `screen-scrolls` whose content overflows the
- *     viewport (e.g. Approach with the inset panel open) — the wheel is
+ *     viewport (e.g. Approach with the inset panel open) - the wheel is
  *     allowed to flow naturally inside the screen until it hits a boundary.
  */
 export function useSnapPaging(screenIds: string[]) {
@@ -120,7 +120,7 @@ export function useSnapPaging(screenIds: string[]) {
     function onWheel(e: WheelEvent) {
       if (isCompactViewport()) return
       if (reducedMotionRef.current) return
-      // Bail when a cap-card is expanded — let the user scroll inside the
+      // Bail when a cap-card is expanded - let the user scroll inside the
       // panel naturally without triggering a page-flip.
       if (document.body.dataset.capOpen === 'true') return
       if (animatingRef.current) {

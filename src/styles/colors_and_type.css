@@ -1,5 +1,5 @@
 /* @import statements must precede all other CSS statements (PostCSS strict).
-   Inter Tight, DM Serif Display, JetBrains Mono — Google Fonts.
+   Inter Tight, DM Serif Display, JetBrains Mono - Google Fonts.
    Söhne is the spec'd body face (Adobe Fonts, licensed by Chris); until then,
    Inter Tight is the working substitute. */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&family=DM+Serif+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -186,7 +186,7 @@
    ========================================================================= */
 body {
   font-family: var(--font-body);
-  font-weight: 300; /* Inter Light — solid on both paper and navy */
+  font-weight: 300; /* Inter Light - solid on both paper and navy */
   background-color: var(--paper);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -321,7 +321,7 @@ code, pre, .mono {
 .canvas-navy .lens-dot--strategy { background: var(--lens-strategy-on-navy); }
 
 /* =========================================================================
-   SLEEK-SCROLL UTILITY — Apple-glass-style scrollbar
+   SLEEK-SCROLL UTILITY - Apple-glass-style scrollbar
    Apply to any scrollable container that should fade into the surface
    instead of declaring itself with chunky default chrome.
 

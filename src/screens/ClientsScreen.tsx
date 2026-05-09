@@ -5,7 +5,7 @@ import { ClientPopover } from '../components/ClientPopover'
 import { useClientCarousel } from '../hooks/useClientCarousel'
 
 /**
- * Clients screen — auto-rotating logo ribbon plus popover modal.
+ * Clients screen - auto-rotating logo ribbon plus popover modal.
  *
  * The track renders the full client list TWICE so the carousel can
  * loop seamlessly via translate3d resets. Hovering the viewport pauses

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 /**
- * GHG Protocol illustration — 6-layer sequenced reveal.
+ * GHG Protocol illustration - 6-layer sequenced reveal.
  *
  * Each top-level <g id="_X_-_…"> in the SVG fades in with a staggered
  * start and a small translateY easing, building the diagram back-to-
@@ -57,7 +57,7 @@ export function useGhgReveal({
       if (el) el.setAttribute('opacity', '0')
     })
 
-    // Reduced motion: skip the staged reveal — show the final state
+    // Reduced motion: skip the staged reveal - show the final state
     // immediately when the section comes into view.
     const reduced = prefersReducedMotion()
 
@@ -80,7 +80,7 @@ export function useGhgReveal({
         el.setAttribute('opacity', '0')
         el.removeAttribute('transform')
       })
-      // 2. CRITICAL — host becomes visible AFTER every layer is at opacity 0.
+      // 2. CRITICAL - host becomes visible AFTER every layer is at opacity 0.
       //    Order reversed = one-frame flash of the finished SVG.
       host!.style.visibility = 'visible'
 
@@ -123,7 +123,7 @@ export function useGhgReveal({
               showFinal()
             } else {
               // Defer one frame so initial paint settles before the
-              // animation kicks off — avoids first-frame jank.
+              // animation kicks off - avoids first-frame jank.
               requestAnimationFrame(() => requestAnimationFrame(runReveal))
             }
             obs.disconnect()

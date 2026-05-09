@@ -1,5 +1,5 @@
 /* =========================================================================
-   PABLO product page — own visual language, NZA chrome retained
+   PABLO product page - own visual language, NZA chrome retained
    Inherits tokens from colors_and_type.css + nza-website.css
 
    PABLO ground = a deeper, more violet navy than the NZA navy.
@@ -10,23 +10,23 @@
 :root {
   /* PABLO product palette (per design system board) */
   --p-cream:        #F2F2E6;
-  --p-slate:        #1A1E2B;     /* slate panel — for cards on the violet-navy ground */
+  --p-slate:        #1A1E2B;     /* slate panel - for cards on the violet-navy ground */
   --p-navy:         #0E1120;     /* matches NZA navy */
   --p-ground:       #15132A;     /* PABLO's signature deep violet-navy */
   --p-ground-2:     #1B1736;     /* slightly lifted variant for cards */
 
   --p-coral:        #FF5A7D;     /* hot coral (sharper than NZA coral, but compatible) */
   --p-amber:        #FF9A3C;     /* amber/orange */
-  --p-violet:       #806BFF;     /* violet — primary PABLO accent */
+  --p-violet:       #806BFF;     /* violet - primary PABLO accent */
   --p-violet-soft:  rgba(128, 107, 255, 0.14);
   --p-violet-glow:  rgba(128, 107, 255, 0.28);
   --p-amber-soft:   rgba(255, 154, 60, 0.14);
   --p-coral-soft:   rgba(255, 90, 125, 0.14);
 
   /* Chart palette per brief */
-  --p-chart-demand:   #F2F2E6;             /* "black" demand line — on dark ground we read it as cream */
+  --p-chart-demand:   #F2F2E6;             /* "black" demand line - on dark ground we read it as cream */
   --p-chart-solar:    #FFB347;             /* yellow/gold */
-  --p-chart-grid:     rgba(178, 188, 210, 0.55);  /* grid import — translucent grey */
+  --p-chart-grid:     rgba(178, 188, 210, 0.55);  /* grid import - translucent grey */
   --p-chart-battery:  var(--p-violet);
   --p-chart-export:   var(--p-coral);
   --p-chart-charge:   #6FE0A8;             /* soft green */
@@ -63,7 +63,7 @@ body.pablo-page .nav-link.active {
   color: var(--p-fg-1);
 }
 
-/* Footer — slightly lifted from ground */
+/* Footer - slightly lifted from ground */
 body.pablo-page .footer {
   border-top: 1px solid var(--p-rule);
   color: var(--p-fg-3);
@@ -216,7 +216,7 @@ body.pablo-page .footer {
 .p-hero-wordmark .p-logo-mini { width: 56px; color: var(--p-coral); }
 
 /* =========================================================================
-   SECTION 1 — DECOMPOSITION
+   SECTION 1 - DECOMPOSITION
    Two stacked-bar columns side by side, then a forward projection.
    ========================================================================= */
 .p-decomp {
@@ -316,7 +316,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   SECTION 2 — STRATEGIC TRANSITION (prose only, narrow column, hairlines)
+   SECTION 2 - STRATEGIC TRANSITION (prose only, narrow column, hairlines)
    ========================================================================= */
 .p-transition {
   max-width: 720px;
@@ -338,7 +338,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   SECTION 3 — TEST AN INTERVENTION (the interactive moment)
+   SECTION 3 - TEST AN INTERVENTION (the interactive moment)
    ========================================================================= */
 .p-test {
   display: flex;
@@ -472,7 +472,7 @@ body.pablo-page .footer {
 .p-test-derived.idle .p-test-derived-arrow { display: none; }
 
 /* =========================================================================
-   SECTION 4 — LIFECYCLE
+   SECTION 4 - LIFECYCLE
    ========================================================================= */
 .p-lifecycle {
   display: grid;
@@ -573,7 +573,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   SECTION 5 — BREADTH CANVAS (auto-cycle)
+   SECTION 5 - BREADTH CANVAS (auto-cycle)
    ========================================================================= */
 .p-breadth {
   display: flex;
@@ -700,7 +700,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   SECTION 6 — WHY PABLO (differentiators)
+   SECTION 6 - WHY PABLO (differentiators)
    ========================================================================= */
 .p-why {
   display: grid;
@@ -749,7 +749,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   SECTION 7 — WHO PABLO IS FOR (3 columns)
+   SECTION 7 - WHO PABLO IS FOR (3 columns)
    ========================================================================= */
 .p-who {
   display: grid;
@@ -779,7 +779,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   SECTION 8 — CTA
+   SECTION 8 - CTA
    ========================================================================= */
 .p-cta {
   text-align: center;
@@ -827,7 +827,7 @@ body.pablo-page .footer {
 }
 
 /* =========================================================================
-   REVEAL — fade-up on viewport entry, identical to home page pattern
+   REVEAL - fade-up on viewport entry, identical to home page pattern
    ========================================================================= */
 .p-reveal {
   opacity: 0;

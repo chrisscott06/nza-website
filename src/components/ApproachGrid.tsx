@@ -48,7 +48,7 @@ export function ApproachGrid() {
     setActive(cap)
     // Defer the is-open flip to the next frame so the entrance transition
     // fires from the scale(0.97)/opacity:0 state. requestAnimationFrame
-    // alone is sometimes not enough — chain two for browsers that batch.
+    // alone is sometimes not enough - chain two for browsers that batch.
     requestAnimationFrame(() => requestAnimationFrame(() => setIsOpen(true)))
     window.setTimeout(() => {
       animatingRef.current = false
@@ -153,7 +153,7 @@ function CapExpanded({
       <div className="cap-expanded-top-half">
         <div className="cap-expanded-header-icon">
           {/* The "01"/"02"/… numeral that used to sit under the icon was
-              dropped per Chris — the icon alone is enough at this size,
+              dropped per Chris - the icon alone is enough at this size,
               and the gap helped the header sit higher in the panel. */}
           <span className="cap-icon" id="capExpIcon" aria-hidden="true">
             <img src={`/assets/${cap.icon}.svg`} alt="" />
