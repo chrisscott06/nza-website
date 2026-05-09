@@ -2,7 +2,7 @@
    Inter Tight, DM Serif Display, JetBrains Mono — Google Fonts.
    Söhne is the spec'd body face (Adobe Fonts, licensed by Chris); until then,
    Inter Tight is the working substitute. */
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=DM+Serif+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600&family=DM+Serif+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* =========================================================================
    NZA Design System - colors_and_type.css
@@ -133,7 +133,7 @@
      TYPOGRAPHY - FAMILIES
      ===================================================================== */
   --font-display:   "Stolzl", system-ui, sans-serif;
-  --font-body:      "Inter Tight", "Söhne", system-ui, sans-serif;
+  --font-body:      "Manrope", system-ui, sans-serif;
   --font-italic:    "DM Serif Display", "Times New Roman", serif;
   --font-mono:      "JetBrains Mono", ui-monospace, monospace;
 
@@ -186,7 +186,7 @@
    ========================================================================= */
 body {
   font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: 200; /* Manrope ExtraLight */
   background-color: var(--paper);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -253,7 +253,7 @@ h1 em, h2 em {
 
 p, li, td, label, input, textarea, select, button {
   font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: 200;
 }
 p { line-height: 1.55; color: var(--ink-2); }
 
