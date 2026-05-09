@@ -280,7 +280,7 @@ body.on-navy .nav-link.active {
 
 .lede {
   font-family: var(--font-body);
-  font-weight: 200; /* Manrope ExtraLight */
+  font-weight: 100; /* Inter Thin */
   font-size: clamp(17px, 1.3vw, 19px);
   line-height: 1.55;
   color: var(--ink-2);
@@ -292,7 +292,7 @@ body.on-navy .nav-link.active {
 
 .body {
   font-family: var(--font-body);
-  font-weight: 200; /* Manrope ExtraLight */
+  font-weight: 100; /* Inter Thin */
   font-size: 15px;
   line-height: 1.55;
   color: var(--ink-2);
