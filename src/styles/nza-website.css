@@ -280,7 +280,7 @@ body.on-navy .nav-link.active {
 
 .lede {
   font-family: var(--font-body);
-  font-weight: 100; /* Inter Thin */
+  font-weight: 300; /* Inter Light */
   font-size: clamp(17px, 1.3vw, 19px);
   line-height: 1.55;
   color: var(--ink-2);
@@ -292,7 +292,7 @@ body.on-navy .nav-link.active {
 
 .body {
   font-family: var(--font-body);
-  font-weight: 100; /* Inter Thin */
+  font-weight: 300; /* Inter Light */
   font-size: 15px;
   line-height: 1.55;
   color: var(--ink-2);
@@ -1104,7 +1104,9 @@ body.on-navy .nav-link.active {
   gap: 12px;
 }
 .cap-expanded-desc-lead {
-  font-family: "Inter Tight", system-ui, sans-serif;
+  /* Was "Inter Tight" — stale reference now that the body face is Inter.
+     Use the body token so any future swap propagates. */
+  font-family: var(--font-body);
   font-weight: 600;
   font-style: normal;
   font-size: 22px;
@@ -1115,7 +1117,7 @@ body.on-navy .nav-link.active {
 }
 .cap-expanded-desc-body {
   font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: 400; /* Bumped from 300 inheritance — small text (13px) needs more weight */
   font-size: 13px;
   line-height: 1.6;
   color: var(--ink-2);
@@ -1194,6 +1196,7 @@ body.on-navy .nav-link.active {
 .cap-expanded.disrupt .cap-expanded-lens-head .lens-mark { color: var(--fg-on-navy-1); }
 .cap-expanded-lens p {
   font-family: var(--font-body);
+  font-weight: 400; /* Explicit 400 over the global 300 — 14px small text needs the extra weight to hold on cream */
   font-size: 14px;
   line-height: 1.55;
   color: var(--ink-2);

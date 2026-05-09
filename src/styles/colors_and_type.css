@@ -186,7 +186,7 @@
    ========================================================================= */
 body {
   font-family: var(--font-body);
-  font-weight: 100; /* Inter Thin — the lightest weight Inter ships at */
+  font-weight: 300; /* Inter Light — solid on both paper and navy */
   background-color: var(--paper);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -253,7 +253,7 @@ h1 em, h2 em {
 
 p, li, td, label, input, textarea, select, button {
   font-family: var(--font-body);
-  font-weight: 100;
+  font-weight: 300;
 }
 p { line-height: 1.55; color: var(--ink-2); }
 
