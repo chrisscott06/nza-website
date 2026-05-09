@@ -152,11 +152,11 @@ function CapExpanded({
     >
       <div className="cap-expanded-top-half">
         <div className="cap-expanded-header-icon">
+          {/* The "01"/"02"/… numeral that used to sit under the icon was
+              dropped per Chris — the icon alone is enough at this size,
+              and the gap helped the header sit higher in the panel. */}
           <span className="cap-icon" id="capExpIcon" aria-hidden="true">
             <img src={`/assets/${cap.icon}.svg`} alt="" />
-          </span>
-          <span className="cap-expanded-num" id="capExpNum">
-            {String(cap.id).padStart(2, '0')}
           </span>
         </div>
         <div className="cap-expanded-descriptor">
