@@ -281,7 +281,12 @@ body.on-navy .nav-link.active {
 .lede {
   font-family: var(--font-body);
   font-weight: 300; /* Inter Light */
-  font-size: clamp(17px, 1.3vw, 19px);
+  /* Sized to match the non-bold lens-body paragraph in the Approach
+     expanded panel (.cap-expanded-lens p, 14px). Per Chris's call —
+     the lede was clamp(17px, 1.3vw, 19px), which read smaller than
+     the 14px / 400 lens body because the lede sits at lighter 300
+     weight. Equal pixels now; weight differs intentionally. */
+  font-size: 14px;
   line-height: 1.55;
   color: var(--ink-2);
   max-width: 60ch;
@@ -690,7 +695,7 @@ body.on-navy .nav-link.active {
 .approach-header-right .lede {
   color: var(--ink-2);
   margin: 0;
-  font-size: 16px;
+  font-size: 14px; /* Matches global .lede after the lens-body alignment */
   line-height: 1.5;
   max-width: 44ch;
 }
