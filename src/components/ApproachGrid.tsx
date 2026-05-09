@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CAPABILITIES, type Capability } from '../data/capabilities'
-import { CAPABILITY_ICONS, ArrowRightIcon } from './svg/CapabilityIcons'
+import { ArrowRightIcon } from './svg/CapabilityIcons'
 
 /**
  * Approach 6-card grid with click-to-reveal expanded panel.
@@ -92,7 +92,6 @@ export function ApproachGrid() {
     <div className="cap-grid-wrap reveal-layer" data-d="2">
       <div className="cap-grid" id="capGrid">
         {CAPABILITIES.map((cap) => {
-          const Icon = CAPABILITY_ICONS[cap.id - 1]
           const isSource = active?.id === cap.id
           return (
             <button
@@ -107,7 +106,7 @@ export function ApproachGrid() {
             >
               <div className="cap-card-top">
                 <span className="cap-icon" aria-hidden="true">
-                  <Icon />
+                  <img src={`/assets/${cap.icon}.svg`} alt="" />
                 </span>
                 <span className="cap-num">{String(cap.id).padStart(2, '0')}</span>
               </div>
@@ -144,7 +143,6 @@ function CapExpanded({
   isOpen: boolean
   onClose: () => void
 }) {
-  const Icon = CAPABILITY_ICONS[cap.id - 1]
   const { lead, body } = splitLead(cap.desc)
 
   return (
@@ -155,7 +153,7 @@ function CapExpanded({
       <div className="cap-expanded-top-half">
         <div className="cap-expanded-header-icon">
           <span className="cap-icon" id="capExpIcon" aria-hidden="true">
-            <Icon />
+            <img src={`/assets/${cap.icon}.svg`} alt="" />
           </span>
           <span className="cap-expanded-num" id="capExpNum">
             {String(cap.id).padStart(2, '0')}

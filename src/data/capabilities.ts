@@ -14,6 +14,8 @@ export type Capability = {
   disrupt?: boolean
   /** Title contains a coral-italic emphasised word (e.g. "platforms"). */
   titleHasEmphasis?: boolean
+  /** Filename (without .svg) under public/assets/ for the bespoke capability icon. */
+  icon: string
   desc: string
   data: string
   tools: string
@@ -24,6 +26,7 @@ export const CAPABILITIES: Capability[] = [
   {
     id: 1,
     title: 'Whole-estate strategy',
+    icon: 'estate-strategy',
     desc:
       "Strategic decarbonisation across mixed and complex estates. NZA works alongside the people running the estate — estates teams, designers, contractors, sustainability leads, and finance — turning scattered information into clear investment decisions.",
     data:
@@ -36,6 +39,7 @@ export const CAPABILITIES: Capability[] = [
   {
     id: 2,
     title: 'Smart energy strategy',
+    icon: 'smart-energy',
     desc:
       "Smart energy strategy lives at the meeting point of three things — what the building demands, what the grid can deliver, and what the market makes possible. NZA brings a deep understanding of energy economics, DNO engagement, and behind-the-meter technologies to every part of that work, from technical analysis to procurement support.",
     data:
@@ -48,6 +52,7 @@ export const CAPABILITIES: Capability[] = [
   {
     id: 3,
     title: 'Financial intelligence',
+    icon: 'financial',
     desc:
       "Bringing economic literacy to energy and decarbonisation decisions. NZA sits client-side on investment decisions — combining engineering analysis, energy market knowledge, and lifecycle thinking to help organisations get genuine value from their capital.",
     data:
@@ -60,6 +65,7 @@ export const CAPABILITIES: Capability[] = [
   {
     id: 4,
     title: 'Carbon accounting & pathways',
+    icon: 'carbon-pathways',
     desc:
       "Inventory and pathway done as one piece of work. Where the footprint sits today, what business-as-usual looks like tomorrow, and the trajectory required to align.",
     data:
@@ -72,6 +78,7 @@ export const CAPABILITIES: Capability[] = [
   {
     id: 5,
     title: 'Climate resilience',
+    icon: 'climate-resilience',
     desc:
       "Real physical risk, grounded in the institutional knowledge of teams who know the buildings. Climate exposure modelled with rigour, then translated into adaptation plans the people running the estate can actually act on.",
     data:
@@ -86,6 +93,7 @@ export const CAPABILITIES: Capability[] = [
     title: 'Co-built platforms',
     titleHasEmphasis: true,
     disrupt: true,
+    icon: 'co-built',
     desc:
       "The capability behind every other capability. NZA builds bespoke digital platforms with clients — tools designed for the specific job, built around the client's domain knowledge and NZA's own engineering.",
     data:

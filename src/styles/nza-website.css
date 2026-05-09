@@ -751,7 +751,7 @@ body.on-navy .nav-link.active {
   gap: 12px;
 }
 .cap-icon {
-  width: 44px; height: 44px;
+  width: 56px; height: 56px;
   border-radius: 50%;
   background: var(--cream);
   display: inline-flex;
@@ -759,8 +759,36 @@ body.on-navy .nav-link.active {
   justify-content: center;
   color: var(--ink-3);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .cap-icon svg { width: 22px; height: 22px; display: block; }
+.cap-icon img {
+  width: 38px;
+  height: 38px;
+  display: block;
+  /* THREE-STATE BESPOKE ICON BEHAVIOUR (per Chris):
+     1. At rest — greyscale + slight fade so the card doesn't shout.
+     2. On hover — full native NZA palette (coral / navy / white) comes alive.
+     3. When the card is expanded into the panel header — forced to white
+        on the coral disc (handled by .cap-expanded-header-icon below).
+     Transition runs on the cap-card hover too so the colour swell feels deliberate. */
+  filter: grayscale(1) opacity(0.55);
+  transition: filter 280ms var(--ease-out-soft);
+}
+.cap-card:hover .cap-icon img,
+.cap-card:focus-visible .cap-icon img {
+  filter: none;
+}
+/* Disrupt card #6 — sits on navy ground; greyscale/fade reads wrong on dark.
+   Let the bespoke SVG's coral-on-navy palette sit naturally here. */
+.cap-card.disrupt .cap-icon img {
+  filter: none;
+  opacity: 0.85;
+}
+.cap-card.disrupt:hover .cap-icon img,
+.cap-card.disrupt:focus-visible .cap-icon img {
+  opacity: 1;
+}
 .cap-num {
   font-family: var(--font-display);
   font-weight: 500;
@@ -915,8 +943,13 @@ body.on-navy .nav-link.active {
   stroke-width: 1.6;
 }
 .cap-expanded-header-icon .cap-icon img {
-  width: 28px; height: 28px;
+  width: 32px; height: 32px;
   display: block;
+  /* Force the bespoke coral/navy/white SVG to pure white on the coral
+     disc background — overrides the cap-card greyscale+hover ladder
+     above so the expanded panel header reads as a single brand stamp. */
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 .cap-expanded-header-icon .cap-expanded-num {
   font-family: "Inter Tight", system-ui, sans-serif;
@@ -1155,16 +1188,20 @@ body.on-navy .nav-link.active {
 .cap-expanded.disrupt .cap-expanded-lens { border-left-color: var(--rule-dark); }
 .cap-expanded.disrupt .cap-expanded-lenses { border-top-color: var(--rule-dark); }
 .cap-expanded-lens-head {
+  /* Bumped per Chris: each lens header should fill more of its column.
+     Stolzl Medium 16px with reduced tracking (uppercase at this size
+     can't carry the old 0.20em without breaking lines). Icon and text
+     also given more breathing room via the gap. */
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-caps);
-  font-weight: 600;
-  font-size: 10px;
-  letter-spacing: 0.20em;
+  gap: 14px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--coral-deep);
-  margin-bottom: 8px;
+  color: var(--ink);
+  margin-bottom: 14px;
 }
 .cap-expanded.disrupt .cap-expanded-lens-head { color: var(--fg-on-navy-1); }
 .cap-expanded-lens-head .lens-dot {
@@ -1174,9 +1211,9 @@ body.on-navy .nav-link.active {
 .cap-expanded-lens-head .lens-dot.data     { background: var(--lens-data); }
 .cap-expanded-lens-head .lens-dot.tools    { background: var(--lens-tools); }
 .cap-expanded-lens-head .lens-dot.strategy { background: var(--lens-strategy); }
-/* Lens markers — 32px, no background, just the icon */
+/* Lens markers — bigger per Chris's call (was 32px container / 18px icon). */
 .cap-expanded-lens-head .lens-mark {
-  width: 32px; height: 32px;
+  width: 56px; height: 56px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1186,11 +1223,11 @@ body.on-navy .nav-link.active {
   color: var(--ink);
 }
 .cap-expanded-lens-head .lens-mark img {
-  width: 18px; height: 18px;
+  width: 40px; height: 40px;
   display: block;
 }
 .cap-expanded-lens-head .lens-mark svg {
-  width: 16px; height: 16px;
+  width: 32px; height: 32px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
@@ -1201,8 +1238,11 @@ body.on-navy .nav-link.active {
 .cap-expanded.disrupt .cap-expanded-lens-head .lens-mark { color: var(--fg-on-navy-1); }
 .cap-expanded-lens p {
   font-family: var(--font-body);
-  font-weight: 400; /* Explicit 400 over the global 300 — 14px small text needs the extra weight to hold on cream */
-  font-size: 14px;
+  font-weight: 400; /* Explicit 400 over the global 300 — small text needs more weight on cream */
+  /* Trimmed per Chris: with the lens header now bumped to 16px Stolzl Medium,
+     the 14px body was reading heavier than the head; 13px restores the
+     hierarchy (head is the loud element, body is the calm explainer). */
+  font-size: 13px;
   line-height: 1.55;
   color: var(--ink-2);
   margin: 0;
