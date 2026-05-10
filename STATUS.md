@@ -2,66 +2,64 @@
 
 ## Last completed chunk
 
-**End-to-end port — all 7 staged chunks landed in one autonomous session.**
+**Phone redesign — 4 commits.** Two-tier responsive system with the boundary at 600px. iPad and half-screen browsers ride the desktop layout; phones get a properly-designed experience.
 
 Commits on `origin/main`:
-- `c0a47f8` — stage 1 scaffold
-- `938fa2c` — fix orphan brace blocks in nza-website.css
-- `224fd6f` — CLAUDE.md + STATUS.md
-- `317dac5` — design briefs into docs/
-- `a8c930a` — stage 2 routing + nav + 5 placeholder screens
-- `f24ab3c` — snap-paging (wheel + key + smooth-scroll)
-- `e01e1e9` — fix `.headline em` font-family to DM Serif Display
-- `c198afd` — stage 3 full screen content (static)
-- `3111f66` — stages 4 + 5: animations and clients carousel
-- (pending) PABLO page + production build hygiene
+- `3bcdaf4` — phone redesign 1/4: foundation. Breakpoint migration to 599px, `useMediaQuery` hook, `useSnapPaging.shouldSnap()` gate (mouse-primary only), `.screen` min-height removed at <600.
+- `311e89a` — phone redesign 2/4: hamburger nav for <600px. `MobileNavMenu` portal-rendered overlay, `FloatingNav` viewport-switch.
+- `b84b52f` — phone redesign 3/4: full-screen Approach modal. `MobileApproachModal` slide-up panel with header / coral icon disc / lead / body / 3 stacked lens sections; back button + Esc + swipe-down + backdrop tap close. `ApproachGrid` viewport-switch.
+- (this) — phone redesign 4/4: docs.
+
+Earlier work (preserved):
+- 28+ commits since the initial scaffold. The full prototype is ported with 5 screens, GHG reveal, marque overlay, capability grid expand, clients carousel + popover, and the 8-section PABLO page.
 
 ## Current state
 
-The site mirrors the Claude Design prototype end-to-end. All five website screens and the eight-section PABLO page are live. `npm run build` is green.
+The site renders three coherent experiences:
 
-### What's working
+| Viewport | Layout | Snap-paging | Approach detail | Nav |
+|---|---|---|---|---|
+| Desktop ≥600 + mouse | Full editorial multi-column | On | In-place expand | Pill |
+| iPad / touch ≥600 | Full editorial multi-column | Off (touch) | In-place expand | Pill |
+| Phone <600 | Single-column, content-tall sections | Off | MobileApproachModal | Hamburger → MobileNavMenu |
 
-- **Routing** — `/` (5-screen website) and `/pablo` (8-section product page). React-router with SPA rewrite for Vercel.
-- **Floating pill nav** with NZA wordmark — inverts colour on navy screens, highlights the active section, smooth-scrolls between screens.
-- **Snap-paging** — wheel/arrow keys/Page/Space step one screen at a time over 700ms easeOutCubic. Bypassed when an Approach card is open, on viewports ≤720px, and on `prefers-reduced-motion`.
-- **Home** — hero text reveal, hero-mark watermark, three-curve marque overlay (energy transition · climate change · digital intelligence) fades in/out via CSS animation off `#home.in-view`.
-- **Expertise** — full GHG Protocol value-chain diagram (~920-line SVG, JSX-camelcased) with the 6-layer sequenced reveal animation (~3.8s) on first view.
-- **Approach** — 6-card capability grid. Click any card → in-place expand to a panel showing lead text, body, and three lens columns (Data / Tools / Strategy). Card #6 ("Co-built platforms") wears the navy disrupt register. Esc and × both close.
-- **Products** — three product cards (PABLO, NZ:AI, decodED) with proper logos, taglines, and CTAs. PABLO card routes to `/pablo`.
-- **Clients** — auto-rotating logo ribbon at 24px/s, hover pauses, manual prev/next nudges by one cell. Click any logo → popover modal with sector, context, what-we-did, capability chips, period · engagement · scope chips. Esc and backdrop close.
-- **PABLO** — 8 sections (hero with bill-explosion SVG, decomposition stack, strategic transition, test-an-intervention with toggles + load + battery charts, lifecycle case with assumption sliders, breadth canvas auto-cycle, why PABLO, who-it's-for, CTA). Hand-built SVG charts driven by `pablo-charts.js` (62KB IIFE), injected via dynamic `<script>` in a useEffect after the React DOM mounts.
+Two CSS breakpoints in active use: `(max-width: 599px)` for phone, `(max-width: 1023px)` for two documented exceptions (the marque overlay and the product cards 3-col).
 
-### Known gaps / things I made calls on
+`npm run build` green. Typecheck green.
 
-- **PABLO chart engine** is loaded as the original IIFE (in `public/pablo-charts.js`) injected via script tag. It works because useEffect runs after React commits the DOM, so the chart targets exist when the IIFE queries them. If user navigates between `/` ↔ `/pablo` repeatedly, the script re-injects and re-runs each time — IO observers from previous mounts will be GC'd as their target elements unmount, but if you notice memory creep we should refactor the IIFE into named exports later.
-- **GHG Protocol diagram** carries `// @ts-nocheck` — the source SVG uses the `isolation` presentation attribute which is valid SVG2 but isn't in React's static SVG types. Runtime is fine.
-- **`@import` order in colors_and_type.css** — Google Fonts `@import` is now first in the file (PostCSS strict), with the comment moved alongside.
-- **ProductsScreen.tsx** has Tweaks panel removed entirely (was a Claude Design host UI, not production).
+## What's working
+
+- **Routing** — `/` and `/pablo`. SPA rewrite for Vercel via `vercel.json`.
+- **FloatingNav** — pill at ≥600 (logo + 5 link pills), hamburger at <600 (logo + 3-line button).
+- **MobileNavMenu** — portal-rendered full-screen overlay, dark navy ground with backdrop-blur, 5 large editorial-type links. Esc / backdrop / link / × all close. Body scroll-locked while open. Reduced-motion respects.
+- **Snap-paging** — mouse-primary desktop only via `shouldSnap()` (innerWidth ≥600 AND `(hover: hover)` AND `(pointer: fine)`).
+- **Home / Expertise / Approach (closed) / Products / Clients** — all five screens render correctly across viewports. Phone sections are content-tall.
+- **ApproachGrid** — desktop expands in-place; phone opens MobileApproachModal. Same state machine.
+- **MobileApproachModal** — slide-up panel, sticky header with circular back button, coral icon disc, lead in DM Serif 24px, body, 3 lens sections stacked. Disrupt variant (card #6) goes navy. Swipe-down dismisses.
+- **Clients carousel** — auto-rotates, hover-pauses on desktop. (Touch-pause + arrow hide on phone still pending — was deferred from this chunk.)
+- **DevicePreview** — bottom-right floating phone-icon button (dev-only, tree-shaken from prod). Opens an iframe at preset device sizes for verification.
+
+## Known gaps / things still to do
+
+- **Carousel touch-pause + swipe** — deferred from the responsive plan; needed so phone users can pause auto-rotation by holding the carousel.
+- **PABLO chart sections on phone** — currently still render but the hardcoded 1100×400 viewBox SVGs squash badly at phone widths. Plan calls for a "view on a larger screen" placeholder card on phone for the 4 chart-heavy sections (Decomposition, Test, Lifecycle, Breadth). Not yet implemented.
+- **GHG diagram on phone** — currently still renders. Likely should be hidden or shown smaller; defer the call until eyes-on the phone hero+section.
+- **Phone landscape special-casing** — sections are content-tall now, so should self-resolve. Eyeball after wider testing.
+- **Touch targets** — popover close (Clients) and PABLO pause button still small. Bump to 44×44 next pass.
+- **GhgProtocolDiagram.tsx** still carries `// @ts-nocheck` for the SVG2 `isolation` attribute. Rest of codebase passes strict typecheck.
 
 ## Next chunk (when Chris is back)
 
-**QA pass and Vercel deploy:**
-
-1. **Browser verification scenarios** for each screen — see CLAUDE.md.
-2. **Lighthouse audit** on localhost, then again on a Vercel preview URL.
-3. **Connect repo to Vercel**, configure custom domain.
-4. **Confirm `prefers-reduced-motion: reduce`** behaviour on every animation hook.
-5. **Mobile behaviour** at ≤720px — snap-paging disabled, native scroll, nav links wrap.
-
-After QA / launch, **stage 6** would be:
-- Refactoring `pablo-charts.js` into typed ESM modules under `src/pablo/charts/` so future React PABLO components (the ones Chris has elsewhere) can import individual chart functions and pass real data.
-- Wiring real client logo data when full SVGs land.
-
-## Known issues
-
-- **Multiple background dev server instances** from sessions held ports 5173–5179. Harmless, but `taskkill /im node.exe /f` between sessions clears the slate.
-- **Line-ending warnings** on every commit (LF→CRLF). A `.gitattributes` would silence them; not blocking.
-- **GhgProtocolDiagram.tsx is `// @ts-nocheck`-d** — only on that file. The rest of the codebase passes strict typecheck.
+In rough priority order:
+1. Carousel touch-pause / swipe support (mobile clients screen).
+2. PABLO chart sections phone fallback card.
+3. GHG diagram phone treatment decision.
+4. Touch target audit (PABLO pause button, popover close).
+5. Vercel deploy + custom domain wiring.
 
 ## Suggestions (not implemented)
 
-- Add `.gitattributes` with `* text=auto eol=lf` and OTF/PNG/SVG marked as binary.
+- `.gitattributes` to silence the LF→CRLF commit warnings.
 - GitHub Actions: `tsc --noEmit` + `vite build` on every PR.
-- Once Vercel is live, set up Lighthouse CI on previews.
-- Consider extracting `pablo-charts.js` into typed ESM modules so each chart is its own React component (post-launch).
+- Once on Vercel, Lighthouse CI on preview URLs.
+- Eventually refactor `pablo-charts.js` into typed ESM chart modules so future React PABLO components can import individual charts.

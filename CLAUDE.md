@@ -12,6 +12,30 @@ The NZA marketing site. Five-screen editorial single-page site (Home, Expertise,
 - **Hosting target:** Vercel, custom domain TBC. SPA rewrite is in `vercel.json` so `/pablo` survives a refresh.
 - **Source design bundle:** `C:\Users\CHRISS~1\AppData\Local\Temp\design-extracted\nza-design-system\project\` (read-only reference; do not edit). The locked spec is `uploads/nza-design-system.md` in that bundle.
 
+## Responsive rules
+
+Two tiers. The boundary is **600px** (one CSS variable: `--bp-phone`).
+
+- **≥600px** — desktop / iPad / half-screen browser. Full editorial layout: multi-column hero, Capabilities with the GHG diagram, 3×2 capability grid, pill nav, in-place Approach card expand. Sizes scale via `clamp()`.
+- **<600px** — phone. Redesigned, not stretched. Hamburger nav (`MobileNavMenu`), single-column sections, `MobileApproachModal` for capability detail, sections are content-tall (no `100dvh` lock).
+
+**Snap-paging** is gated by `useSnapPaging.shouldSnap()`: viewport ≥600 AND `(hover: hover)` AND `(pointer: fine)`. Mouse-driven desktop only. iPad and phone scroll natively.
+
+**Documented exceptions** (justify in a CSS comment if you add another):
+- `.hero-marque` — hidden below 1024px (needs full desktop room).
+- `.product-cards` — 3-col only at ≥1024px (cards too wide for 3-col on iPad portrait).
+
+**Rules for new components:**
+- Mobile-first. Build the single-column / phone layout first, layer multi-column on at `min-width: 600px`.
+- Default new `@media` queries to `(max-width: 599px)`. Anything else needs a comment.
+- Use `useMediaQuery` for JS-driven viewport-conditional rendering.
+- Type via `clamp()` for anything bigger than body (16px). Body and small text use fixed px.
+- Touch targets ≥44px on phone — no exceptions on interactive elements.
+- Hover states gated by `@media (hover: hover)` when they convey information.
+- Heavy graphics need a phone fallback: smaller variant, placeholder, or hidden.
+
+The in-app **DevicePreview** widget (bottom-right floating button, dev-only) opens an iframe at preset device sizes for verification. Use it before opening a PR.
+
 ## Non-negotiable technical rules
 
 - **Preserve the prototype CSS verbatim.** `colors_and_type.css` and `nza-website.css` encode the v2 design system spec — do not refactor into Tailwind utilities. Only add to Tailwind via `@theme` for *new* component work.
