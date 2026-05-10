@@ -82,6 +82,52 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
     min-height: 0;
     padding: 56px 0 40px;
   }
+  /* PHONE TYPOGRAPHY OVERRIDES.
+     The clamp() rules in colors_and_type.css are tuned for >=600 and
+     they bottom out at sizes that still feel desktop-ish on a 375px
+     viewport (e.g. .headline clamps to 42px). Compress everything down
+     so a phone screen reads like a phone screen, not a stretched desk. */
+  .headline {
+    font-size: clamp(28px, 8.5vw, 36px);
+    line-height: 1.08;
+  }
+  .lede {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+  /* Hero watermark logo is sized via clamp(620px, 65vw, 920px) for
+     desktop. On a 375 viewport that bottoms out at 620px - way wider
+     than the screen. Hide it; the headline carries the hero alone. */
+  .hero-mark { display: none; }
+  /* Hero placeholder visual column collapses too - just be invisible. */
+  .hero-visual { display: none; }
+
+  /* GHG Protocol diagram doesn't survive a 1289-unit viewBox on a 335px
+     content area - text is unreadable, the layered animation is wasted.
+     Hide on phone; the Expertise headline + lede carry the section. */
+  .diagram-ghg { display: none; }
+  .capabilities { gap: 24px; }
+
+  /* Approach card icon disc shrinks - 84px is desktop scale, too dominant
+     on a 1-col phone card. */
+  .cap-icon { width: 64px; height: 64px; }
+  .cap-icon img { width: 44px; height: 44px; }
+  .cap-icon img[src$="smart-energy.svg"],
+  .cap-icon img[src$="carbon-pathways.svg"],
+  .cap-icon img[src$="climate-resilience.svg"] {
+    width: 56px; height: 56px;
+  }
+  .cap-card { padding: 20px 22px; }
+  .cap-num { font-size: 10px; }
+  .cap-title { font-size: 19px; max-width: none; }
+
+  /* Tighter section header rhythm. */
+  .approach-header { margin-bottom: 24px; }
+  .three-lens-mark { max-width: 200px; }
 }
 
 /* =========================================================================
@@ -181,7 +227,10 @@ body.on-navy .nav-link.active {
   padding-right: 6px;
 }
 .nav-hamburger {
-  width: 36px; height: 36px;
+  /* 44x44 touch target wrapping a 28px visual button so finger taps hit
+     reliably without ballooning the pill height. */
+  width: 44px; height: 44px;
+  margin: -4px;
   border-radius: 999px;
   background: transparent;
   border: 0;
@@ -237,28 +286,30 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .mobile-nav-menu-list {
   list-style: none;
   margin: 0;
-  padding: 0 8px;
+  padding: 0 4px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   flex: 1;
-  gap: 4px;
+  gap: 2px;
   /* Slight rise so the menu doesn't feel anchored to the bottom on
      short viewports. */
-  transform: translateY(-6vh);
+  transform: translateY(-4vh);
 }
 .mobile-nav-menu-link {
   display: block;
-  padding: 18px 16px;
+  /* Trimmed: 34px Stolzl + 18px padding overflowed the iframe with all
+     5 links visible. 24px / 14px sits comfortably and the line-height
+     keeps the touch target above 44px. */
+  padding: 14px 16px;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 34px;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
   color: var(--fg-on-navy-1);
   text-decoration: none;
   border-radius: 6px;
-  /* Tappable area >= 44px guaranteed by padding + line-height. */
 }
 .mobile-nav-menu-link.active { color: var(--coral); }
 .mobile-nav-menu-link:active { background: rgba(245, 241, 232, 0.06); }

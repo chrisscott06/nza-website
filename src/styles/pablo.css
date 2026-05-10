@@ -78,7 +78,24 @@ body.pablo-page .footer {
   box-sizing: border-box;
 }
 @media (max-width: 599px) {
-  .pablo-frame { padding: 0 24px; }
+  .pablo-frame { padding: 0 20px; }
+
+  /* PHONE OVERRIDES — the four chart-heavy sections (Decomposition,
+     Test, Lifecycle, Breadth) carry hand-built SVGs at 1100x400 viewBox
+     plus interactive toggles and range sliders that don't translate to
+     a 375px touchscreen. Hide them on phone; the hero, why, who and CTA
+     sections still tell PABLO's story. */
+  #decomposition,
+  #transition,
+  #test,
+  #lifecycle,
+  #breadth { display: none; }
+
+  /* Tighter section padding on phone. */
+  .p-section { padding: 56px 0 40px; }
+  .p-hero { min-height: 0; padding: 80px 0 40px; }
+  .p-hero-headline { font-size: clamp(28px, 8.5vw, 36px); line-height: 1.08; }
+  .p-headline      { font-size: clamp(26px, 7vw, 32px); line-height: 1.1; }
 }
 
 /* =========================================================================
