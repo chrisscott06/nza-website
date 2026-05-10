@@ -1424,6 +1424,227 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .cap-expanded.disrupt .cap-expanded-lens p .lead { color: var(--fg-on-navy-1); }
 
 /* =========================================================================
+   MOBILE APPROACH MODAL (<600px)
+   The desktop in-place expanded panel doesn't work on phone (single-
+   column grid leaves no context for an overlay). On phone the cap-card
+   tap opens this modal instead - full-screen, slide-up, swipe-down
+   to dismiss. Renders into document.body via portal.
+   ========================================================================= */
+.mobile-cap-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.mobile-cap-modal.is-open { pointer-events: auto; }
+
+.mobile-cap-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 17, 32, 0.55);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 280ms var(--ease-reveal);
+}
+.mobile-cap-modal.is-open .mobile-cap-modal-backdrop { opacity: 1; }
+
+.mobile-cap-modal-panel {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  /* 92vh keeps a slim glimpse of the page behind so the user can see
+     the modal is dismissable. The user can also swipe down or tap
+     the backdrop. */
+  height: 92vh;
+  background: var(--paper);
+  border-top: 4px solid var(--coral);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  box-shadow: 0 -12px 40px rgba(14, 17, 32, 0.20);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateY(100%);
+  transition: transform 360ms var(--ease-reveal);
+  display: flex;
+  flex-direction: column;
+}
+.mobile-cap-modal.is-open .mobile-cap-modal-panel {
+  transform: translateY(0);
+}
+
+.mobile-cap-modal.disrupt .mobile-cap-modal-panel {
+  background: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+}
+
+.mobile-cap-modal-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: inherit;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+  z-index: 1;
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-header { border-bottom-color: var(--rule-dark); }
+
+.mobile-cap-modal-back {
+  width: 44px; height: 44px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+.mobile-cap-modal-back:active {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-back {
+  border-color: rgba(245, 241, 232, 0.20);
+  color: var(--fg-on-navy-2);
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-back:active {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.mobile-cap-modal-back svg { display: block; }
+
+.mobile-cap-modal-title {
+  margin: 0;
+  font-family: var(--font-italic);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2;
+  color: inherit;
+}
+.mobile-cap-modal-title em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  color: var(--coral);
+}
+
+.mobile-cap-modal-body {
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mobile-cap-modal-icon {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: var(--coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+.mobile-cap-modal-icon img {
+  width: 56px; height: 56px;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+/* Match the desktop disc-icon size compensation for the three icons
+   whose viewBox carries more whitespace. */
+.mobile-cap-modal-icon img[src$="smart-energy.svg"],
+.mobile-cap-modal-icon img[src$="carbon-pathways.svg"],
+.mobile-cap-modal-icon img[src$="climate-resilience.svg"] {
+  width: 70px; height: 70px;
+}
+
+.mobile-cap-modal-lead {
+  margin: 0;
+  font-family: var(--font-italic);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.22;
+  color: inherit;
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-lead { color: var(--fg-on-navy-1); }
+
+.mobile-cap-modal-desc {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-desc { color: var(--fg-on-navy-2); }
+
+.mobile-cap-modal-lenses {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-lenses { border-top-color: var(--rule-dark); }
+
+.mobile-cap-modal-lens {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-cap-modal-lens-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.mobile-cap-modal-lens-icon {
+  width: 44px; height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mobile-cap-modal-lens-icon img {
+  width: 32px; height: 32px;
+  display: block;
+}
+.mobile-cap-modal-lens-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.mobile-cap-modal-lens-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-lens-text { color: var(--fg-on-navy-2); }
+.mobile-cap-modal-lens-text .lead {
+  font-weight: 600;
+  color: var(--ink);
+}
+.mobile-cap-modal.disrupt .mobile-cap-modal-lens-text .lead { color: var(--fg-on-navy-1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-cap-modal-backdrop,
+  .mobile-cap-modal-panel { transition: none; }
+}
+
+/* =========================================================================
    PLACEHOLDER SECTIONS - Products and Clients
    Drafted as spec'd-to-brief calm placeholders, not built-out designs.
    ========================================================================= */

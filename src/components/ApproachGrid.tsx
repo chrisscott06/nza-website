@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { CAPABILITIES, type Capability } from '../data/capabilities'
 import { ArrowRightIcon } from './svg/CapabilityIcons'
+import { useMediaQuery } from '../hooks/useMediaQuery'
+import { MobileApproachModal } from './MobileApproachModal'
 
 /**
  * Approach 6-card grid with click-to-reveal expanded panel.
@@ -41,6 +43,10 @@ export function ApproachGrid() {
   const [active, setActive] = useState<Capability | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const animatingRef = useRef(false)
+  // <600px: render the MobileApproachModal instead of the in-place
+  // expanded panel. The desktop overlay assumes a 3x2 grid behind it,
+  // which doesn't translate to a single-column phone layout.
+  const isPhone = useMediaQuery('(max-width: 599px)')
 
   function openCap(cap: Capability) {
     if (animatingRef.current) return
@@ -129,7 +135,12 @@ export function ApproachGrid() {
         })}
       </div>
 
-      {active && <CapExpanded cap={active} isOpen={isOpen} onClose={closeCap} />}
+      {active && !isPhone && (
+        <CapExpanded cap={active} isOpen={isOpen} onClose={closeCap} />
+      )}
+      {active && isPhone && (
+        <MobileApproachModal cap={active} isOpen={isOpen} onClose={closeCap} />
+      )}
     </div>
   )
 }
