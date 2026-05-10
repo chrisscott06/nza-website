@@ -34,8 +34,8 @@ body {
   margin: 0 auto;
   padding: 0 48px;
 }
-@media (max-width: 719px) {
-  .frame { padding: 0 24px; }
+@media (max-width: 599px) {
+  .frame { padding: 0 20px; }
 }
 
 /* =========================================================================
@@ -70,8 +70,18 @@ body {
    inset panel can grow without fighting the snap.
    ========================================================================= */
 html { scroll-behavior: auto; /* JS owns the smoothing */ }
-@media (max-width: 719px) {
-  /* On narrow screens, drop JS snap entirely - set in JS by checking width */
+/* Snap-paging is gated by useSnapPaging.shouldSnap() — fires only on
+   mouse-primary devices at >=600px width. Touch devices (phone, iPad)
+   get native scroll. No CSS toggle needed here. */
+
+/* PHONE OVERRIDES — sections drop their viewport-tall stretch and read
+   as a content-tall scrolling document. The hero stops feeling
+   artificially padded; later sections start where the previous one ends. */
+@media (max-width: 599px) {
+  .screen {
+    min-height: 0;
+    padding: 56px 0 40px;
+  }
 }
 
 /* =========================================================================
@@ -313,7 +323,7 @@ body.on-navy .nav-link.active {
   gap: 80px;
   align-items: center;
 }
-@media (max-width: 1023px) {
+@media (max-width: 599px) {
   .hero { grid-template-columns: 1fr; gap: 48px; }
 }
 .hero-text { max-width: 540px; }
@@ -431,7 +441,7 @@ body.on-navy .nav-link.active {
   0%   { transform: translate(0, -50%) scale(1.00); }
   100% { transform: translate(8px, calc(-50% + 10px)) scale(1.03); }
 }
-@media (max-width: 1023px) {
+@media (max-width: 599px) {
   .hero-visual { min-height: 220px; }
   .hero-mark { top: -40%; right: -25%; width: clamp(460px, 130vw, 720px); }
 }
@@ -532,7 +542,9 @@ body.on-navy .nav-link.active {
 }
 /* Marque overlay is desktop-only - it requires real horizontal room for
    the three labelled gradient curves to land at the brand mark's vertex.
-   Below 1024px the shimmer logo carries the hero alone. */
+   Below 1024px the shimmer logo carries the hero alone. (Documented
+   exception to the 600px desktop boundary; everything else collapses
+   only at <600.) */
 @media (max-width: 1023px) {
   .hero-marque { display: none; }
 }
@@ -590,7 +602,7 @@ body.on-navy .nav-link.active {
   gap: 160px;
   align-items: center;
 }
-@media (max-width: 1023px) {
+@media (max-width: 599px) {
   .capabilities { grid-template-columns: 1fr; gap: 48px; }
   .capabilities-text { order: 1; }
   .capabilities .diagram { order: 2; }
@@ -663,7 +675,7 @@ body.on-navy .nav-link.active {
   align-items: center;
   margin-bottom: 36px;
 }
-@media (max-width: 719px) {
+@media (max-width: 599px) {
   .approach-header { grid-template-columns: 1fr; gap: 24px; align-items: start; }
 }
 .approach-header-left .eyebrow { margin-bottom: 24px; }
@@ -683,7 +695,7 @@ body.on-navy .nav-link.active {
      headline's x-height, not the eyebrow. */
   transform: translateY(-6px);
 }
-@media (max-width: 719px) {
+@media (max-width: 599px) {
   .three-lens-mark {
     max-width: 260px;
     margin: 8px 0 0;
@@ -716,16 +728,12 @@ body.on-navy .nav-link.active {
   /* Lock height so the grid doesn't reflow when one card "expands" via overlay */
   min-height: 360px;
 }
-/* Three tiers for the capability grid:
-     - Desktop  >= 1024: 3x2 (default rule above)
-     - Tablet   720-1023: 2x3
-     - Mobile   < 720:    1-col stack of 6
+/* Two tiers for the capability grid (per the phone-redesign plan):
+     - Desktop / iPad  >= 600: 3x2 (default rule above)
+     - Phone           < 600:  1-col stack of 6, modal handles details
    The min-height lock is only useful at the 3x2 size; relax below. */
-@media (max-width: 1023px) {
-  .cap-grid { grid-template-columns: 1fr 1fr; min-height: 0; }
-}
-@media (max-width: 719px) {
-  .cap-grid { grid-template-columns: 1fr; }
+@media (max-width: 599px) {
+  .cap-grid { grid-template-columns: 1fr; min-height: 0; }
 }
 
 /* Closed card - compact, icon + number on top, title + arrow on bottom. */
@@ -1233,7 +1241,10 @@ body.on-navy .nav-link.active {
   min-height: 0;
 }
 .cap-expanded.disrupt .cap-expanded-lenses { border-top-color: var(--rule-dark); }
-@media (max-width: 719px) {
+@media (max-width: 599px) {
+  /* Phone uses MobileApproachModal instead of the in-place expanded
+     panel; this rule still helps if the modal isn't yet wired in or
+     if a hybrid device falls through. */
   .cap-expanded-lenses { grid-template-columns: 1fr; gap: 24px; padding-top: 20px; }
 }
 /* Vertical hairlines between the three lens columns - more architectural
@@ -1415,7 +1426,7 @@ body.on-navy .nav-link.active {
   align-items: end;
   margin-bottom: 40px;
 }
-@media (max-width: 719px) {
+@media (max-width: 599px) {
   .products-header { grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; }
 }
 .products-header-left .eyebrow { margin-bottom: 24px; }

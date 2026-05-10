@@ -181,20 +181,25 @@
 
   /* =====================================================================
      RESPONSIVE BREAKPOINTS (documentation; CSS vars can't be used inside
-     @media queries, so the literal numbers must be repeated below).
+     @media queries, so the literal numbers are repeated in each rule).
 
-       --bp-desktop  1024px  - full editorial experience above; native
-                               scroll + simplified motion below.
-       --bp-tablet    720px  - tablet/half-screen above, mobile below.
-       --bp-mobile    480px  - small-phone refinements below.
+     TWO TIERS — see CLAUDE.md "Responsive rules":
 
-     Three breakpoints only. Don't introduce midpoints (880, 900, 960 etc.)
-     without writing a comment that justifies the exception. New media
-     queries should use one of these three.
+       --bp-phone   600px   the only hard tier boundary. >=600 gets the
+                            full editorial layout (iPad portrait + up,
+                            scaled by clamp). <600 is its own design:
+                            hamburger nav, single-column sections,
+                            Approach modal pattern.
+
+     Documented exceptions (justify in CSS comment if you add more):
+       - Marque overlay: hidden below 1024px (needs full desktop room).
+       - Product cards: 3-col only at >=1024px (cards too wide for 3-col
+         on iPad portrait).
+
+     New @media queries should default to (max-width: 599px) for phone
+     overrides. Anything else needs a comment explaining why.
      ===================================================================== */
-  --bp-desktop:    1024px;
-  --bp-tablet:      720px;
-  --bp-mobile:      480px;
+  --bp-phone:       600px;
 }
 
 /* =========================================================================

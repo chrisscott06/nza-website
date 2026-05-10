@@ -2,17 +2,27 @@ import { useCallback, useEffect, useRef } from 'react'
 
 const SCROLL_MS = 700
 const WHEEL_DEBOUNCE_MS = 750
-/* Snap-paging is desktop-only. Below 1024px (tablet, iPad portrait,
-   half-screen on a desktop) the screens stack tighter than the snap
-   choreography expects — content gets clipped at the screen boundary
-   and the per-section layouts (designed for a wide hero) feel forced.
-   Native scroll there. Was 720 originally. */
-const COMPACT_BREAKPOINT = 1023
+const PHONE_BREAKPOINT = 600
 
 const ease = (t: number) => 1 - Math.pow(1 - t, 3) // easeOutCubic
 
-function isCompactViewport() {
-  return window.innerWidth <= COMPACT_BREAKPOINT
+/**
+ * Snap-paging fires only on genuine mouse-driven desktop. Three checks
+ * are AND-ed:
+ *   - viewport >= 600px              (phones get native scroll)
+ *   - (hover: hover)                 (mouse-primary, not touch)
+ *   - (pointer: fine)                (precise pointer, not finger)
+ *
+ * iPad (touch-primary) gets the desktop layout but native scroll, so
+ * scroll feels normal under a finger. Hybrid laptops with touchscreens
+ * still get snap because their primary pointer is fine.
+ */
+function shouldSnap() {
+  if (window.innerWidth < PHONE_BREAKPOINT) return false
+  return (
+    window.matchMedia('(hover: hover)').matches &&
+    window.matchMedia('(pointer: fine)').matches
+  )
 }
 
 function prefersReducedMotion() {
@@ -123,7 +133,7 @@ export function useSnapPaging(screenIds: string[]) {
     }
 
     function onWheel(e: WheelEvent) {
-      if (isCompactViewport()) return
+      if (!shouldSnap()) return
       if (reducedMotionRef.current) return
       // Bail when a cap-card is expanded - let the user scroll inside the
       // panel naturally without triggering a page-flip.
@@ -155,7 +165,7 @@ export function useSnapPaging(screenIds: string[]) {
     }
 
     function onKey(e: KeyboardEvent) {
-      if (isCompactViewport()) return
+      if (!shouldSnap()) return
       if (reducedMotionRef.current) return
       if (document.body.dataset.capOpen === 'true') return
       const tag = (e.target as HTMLElement | null)?.tagName ?? ''
