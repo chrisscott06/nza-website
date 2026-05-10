@@ -34,7 +34,7 @@ body {
   margin: 0 auto;
   padding: 0 48px;
 }
-@media (max-width: 720px) {
+@media (max-width: 719px) {
   .frame { padding: 0 24px; }
 }
 
@@ -70,7 +70,7 @@ body {
    inset panel can grow without fighting the snap.
    ========================================================================= */
 html { scroll-behavior: auto; /* JS owns the smoothing */ }
-@media (max-width: 720px) {
+@media (max-width: 719px) {
   /* On narrow screens, drop JS snap entirely - set in JS by checking width */
 }
 
@@ -313,7 +313,7 @@ body.on-navy .nav-link.active {
   gap: 80px;
   align-items: center;
 }
-@media (max-width: 960px) {
+@media (max-width: 1023px) {
   .hero { grid-template-columns: 1fr; gap: 48px; }
 }
 .hero-text { max-width: 540px; }
@@ -431,7 +431,7 @@ body.on-navy .nav-link.active {
   0%   { transform: translate(0, -50%) scale(1.00); }
   100% { transform: translate(8px, calc(-50% + 10px)) scale(1.03); }
 }
-@media (max-width: 960px) {
+@media (max-width: 1023px) {
   .hero-visual { min-height: 220px; }
   .hero-mark { top: -40%; right: -25%; width: clamp(460px, 130vw, 720px); }
 }
@@ -530,9 +530,10 @@ body.on-navy .nav-link.active {
 @media (prefers-reduced-motion: reduce) {
   .hero-marque { display: none; }
 }
-/* On narrow viewports the marque would push label text off-canvas to the
-   left. Hide it on mobile - the shimmer logo carries the hero alone. */
-@media (max-width: 960px) {
+/* Marque overlay is desktop-only - it requires real horizontal room for
+   the three labelled gradient curves to land at the brand mark's vertex.
+   Below 1024px the shimmer logo carries the hero alone. */
+@media (max-width: 1023px) {
   .hero-marque { display: none; }
 }
 
@@ -589,7 +590,7 @@ body.on-navy .nav-link.active {
   gap: 160px;
   align-items: center;
 }
-@media (max-width: 960px) {
+@media (max-width: 1023px) {
   .capabilities { grid-template-columns: 1fr; gap: 48px; }
   .capabilities-text { order: 1; }
   .capabilities .diagram { order: 2; }
@@ -662,7 +663,7 @@ body.on-navy .nav-link.active {
   align-items: center;
   margin-bottom: 36px;
 }
-@media (max-width: 880px) {
+@media (max-width: 719px) {
   .approach-header { grid-template-columns: 1fr; gap: 24px; align-items: start; }
 }
 .approach-header-left .eyebrow { margin-bottom: 24px; }
@@ -682,7 +683,7 @@ body.on-navy .nav-link.active {
      headline's x-height, not the eyebrow. */
   transform: translateY(-6px);
 }
-@media (max-width: 880px) {
+@media (max-width: 719px) {
   .three-lens-mark {
     max-width: 260px;
     margin: 8px 0 0;
@@ -715,8 +716,16 @@ body.on-navy .nav-link.active {
   /* Lock height so the grid doesn't reflow when one card "expands" via overlay */
   min-height: 360px;
 }
-@media (max-width: 880px) {
-  .cap-grid { grid-template-columns: 1fr; min-height: 0; }
+/* Three tiers for the capability grid:
+     - Desktop  >= 1024: 3x2 (default rule above)
+     - Tablet   720-1023: 2x3
+     - Mobile   < 720:    1-col stack of 6
+   The min-height lock is only useful at the 3x2 size; relax below. */
+@media (max-width: 1023px) {
+  .cap-grid { grid-template-columns: 1fr 1fr; min-height: 0; }
+}
+@media (max-width: 719px) {
+  .cap-grid { grid-template-columns: 1fr; }
 }
 
 /* Closed card - compact, icon + number on top, title + arrow on bottom. */
@@ -1224,7 +1233,7 @@ body.on-navy .nav-link.active {
   min-height: 0;
 }
 .cap-expanded.disrupt .cap-expanded-lenses { border-top-color: var(--rule-dark); }
-@media (max-width: 880px) {
+@media (max-width: 719px) {
   .cap-expanded-lenses { grid-template-columns: 1fr; gap: 24px; padding-top: 20px; }
 }
 /* Vertical hairlines between the three lens columns - more architectural
@@ -1406,7 +1415,7 @@ body.on-navy .nav-link.active {
   align-items: end;
   margin-bottom: 40px;
 }
-@media (max-width: 880px) {
+@media (max-width: 719px) {
   .products-header { grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; }
 }
 .products-header-left .eyebrow { margin-bottom: 24px; }
@@ -1426,7 +1435,7 @@ body.on-navy .nav-link.active {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .product-cards { grid-template-columns: 1fr; gap: 20px; }
 }
 
@@ -1699,7 +1708,7 @@ body.on-navy .nav-link.active {
   width: 80px;
   opacity: 1;
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .product-cards[data-variant="rows"] .product-card {
     grid-template-columns: 1fr;
     gap: 16px;

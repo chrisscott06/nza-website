@@ -178,7 +178,31 @@
   --dur-fast:      180ms;
   --dur-base:      360ms;
   --dur-slow:      800ms;
+
+  /* =====================================================================
+     RESPONSIVE BREAKPOINTS (documentation; CSS vars can't be used inside
+     @media queries, so the literal numbers must be repeated below).
+
+       --bp-desktop  1024px  - full editorial experience above; native
+                               scroll + simplified motion below.
+       --bp-tablet    720px  - tablet/half-screen above, mobile below.
+       --bp-mobile    480px  - small-phone refinements below.
+
+     Three breakpoints only. Don't introduce midpoints (880, 900, 960 etc.)
+     without writing a comment that justifies the exception. New media
+     queries should use one of these three.
+     ===================================================================== */
+  --bp-desktop:    1024px;
+  --bp-tablet:      720px;
+  --bp-mobile:      480px;
 }
+
+/* =========================================================================
+   HOVER GATING. Wrap any :hover rule that conveys *information* (state
+   change beyond polish) in @media (hover: hover) so touch devices don't
+   get stuck states. Polish-only hovers (subtle lifts, colour shimmers)
+   can run unconditionally. Documented here for reference.
+   ========================================================================= */
 
 /* =========================================================================
    SEMANTIC ELEMENT BASES
