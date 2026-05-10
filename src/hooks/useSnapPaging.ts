@@ -2,7 +2,12 @@ import { useCallback, useEffect, useRef } from 'react'
 
 const SCROLL_MS = 700
 const WHEEL_DEBOUNCE_MS = 750
-const COMPACT_BREAKPOINT = 720
+/* Snap-paging is desktop-only. Below 1024px (tablet, iPad portrait,
+   half-screen on a desktop) the screens stack tighter than the snap
+   choreography expects — content gets clipped at the screen boundary
+   and the per-section layouts (designed for a wide hero) feel forced.
+   Native scroll there. Was 720 originally. */
+const COMPACT_BREAKPOINT = 1023
 
 const ease = (t: number) => 1 - Math.pow(1 - t, 3) // easeOutCubic
 
