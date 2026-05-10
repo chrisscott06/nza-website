@@ -172,6 +172,106 @@ body.on-navy .nav-link.active {
 }
 
 /* =========================================================================
+   PHONE NAV - hamburger button + slide-down full-screen menu
+   <600px viewports only. The pill keeps the NZA logo on the left and
+   replaces the link list with a single hamburger button.
+   ========================================================================= */
+.nav-shell--phone {
+  /* Tighter pill on phone so 375px viewports breathe. */
+  padding-right: 6px;
+}
+.nav-hamburger {
+  width: 36px; height: 36px;
+  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 200ms ease;
+}
+.nav-hamburger:hover { background: rgba(14, 17, 32, 0.06); }
+body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
+.nav-hamburger svg { display: block; }
+
+.mobile-nav-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(14, 17, 32, 0.96);
+  -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+  animation: mobile-nav-menu-in 220ms var(--ease-out-soft);
+}
+.mobile-nav-menu-shell {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.mobile-nav-menu-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 44px; height: 44px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(245, 241, 232, 0.18);
+  color: var(--fg-on-navy-1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 200ms ease;
+}
+.mobile-nav-menu-close:hover { border-color: var(--coral); color: var(--coral); }
+.mobile-nav-menu-close svg { display: block; }
+
+.mobile-nav-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  gap: 4px;
+  /* Slight rise so the menu doesn't feel anchored to the bottom on
+     short viewports. */
+  transform: translateY(-6vh);
+}
+.mobile-nav-menu-link {
+  display: block;
+  padding: 18px 16px;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 34px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--fg-on-navy-1);
+  text-decoration: none;
+  border-radius: 6px;
+  /* Tappable area >= 44px guaranteed by padding + line-height. */
+}
+.mobile-nav-menu-link.active { color: var(--coral); }
+.mobile-nav-menu-link:active { background: rgba(245, 241, 232, 0.06); }
+
+@keyframes mobile-nav-menu-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-menu { animation: none; }
+}
+
+/* =========================================================================
    EYEBROW - coral 24px rule + small caps label
    This is the §5 "coral rule as section marker" in the spec.
    ========================================================================= */
