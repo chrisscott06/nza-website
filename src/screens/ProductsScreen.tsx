@@ -55,7 +55,7 @@ export function ProductsScreen() {
             </h3>
             <p className="product-card-tagline">See your energy clearly.</p>
             <p className="product-card-desc">
-              PABLO decomposes commercial electricity costs to the half-hour,
+              PABLO deconstructs commercial electricity costs to the half-hour,
               models every intervention against real demand, and projects a
               detailed investment case over the project's lifecycle. The energy
               intelligence platform that powers NZA's smart energy and
