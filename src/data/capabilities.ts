@@ -28,7 +28,7 @@ export const CAPABILITIES: Capability[] = [
     title: 'Whole-estate strategy',
     icon: 'estate-strategy',
     desc:
-      "Strategic decarbonisation across mixed and complex estates. NZA works alongside the people running the estate - estates teams, designers, contractors, sustainability leads, and finance - turning scattered information into clear investment decisions.",
+      "Strategic decarbonisation across mixed and complex estates. NZA works alongside the people running the estate - FM teams, designers, contractors, sustainability leads, and finance - turning a complex estate into a clear picture, and aligning decarbonisation, resilience and investment into a single plan.",
     data:
       "Building the evidence base when there isn't one. First-principles energy modelling from building physics, operational schedules and partial records. Filling data gaps and surfacing what's actually happening across an estate.",
     tools:
@@ -38,10 +38,10 @@ export const CAPABILITIES: Capability[] = [
   },
   {
     id: 2,
-    title: 'Smart energy strategy',
+    title: 'Smart energy',
     icon: 'smart-energy',
     desc:
-      "Smart energy strategy lives at the meeting point of three things - what the building demands, what the grid can deliver, and what the market makes possible. NZA brings a deep understanding of energy economics, DNO engagement, and behind-the-meter technologies to every part of that work, from technical analysis to procurement support.",
+      "Smart energy sits where buildings, the grid and the market meet. NZA brings a deep understanding of energy economics, network analysis and behind-the-meter technologies to every part of that work, from technical design to procurement support.",
     data:
       "Load shape analysis, bill decomposition, generation potential. Half-hourly demand profiling against tariff structure. Real-world degradation curves and dispatch behaviours for solar, storage, EV and heat.",
     tools:
@@ -51,7 +51,7 @@ export const CAPABILITIES: Capability[] = [
   },
   {
     id: 3,
-    title: 'Financial intelligence',
+    title: 'Energy economics',
     icon: 'financial',
     desc:
       "Bringing economic literacy to energy and decarbonisation decisions. NZA sits client-side on investment decisions - combining engineering analysis, energy market knowledge, and lifecycle thinking to help organisations get genuine value from their capital.",
@@ -67,7 +67,7 @@ export const CAPABILITIES: Capability[] = [
     title: 'Carbon accounting & pathways',
     icon: 'carbon-pathways',
     desc:
-      "Inventory and pathway done as one piece of work. Where the footprint sits today, what business-as-usual looks like tomorrow, and the trajectory required to align.",
+      "Inventory and pathway done as one piece of work. Where the footprint sits today. Where it's heading if nothing changes. And what it takes to land on net zero.",
     data:
       "From global footprint to specific supplier data. Activity-based Scope 1, 2 and 3 inventories with data-quality grading and a transparent path from sector averages to primary data. The breadth of the supply chain made visible - and interrogable.",
     tools:
@@ -80,9 +80,9 @@ export const CAPABILITIES: Capability[] = [
     title: 'Climate resilience',
     icon: 'climate-resilience',
     desc:
-      "Real physical risk, grounded in the institutional knowledge of teams who know the buildings. Climate exposure modelled with rigour, then translated into adaptation plans the people running the estate can actually act on.",
+      "Real physical risk, grounded in the teams who know the buildings. Climate exposure modelled with rigour, then translated into adaptation plans the people running the estate can actually act on.",
     data:
-      "Asset-level exposure across the estate. Climate scenario modelling, hazard projections from UKCP18, historical site events, and the operational knowledge of the people running the buildings - turning generic climate data into site-specific risk.",
+      "Risk you can see and interrogate. Climate scenario modelling, hazard projections from UKCP18, historical site events, and the operational knowledge of the people running the buildings - turning generic climate data into site-specific decisions.",
     tools:
       "Living digital risk registers. Tracked, traced, scenario-tested. Portfolio-wide vulnerability dashboards and disclosure-ready reporting that update with the climate science.",
     strategy:
