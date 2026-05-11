@@ -91,10 +91,7 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
     font-size: clamp(28px, 8.5vw, 36px);
     line-height: 1.08;
   }
-  .lede {
-    font-size: 16px;
-    line-height: 1.5;
-  }
+  /* .lede sized by the global 14px rule - no per-tier override. */
   .eyebrow {
     font-size: 11px;
     letter-spacing: 0.18em;
@@ -571,10 +568,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .lede {
   font-family: var(--font-body);
   font-weight: 300; /* Inter Light */
-  /* Restored editorial lede size after the brief 14px experiment in
-     commit 22d2003 - the lens-body match-up only made sense in the
-     context of the expanded panel, not site-wide. */
-  font-size: clamp(17px, 1.3vw, 19px);
+  /* 14px flat across every screen and every viewport. Home was on
+     clamp(17, 1.3vw, 19) - bumped to match inner screens per Chris,
+     so body weight is uniform site-wide; the Home hero stays loud
+     via its headline alone. */
+  font-size: 14px;
   line-height: 1.55;
   color: var(--ink-2);
   max-width: 60ch;
@@ -915,13 +913,9 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 #clients .headline {
   font-size: clamp(26px, 4vw, 56px);
 }
-#capabilities .lede,
-#approach .lede,
-#products .lede,
-#clients .lede {
-  font-size: 14px;
-  line-height: 1.55;
-}
+/* .lede sized by the global 14px rule above - same on every screen,
+   including Home. The hero stays loud via its headline alone. */
+
 /* Expertise text column trim - the diagram is the hero on this screen,
    so the body sits in a narrower column on the right. Other inner
    screens keep their default text width. */
@@ -1288,8 +1282,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .approach-header-right .lede {
   color: var(--ink-2);
   margin: 0;
-  font-size: 16px; /* Restored after the 14px experiment was rolled back */
-  line-height: 1.5;
+  /* font-size + line-height inherit from the global 14px .lede rule */
   max-width: 44ch;
 }
 
@@ -3225,7 +3218,8 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   }
   /* Trim the header lede so the row of cards has more vertical room. */
   .products-header { margin-bottom: 24px; }
-  .products-header-right .lede { font-size: 15px; max-width: 56ch; }
+  /* .lede font-size inherits global 14px; only the max-width is iPad-specific. */
+  .products-header-right .lede { max-width: 56ch; }
 
   /* CAP-EXPANDED PANEL (the in-place modal that grows out of an Approach
      card on desktop). Same principle as the section trims above: shrink
