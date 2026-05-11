@@ -4,7 +4,6 @@ import { useGhgReveal } from '../hooks/useGhgReveal'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
   EXPERTISE_ZONES,
-  zoneCenterPct,
   zoneLeftPct,
   zoneRightPct,
   type ZoneId,
@@ -88,6 +87,7 @@ export function ExpertiseScreen() {
                   className={'ghg-zone-label' + (activeZone === z.id ? ' is-active' : '')}
                   aria-selected={activeZone === z.id}
                   aria-controls={`ghg-zone-panel-${z.id}`}
+                  style={{ '--zone-color': z.accent } as React.CSSProperties}
                   onMouseEnter={() => !isPhone && setActiveZone(z.id)}
                   onFocus={() => setActiveZone(z.id)}
                   onClick={() => setActiveZone(activeZone === z.id ? null : z.id)}
@@ -98,7 +98,9 @@ export function ExpertiseScreen() {
             </div>
 
             <div className="ghg-stage">
-              {/* Radial coral glow clipped to the active zone's x-slice. */}
+              {/* Radial glow clipped to the active zone's x-slice. Tinted
+                  with the zone's accent so the colour cue carries from the
+                  arrow gradient above through to the panel below. */}
               <div
                 className={'ghg-zone-glow' + (active ? ' is-on' : '')}
                 style={
@@ -106,7 +108,7 @@ export function ExpertiseScreen() {
                     ? {
                         '--glow-left': `${zoneLeftPct(active)}%`,
                         '--glow-right': `${100 - zoneRightPct(active)}%`,
-                        '--glow-center': `${zoneCenterPct(active)}%`,
+                        '--zone-rgb': active.accentRgb,
                       } as React.CSSProperties
                     : undefined
                 }
@@ -147,7 +149,12 @@ export function ExpertiseScreen() {
                 style={
                   active
                     ? ({
-                        '--panel-center': `${zoneCenterPct(active)}%`,
+                        /* Anchored to the zone's LEFT separator so panels
+                           visually line up with the three vertical dividers
+                           inside the SVG. CSS clamps Influence so it doesn't
+                           overflow the right edge of the stage. */
+                        '--panel-left': `${zoneLeftPct(active)}%`,
+                        '--zone-color': active.accent,
                       } as React.CSSProperties)
                     : undefined
                 }

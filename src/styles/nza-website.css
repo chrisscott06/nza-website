@@ -1006,13 +1006,15 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   position: relative;
 }
 .ghg-zone-label::after {
-  /* Hairline coral underline that grows in when active. */
+  /* Hairline underline that grows in when active. Picks up the zone's
+     own accent colour (--zone-color, set per-label inline) so the
+     underline echoes the gradient on the arrow above. */
   content: '';
   position: absolute;
   left: 22%; right: 22%;
   bottom: 4px;
   height: 1px;
-  background: var(--coral);
+  background: var(--zone-color, var(--coral));
   transform: scaleX(0);
   transition: transform 220ms var(--ease-out-soft);
   transform-origin: center;
@@ -1020,7 +1022,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .ghg-zone-label:hover,
 .ghg-zone-label:focus-visible,
 .ghg-zone-label.is-active {
-  color: var(--coral);
+  color: var(--zone-color, var(--coral));
   outline: none;
 }
 .ghg-zone-label:hover::after,
@@ -1038,9 +1040,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   width: 100%;
 }
 
-/* Coral radial glow overlay. Clipped to the active zone's x-slice via
-   the --glow-left / --glow-right CSS vars (set inline from JS); the
-   radial gradient inside that slice falls off to transparent. */
+/* Radial glow overlay. Clipped to the active zone's x-slice via the
+   --glow-left / --glow-right CSS vars (set inline from JS). The glow
+   colour is driven by --zone-rgb (orange / coral / pink / purple to
+   echo the arrow gradient above). Falls off to transparent at the
+   edges. */
 .ghg-zone-glow {
   position: absolute;
   top: 0; bottom: 0;
@@ -1053,9 +1057,9 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
               right 280ms var(--ease-out-soft);
   background: radial-gradient(
     ellipse at center 45%,
-    rgba(247, 90, 85, 0.30) 0%,
-    rgba(247, 90, 85, 0.18) 35%,
-    rgba(247, 90, 85, 0.04) 65%,
+    rgb(var(--zone-rgb, 247 90 85) / 0.30) 0%,
+    rgb(var(--zone-rgb, 247 90 85) / 0.18) 35%,
+    rgb(var(--zone-rgb, 247 90 85) / 0.04) 65%,
     transparent 80%
   );
   -webkit-filter: blur(6px);
@@ -1064,31 +1068,43 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 }
 .ghg-zone-glow.is-on { opacity: 1; }
 
-/* Panel - cream callout that floats over the upper half of the SVG,
-   anchored to the active zone's x-centre and sized to feel like it
-   sits *inside* the zone slice (Molson Scope 3 callout pattern).
-   Translucent cream background w/ backdrop-blur lets the illustration
-   show through faintly behind the copy. clamp() prevents it from
-   running off the container edges at the leftmost or rightmost zones. */
+/* Panel - same width and height for every zone, regardless of body
+   length. Width is a fixed percentage of the stage (just under a
+   quadrant width) so all four panels are visually identical and
+   each fits cleanly within its zone slice. min-height pins to the
+   tallest natural content (Operations) so the short zones don't
+   shrink and break the uniform look.
+
+   Position: --panel-left aligns the panel's LEFT edge to the
+   corresponding vertical separator inside the SVG (the diagram's
+   left edge for Operations, separators 1/2/3 for Energy/Supply/
+   Influence). min() clamps Influence so it doesn't overflow the
+   right edge of the stage.
+
+   Colour: --zone-color drives both the left border and the title,
+   sampled from the arrow gradient overhead (orange -> coral ->
+   pink -> purple). */
 .ghg-zone-panel {
   position: absolute;
   top: 6%;
-  left: clamp(8px, calc(var(--panel-center, 50%) - 108px), calc(100% - 224px));
-  width: 216px;
-  background: rgba(245, 241, 232, 0.94);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-          backdrop-filter: blur(8px) saturate(140%);
+  left: min(var(--panel-left, 0%), calc(100% - 24% - 6px));
+  width: 24%;
+  min-height: 218px;
+  background: rgba(245, 241, 232, 0.97);
+  -webkit-backdrop-filter: blur(6px) saturate(135%);
+          backdrop-filter: blur(6px) saturate(135%);
   color: var(--ink);
-  border-left: 2px solid var(--coral);
+  border-left: 2px solid var(--zone-color, var(--coral));
   border-radius: 3px;
-  padding: 11px 13px 13px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  padding: 12px 14px 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
   pointer-events: none;
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 220ms var(--ease-out-soft) 80ms,
               transform 240ms var(--ease-out-soft) 80ms,
-              left 320ms var(--ease-out-soft);
+              left 320ms var(--ease-out-soft),
+              border-color 220ms var(--ease-out-soft);
   z-index: 4;
 }
 .ghg-zone-panel.is-on {
@@ -1096,26 +1112,30 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   transform: translateY(0);
   pointer-events: auto;
 }
-/* Title is upright Stolzl Medium in coral - tighter and more confident
-   than the earlier DM Serif italic, which felt too decorative against
-   the cream block and competed with the H2 above. */
+/* Title in upright Stolzl Medium; colour follows the active zone. */
 .ghg-zone-panel-heading {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-family: var(--font-display);
   font-weight: 500;
   font-style: normal;
   font-size: 13.5px;
   letter-spacing: -0.005em;
   line-height: 1.2;
-  color: var(--coral);
+  color: var(--zone-color, var(--coral));
+  transition: color 220ms var(--ease-out-soft);
 }
+/* Body uses ink-2 mid-grey on the near-opaque cream - dark enough to
+   read clearly at 11.25px without going to full near-black, which
+   felt heavy against the small headings above. Weight bumped to 400
+   from the inherited body Inter Light (300) for an extra contrast
+   nudge. */
 .ghg-zone-panel-body {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 11.25px;
   line-height: 1.5;
-  color: var(--ink);
+  color: #2A2E33;
 }
 
 /* Invisible hit-targets over each zone's x-slice of the SVG. Hovering
