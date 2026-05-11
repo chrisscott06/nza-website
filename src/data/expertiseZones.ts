@@ -57,7 +57,7 @@ export const EXPERTISE_ZONES: ExpertiseZone[] = [
     label: 'Supply chain',
     xMin: 649,
     xMax: 969,
-    body: 'Embodied carbon, procurement governance, supplier engagement, materials, equipment. The chain shapes how decisions account for cost and carbon together - and what\'s actually possible downstream.',
+    body: 'Embodied carbon, procurement routes, supplier engagement, materials, equipment. The supply chain shapes how decisions account for cost and carbon together - and what\'s actually possible downstream.',
     accent: '#f0637b',
     accentRgb: '240 99 123',
   },
