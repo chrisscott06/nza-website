@@ -2908,23 +2908,26 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   .cap-expanded-header-icon .cap-icon img[src$="climate-resilience.svg"] {
     width: 66px; height: 66px;
   }
-  .cap-expanded-descriptor { padding: 14px 22px 20px; }
-  .cap-expanded-desc-lead { font-size: 22px; line-height: 1.2; }
-  .cap-expanded-desc-body { font-size: 12.5px; }
+  .cap-expanded-descriptor { padding: 14px 22px 18px; }
+  .cap-expanded-desc-lead { font-size: 20px; line-height: 1.2; }
+  .cap-expanded-desc-body { font-size: 11.5px; line-height: 1.5; }
 
-  .cap-expanded-lenses { padding: 18px 18px; gap: 0; }
-  .cap-expanded-lens { padding: 0 16px; }
+  /* Lens columns get tighter padding so each gets more horizontal room
+     for its paragraph - was running over. Body text trimmed to 11.5px
+     to match the desc-body sister rule above. */
+  .cap-expanded-lenses { padding: 16px 16px; gap: 0; }
+  .cap-expanded-lens { padding: 0 12px; }
   .cap-expanded-lens:first-child { padding-left: 0; }
   .cap-expanded-lens:last-child  { padding-right: 0; }
   .cap-expanded-lens-head {
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  .cap-expanded-lens-head .lens-mark { width: 40px; height: 40px; }
-  .cap-expanded-lens-head .lens-mark img { width: 28px; height: 28px; }
-  .cap-expanded-lens p { font-size: 12.5px; line-height: 1.5; }
+  .cap-expanded-lens-head .lens-mark { width: 36px; height: 36px; }
+  .cap-expanded-lens-head .lens-mark img { width: 24px; height: 24px; }
+  .cap-expanded-lens p { font-size: 11.5px; line-height: 1.5; }
 
   /* CLIENT POPOVER. Same story - desktop-scaled by default, looked
      enormous when opened on iPad. Trim everything one tier so the
