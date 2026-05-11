@@ -2079,15 +2079,20 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 
 /* Italic tagline - body italic (Inter Tight), avoids DM Serif rendering at small size */
 .product-card-tagline {
+  /* DM Serif Display italic in coral - same editorial italic face as
+     the headline emphasis throughout the site, here used as a thread
+     of brand colour that runs across all three product cards. Names
+     and CTAs above/below carry the per-card accent (violet / teal /
+     green); the tagline is the one universal coral moment. */
   margin: 0;
-  font-family: var(--font-body);
-  font-style: normal;
+  font-family: var(--font-italic);
+  font-style: italic;
   font-weight: 400;
-  font-size: 15px;
-  line-height: 1.4;
-  color: var(--cream);
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--coral);
   letter-spacing: -0.005em;
-  opacity: 0.92;
+  opacity: 1;
 }
 .product-card-tagline em { font-style: italic; }
 
