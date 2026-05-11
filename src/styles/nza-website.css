@@ -2732,6 +2732,117 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 }
 
 /* =========================================================================
+   CLIENT POPOVER - PHONE OVERRIDES (<600px)
+
+   The desktop popover is a 760px-wide card with a side-mark logo column
+   and a two-column body (What we did | Capabilities). At phone width
+   everything was getting crushed: the mark column was stretching the
+   logo SVG vertically into a 400px strip, the body columns were 155px
+   wide, and the panel overflowed the viewport at 1082px tall.
+
+   On phone the panel becomes a vertical scrolling sheet: mark sits at
+   the top as a compact band, header text flows below, body sections
+   stack one after the other. Footer chips also stack.
+   ========================================================================= */
+@media (max-width: 599px) {
+  .client-popover-panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  .client-popover-close {
+    top: 10px; right: 10px;
+    width: 32px; height: 32px;
+  }
+
+  /* Header: stack vertically. Small logo band on top, then meta. */
+  .client-popover .client-popover-header {
+    display: block;
+    grid-template-columns: none;
+    min-height: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .client-popover .client-popover-mark {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding: 16px;
+    min-height: 80px;
+  }
+  .client-popover .client-popover-mark .client-logo-img {
+    max-height: 56px; max-width: 140px;
+    height: auto; width: auto;
+  }
+  .client-popover .client-popover-mark .client-logo-initials {
+    font-size: 28px;
+  }
+  .client-popover-meta-block {
+    padding: 14px 16px 14px 16px;
+    gap: 4px;
+  }
+  .client-popover-name {
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  .client-popover-context {
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-top: 2px;
+  }
+  .client-popover-eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+  }
+
+  /* Body: stack the two columns vertically. */
+  .client-popover .client-popover-body {
+    display: block;
+    grid-template-columns: none;
+    /* Scroll the body if content overflows the panel height. */
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .client-popover .client-popover-col {
+    padding: 16px 16px 4px;
+  }
+  .client-popover .client-popover-col-wide {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule-soft);
+    padding-bottom: 14px;
+  }
+  .client-popover-col-label {
+    font-size: 9px;
+    margin-bottom: 8px;
+  }
+  .client-popover-col-text {
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .client-popover-caps {
+    font-size: 12.5px;
+  }
+
+  /* Footer chips: keep horizontal if they fit, stack to 2-col if not. */
+  .client-popover-footer {
+    padding: 12px 16px 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .client-popover-footer-chip {
+    min-width: 0;
+  }
+  .client-popover-footer-chip-label {
+    font-size: 8px;
+  }
+  .client-popover-footer-chip-value {
+    font-size: 11px;
+  }
+}
+
+/* =========================================================================
    iPad / SMALL DESKTOP COMPRESSION  (600px to 1099px)
 
    The phone redesign at <600 is its own thing. Above 1100 we have
