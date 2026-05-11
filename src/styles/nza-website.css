@@ -1635,7 +1635,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 18px 28px 24px;
+  /* Top padding bumped per Chris - the headline + summary sit "down a
+     bit" from the top edge of the panel so they don't crowd against
+     it. Bottom kept tighter than top so the icon + descriptor row
+     reads as a unit rather than floating in white space. */
+  padding: 34px 28px 24px;
   justify-content: flex-start;
   position: relative;
 }
@@ -1865,7 +1869,10 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   flex-shrink: 0;
-  padding: 24px;
+  /* Asymmetric padding - more on top so the lens heads sit "down a bit"
+     from the dividing hairline above them, less on bottom since the
+     shortest body would otherwise leave too much dead space. */
+  padding: 40px 24px 28px;
   border-top: 1px solid var(--rule);
   min-height: 0;
 }
@@ -1878,15 +1885,14 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 }
 /* Vertical hairlines between the three lens columns - more architectural
    than spacing alone, gives the trio editorial structure.
-   Each column is a flex-column with justify-content: center so the
-   head + body block sits vertically centred in whatever height the
-   row settles at (grid stretches all three to the tallest column).
-   Whitespace ends up balanced above and below the content regardless
-   of which lens has more copy. */
+   Top-aligned (flex-start) so all three lens heads sit at the same Y,
+   and the body text below each one starts at the same Y. The parent
+   .cap-expanded-lenses has padding above the row so the heads sit
+   "down a bit" from the top edge rather than flush to it. */
 .cap-expanded-lens {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 20px;
   border-left: 1px solid var(--rule);
 }
