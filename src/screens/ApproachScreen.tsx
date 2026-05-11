@@ -11,7 +11,7 @@ export function ApproachScreen() {
               03 · Approach
             </div>
             <h2 className="headline">
-              Six capabilities, <em>one unified</em> approach.
+              Six capabilities, one <em>unified</em> approach.
             </h2>
           </div>
           <div className="approach-header-right">
