@@ -892,6 +892,18 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   order: 2;
   justify-self: end;
 }
+/* Expertise text column trim - the diagram is the hero on this screen,
+   so the body sits in a narrower, smaller-typeset column on the right.
+   Scoped via #capabilities so other screens keep their full headline
+   scale. Smaller text + tighter max-width pushes the column inward
+   (its left edge moves rightward) for more breathing room between the
+   diagram and the copy. */
+#capabilities .capabilities-text { max-width: 360px; }
+#capabilities .headline { font-size: clamp(28px, 3vw, 42px); }
+#capabilities .lede {
+  font-size: clamp(14.5px, 1vw, 16px);
+  line-height: 1.55;
+}
 .capabilities .diagram { order: 1; }
 /* Interactive GHG wrap (zone labels + stage with the diagram inside) sits
    in the diagram's old slot - left column on desktop, hidden on phone. */
@@ -1037,48 +1049,81 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .ghg-zone-glow.is-on { opacity: 1; }
 
 /* Panel - cream callout that floats over the upper half of the SVG,
-   anchored to the active zone's x-centre. clamp() prevents it from
+   anchored to the active zone's x-centre and sized to feel like it
+   sits *inside* the zone slice (Molson Scope 3 callout pattern).
+   Translucent cream background w/ backdrop-blur lets the illustration
+   show through faintly behind the copy. clamp() prevents it from
    running off the container edges at the leftmost or rightmost zones. */
 .ghg-zone-panel {
   position: absolute;
-  top: 8%;
-  left: clamp(8px, calc(var(--panel-center, 50%) - 160px), calc(100% - 320px));
-  width: 312px;
-  background: var(--cream);
+  top: 6%;
+  left: clamp(8px, calc(var(--panel-center, 50%) - 108px), calc(100% - 224px));
+  width: 216px;
+  background: rgba(245, 241, 232, 0.94);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+          backdrop-filter: blur(8px) saturate(140%);
   color: var(--ink);
-  border-left: 3px solid var(--coral);
-  border-radius: 4px;
-  padding: 18px 20px 20px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  border-left: 2px solid var(--coral);
+  border-radius: 3px;
+  padding: 11px 13px 13px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
   pointer-events: none;
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateY(4px);
   transition: opacity 220ms var(--ease-out-soft) 80ms,
               transform 240ms var(--ease-out-soft) 80ms,
               left 320ms var(--ease-out-soft);
-  z-index: 2;
+  z-index: 4;
 }
 .ghg-zone-panel.is-on {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
+/* Title is upright Stolzl Medium in coral - tighter and more confident
+   than the earlier DM Serif italic, which felt too decorative against
+   the cream block and competed with the H2 above. */
 .ghg-zone-panel-heading {
-  margin: 0 0 6px;
-  font-family: var(--font-italic);
-  font-weight: 400;
-  font-style: italic;
-  font-size: 20px;
-  line-height: 1.15;
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-style: normal;
+  font-size: 13.5px;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
   color: var(--coral);
 }
 .ghg-zone-panel-body {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--ink-2);
+  font-size: 11.25px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* Invisible hit-targets over each zone's x-slice of the SVG. Hovering
+   anywhere in a zone (not just the small label button above) triggers
+   the same panel reveal. The buttons sit above the SVG but below the
+   panel so the panel stays interactive once it appears. */
+.ghg-zone-hits {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.ghg-zone-hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: transparent;
+  border: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 0;
+  /* Don't let focus rings flash on the invisible hits when the visible
+     label button is the focusable surface. */
+  outline: none;
 }
 
 /* Dismissal is snappier than reveal - 150ms per the brief. When the

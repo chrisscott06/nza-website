@@ -115,6 +115,27 @@ export function ExpertiseScreen() {
 
               <GhgProtocolDiagram />
 
+              {/* Invisible hit-targets over each zone's x-slice. Hovering
+                  anywhere inside a zone (not just the small label above)
+                  triggers the same panel reveal. */}
+              <div className="ghg-zone-hits" aria-hidden="true">
+                {EXPERTISE_ZONES.map((z) => (
+                  <button
+                    key={z.id}
+                    type="button"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="ghg-zone-hit"
+                    style={{
+                      left: `${zoneLeftPct(z)}%`,
+                      right: `${100 - zoneRightPct(z)}%`,
+                    }}
+                    onMouseEnter={() => !isPhone && setActiveZone(z.id)}
+                    onClick={() => setActiveZone(activeZone === z.id ? null : z.id)}
+                  />
+                ))}
+              </div>
+
               {/* Panel anchored to active zone. Positioned via CSS variables
                   so the cross-fade between zones is a smooth slide + content
                   swap rather than a full dismiss/re-mount. */}
