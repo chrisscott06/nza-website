@@ -2375,15 +2375,17 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   color: var(--accent);
   margin: 8px 0 0;
 }
-/* PABLO inline logo \u2014 sized to read at the same optical weight as NZ:AI / decodED wordmarks */
+/* PABLO inline logo - 50% taller than the NZ:AI / decodED wordmarks
+   per Chris (May 2026). 44px -> 66px. The bigger PABLO mark stamps
+   the first card visually before the eye reaches the smaller text. */
 .product-card-name--logo {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 66px;
 }
 .pablo-logo {
   display: block;
-  height: 44px;
+  height: 66px;
   width: auto;
   color: var(--accent);
 }
@@ -2398,8 +2400,17 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 }
 /* decodED - "ED" in green to match its own card accent. */
 .decoded-ed { color: var(--decoded-green); }
-/* NZ:AI - colon in teal */
+/* "decod" sits a tier lighter than the green "ED" so the suffix reads
+   as the moment it is. Stolzl Light (300) vs the inherited Medium (500). */
+.decoded-base { font-weight: 300; }
+/* NZ:AI - "NZ" and "AI" in white Stolzl Book, only the colon picks up
+   the teal accent. Attribute-scoped specificity beats the base
+   .product-card-name { color: var(--accent) } for this card. */
 .nzai-colon { color: var(--nzai-teal); }
+.product-card[data-accent="coral"] .product-card-name {
+  font-weight: 400; /* Stolzl Book */
+  color: #FFFFFF;
+}
 
 /* Italic tagline - body italic (Inter Tight), avoids DM Serif rendering at small size */
 .product-card-tagline {
@@ -3230,7 +3241,10 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   .product-card { padding: 22px 22px 20px; gap: 12px; }
   .product-card-desc { display: none; }
   .product-card-name { font-size: 32px; line-height: 1; }
-  .product-card-name--logo .pablo-logo { height: 32px; width: auto; }
+  /* PABLO scales with the iPad-tier name size but stays at the same
+     50%-taller ratio Chris approved at desktop (32 -> 48). */
+  .product-card-name--logo { min-height: 48px; }
+  .product-card-name--logo .pablo-logo { height: 48px; width: auto; }
   .product-card-tagline { font-size: 14px; }
   .product-card-cta {
     /* iPad CTA - was 13px which overflowed for "TRY YOUR POSTCODE".

@@ -106,7 +106,7 @@ export function ProductsScreen() {
               The movement
             </div>
             <h3 className="product-card-name">
-              decod<span className="decoded-ed">ED</span>
+              <span className="decoded-base">decod</span><span className="decoded-ed">ED</span>
             </h3>
             <p className="product-card-tagline">Climate action, decoded for education.</p>
             <p className="product-card-desc">
