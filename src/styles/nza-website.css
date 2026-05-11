@@ -2446,9 +2446,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   color: #FFFFFF;
 }
 
-/* DM Serif Display upright in our hot coral - editorial serif face,
-   not italic. Thread of brand colour across all three product cards,
-   matching the italic "Intelligence" in the headline above.
+/* DM Serif Display upright in the per-card accent - violet for PABLO,
+   teal for NZ:AI, green for decodED. The accent thread now runs:
+   accent dot (tag) -> wordmark/logo -> tagline. The CTA at the bottom
+   becomes the one shared moment in coral so the three cards land on a
+   common closing note.
    Selector qualified with .canvas-navy to beat the global
    `.canvas-navy p { color: var(--fg-on-navy-2) }` rule in
    colors_and_type.css (specificity 0,1,1), which would otherwise
@@ -2466,7 +2468,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   font-size: 17px;
   line-height: 1.25;
   min-height: 2.5em; /* 2 lines at line-height 1.25, scales with font-size */
-  color: #F75A55;
+  color: var(--accent);
   letter-spacing: -0.005em;
   opacity: 1;
 }
@@ -2485,8 +2487,10 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   max-width: 38ch;
 }
 
-/* CTA - pushed to card foot via auto-margin. Each card's CTA picks up
-   its own --accent so it matches the product name above it. */
+/* CTA - pushed to card foot via auto-margin. Uniform hot coral across
+   all three cards: per-card accent rides the upper half of each card
+   (tag dot, wordmark/logo, tagline); the CTA at the bottom is the one
+   shared moment so the three cards close on a common note. */
 .product-card-cta {
   margin-top: auto;
   padding-top: 12px;
@@ -2498,7 +2502,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--coral);
 }
 .product-card-arrow {
   display: inline-block;
