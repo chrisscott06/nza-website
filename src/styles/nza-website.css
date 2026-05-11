@@ -246,9 +246,16 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
     margin: 0;
   }
   .product-cards .product-card-cta {
-    font-size: 12px;
+    /* Phone CTA - was 12px which left "TRY YOUR POSTCODE" overflowing
+       at 0.22em tracking. Trim font + tighter tracking so the CTA fits
+       comfortably under the tagline. */
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    gap: 6px;
+    padding-top: 4px;
     margin-top: 2px;
   }
+  .product-cards .product-card-arrow { font-size: 12px; }
 }
 
 /* =========================================================================
@@ -1906,10 +1913,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
    ========================================================================= */
 :root {
   --pablo-violet:  #7B6FE0;   /* PABLO indigo/violet */
-  --decoded-teal:  #22C39A;   /* decodED + NZ:AI teal */
+  --nzai-teal:     #22C39A;   /* NZ:AI teal */
+  --decoded-green: #5BCD7B;   /* decodED green (was sharing the NZ:AI teal) */
   --pablo-tint:    rgba(123, 111, 224, 0.06); /* card background tint */
-  --decoded-tint:  rgba(34, 195, 154, 0.05);
   --nzai-tint:     rgba(34, 195, 154, 0.04);
+  --decoded-tint:  rgba(91, 205, 123, 0.06);
 }
 /* Header - same baseline-aligned two-column treatment as Approach */
 .products-header {
@@ -1994,13 +2002,15 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   --accent-tint: var(--pablo-tint);
 }
 .product-card[data-accent="coral"] {
-  --accent: var(--decoded-teal);
+  /* NZ:AI - teal */
+  --accent: var(--nzai-teal);
   --accent-glow: rgba(34, 195, 154, 0.20);
   --accent-tint: var(--nzai-tint);
 }
 .product-card[data-accent="amber"] {
-  --accent: var(--decoded-teal);
-  --accent-glow: rgba(34, 195, 154, 0.20);
+  /* decodED - now its own green, was sharing NZ:AI's teal */
+  --accent: var(--decoded-green);
+  --accent-glow: rgba(91, 205, 123, 0.22);
   --accent-tint: var(--decoded-tint);
 }
 
@@ -2030,14 +2040,15 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
               transform 250ms var(--ease-reveal);
 }
 
-/* Product name */
+/* Product name - inherits the per-card --accent so each brand name
+   reads in its own colour (PABLO violet, NZ:AI teal, decodED green). */
 .product-card-name {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: 34px;
   letter-spacing: -0.01em;
   line-height: 1;
-  color: var(--cream);
+  color: var(--accent);
   margin: 8px 0 0;
 }
 /* PABLO inline logo \u2014 sized to read at the same optical weight as NZ:AI / decodED wordmarks */
@@ -2050,7 +2061,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   display: block;
   height: 44px;
   width: auto;
-  color: var(--cream);
+  color: var(--accent);
 }
 .sr-only {
   position: absolute;
@@ -2061,16 +2072,16 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   white-space: nowrap;
   border: 0;
 }
-/* decodED - ED in teal, even when the host card isn't the teal card */
-.decoded-ed { color: var(--decoded-teal); }
+/* decodED - "ED" in green to match its own card accent. */
+.decoded-ed { color: var(--decoded-green); }
 /* NZ:AI - colon in teal */
-.nzai-colon { color: var(--decoded-teal); }
+.nzai-colon { color: var(--nzai-teal); }
 
 /* Italic tagline - body italic (Inter Tight), avoids DM Serif rendering at small size */
 .product-card-tagline {
   margin: 0;
   font-family: var(--font-body);
-  font-style: italic;
+  font-style: normal;
   font-weight: 400;
   font-size: 15px;
   line-height: 1.4;
@@ -2091,7 +2102,8 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   max-width: 38ch;
 }
 
-/* CTA - pushed to card foot via auto-margin */
+/* CTA - pushed to card foot via auto-margin. Each card's CTA picks up
+   its own --accent so it matches the product name above it. */
 .product-card-cta {
   margin-top: auto;
   padding-top: 12px;
@@ -2103,7 +2115,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--coral);
+  color: var(--accent);
 }
 .product-card-arrow {
   display: inline-block;
@@ -2890,7 +2902,15 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   .product-card-name { font-size: 32px; line-height: 1; }
   .product-card-name--logo .pablo-logo { height: 32px; width: auto; }
   .product-card-tagline { font-size: 14px; }
-  .product-card-cta { font-size: 13px; margin-top: 4px; }
+  .product-card-cta {
+    /* iPad CTA - was 13px which overflowed for "TRY YOUR POSTCODE".
+       10.5px + tighter tracking so each card's CTA fits the column. */
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    gap: 8px;
+    padding-top: 6px;
+    margin-top: 4px;
+  }
   /* Trim the header lede so the row of cards has more vertical room. */
   .products-header { margin-bottom: 24px; }
   .products-header-right .lede { font-size: 15px; max-width: 56ch; }
