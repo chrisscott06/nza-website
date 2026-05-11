@@ -134,7 +134,11 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
     justify-content: center;
   }
   .approach-header .three-lens-mark {
-    max-width: 140px;
+    /* Bumped from 140 -> 220 so the labels baked into the PNG
+       (DATA VISUALISATION / DIGITAL TOOL CREATION / STRATEGY
+       DEVELOPMENT) are legible. 335px content area gives ~115px
+       of breathing room either side at this size. */
+    max-width: 220px;
     margin: 0 auto;
     transform: none;
   }
