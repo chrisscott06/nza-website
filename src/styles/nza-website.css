@@ -2447,13 +2447,17 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 }
 
 /* DM Serif Display upright in our hot coral - editorial serif face,
-   not italic. Thread of brand colour across all three product cards.
-   Names and CTAs above/below carry the per-card accent (violet / teal
-   / green); the tagline is the one shared moment.
+   not italic. Thread of brand colour across all three product cards,
+   matching the italic "Intelligence" in the headline above.
+   Selector qualified with .canvas-navy to beat the global
+   `.canvas-navy p { color: var(--fg-on-navy-2) }` rule in
+   colors_and_type.css (specificity 0,1,1), which would otherwise
+   force the tagline to the muted cream-on-navy and ignore any colour
+   set on a single-class selector.
    min-height pins to two lines so the body text below starts at the
    same Y on every card, even when one tagline wraps and another
-   doesn't. Colour locked to the raw hex (matches var(--coral)) so no
-   future cascading rule can shadow it. */
+   doesn't. */
+.canvas-navy .product-card-tagline,
 .product-card-tagline {
   margin: 0;
   font-family: var(--font-italic);

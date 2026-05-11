@@ -42,7 +42,7 @@ export function ProductsScreen() {
             data-d="3"
             data-accent="indigo"
             to="/pablo"
-            aria-label="See PABLO - the energy intelligence platform"
+            aria-label="Meet PABLO - the energy intelligence platform"
           >
             <div className="product-card-rule" aria-hidden="true" />
             <div className="product-card-tag">
@@ -62,7 +62,7 @@ export function ProductsScreen() {
               behind-the-meter strategy work.
             </p>
             <span className="product-card-cta">
-              See PABLO
+              Meet PABLO
               <span className="product-card-arrow" aria-hidden="true">→</span>
             </span>
           </Link>
