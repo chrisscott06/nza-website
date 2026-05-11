@@ -1127,7 +1127,13 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   transition: color 220ms var(--ease-out-soft);
 }
 /* Body sits on solid cream - use ink (near-black) at weight 400 for
-   confident readability at 11.25px. */
+   confident readability at 11.25px.
+   Selector qualified with .canvas-navy to beat the global
+   `.canvas-navy p { color: var(--fg-on-navy-2) }` rule in
+   colors_and_type.css (specificity 0,1,1), which would otherwise
+   force the body to muted-cream-on-navy and make it look light no
+   matter how dark a hex value we picked. */
+.canvas-navy .ghg-zone-panel-body,
 .ghg-zone-panel-body {
   margin: 0;
   font-family: var(--font-body);
