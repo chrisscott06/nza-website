@@ -1408,41 +1408,42 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   overflow: hidden;
 }
 .cap-icon svg { width: 22px; height: 22px; display: block; }
+/* THREE-STATE BESPOKE ICON BEHAVIOUR (per Chris):
+   1. At rest - greyscale + slight fade so the card doesn't shout.
+      Applied to ALL six icons (was previously scoped to just three).
+   2. On hover - full native NZA palette (coral / navy / white) comes alive.
+   3. When the card is expanded into the panel header - forced to white
+      on the coral disc (handled by .cap-expanded-header-icon below). */
 .cap-icon img {
   width: 60px;
   height: 60px;
   display: block;
+  filter: grayscale(1) opacity(0.55);
+  transition: filter 280ms var(--ease-out-soft);
 }
 /* Smart-energy, carbon-pathways and climate-resilience artwork sits with
    more whitespace inside its viewBox than the other three; bumping each
-   ~25% so they fill the disc in the same proportion. */
+   ~25% so they fill the disc in the same proportion. Size only - filter
+   inherits from the base rule above. */
 .cap-icon img[src$="smart-energy.svg"],
 .cap-icon img[src$="carbon-pathways.svg"],
 .cap-icon img[src$="climate-resilience.svg"] {
   width: 76px;
   height: 76px;
-  /* THREE-STATE BESPOKE ICON BEHAVIOUR (per Chris):
-     1. At rest - greyscale + slight fade so the card doesn't shout.
-     2. On hover - full native NZA palette (coral / navy / white) comes alive.
-     3. When the card is expanded into the panel header - forced to white
-        on the coral disc (handled by .cap-expanded-header-icon below).
-     Transition runs on the cap-card hover too so the colour swell feels deliberate. */
-  filter: grayscale(1) opacity(0.55);
-  transition: filter 280ms var(--ease-out-soft);
 }
 .cap-card:hover .cap-icon img,
 .cap-card:focus-visible .cap-icon img {
   filter: none;
 }
-/* Disrupt card #6 - sits on navy ground; greyscale/fade reads wrong on dark.
-   Let the bespoke SVG's coral-on-navy palette sit naturally here. */
+/* Disrupt card #6 - sits on navy ground. Use a slightly less aggressive
+   grey wash so the white outline reads clearly on the dark surface.
+   Hover restores the bespoke coral-on-navy palette. */
 .cap-card.disrupt .cap-icon img {
-  filter: none;
-  opacity: 0.85;
+  filter: grayscale(1) opacity(0.7);
 }
 .cap-card.disrupt:hover .cap-icon img,
 .cap-card.disrupt:focus-visible .cap-icon img {
-  opacity: 1;
+  filter: none;
 }
 .cap-num {
   font-family: var(--font-display);
