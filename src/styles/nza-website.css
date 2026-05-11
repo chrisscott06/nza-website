@@ -899,9 +899,9 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
    (its left edge moves rightward) for more breathing room between the
    diagram and the copy. */
 #capabilities .capabilities-text { max-width: 360px; }
-#capabilities .headline { font-size: clamp(28px, 3vw, 42px); }
+#capabilities .headline { font-size: clamp(34px, 3.8vw, 56px); }
 #capabilities .lede {
-  font-size: clamp(14.5px, 1vw, 16px);
+  font-size: 14px;
   line-height: 1.55;
 }
 .capabilities .diagram { order: 1; }
