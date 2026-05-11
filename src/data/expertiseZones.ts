@@ -66,7 +66,7 @@ export const EXPERTISE_ZONES: ExpertiseZone[] = [
     label: 'Influence',
     xMin: 969,
     xMax: 1289,
-    body: 'Specification, governance, occupant decisions, policy. Beyond the value chain is often where you can shape the most change.',
+    body: 'Design specification, governance, occupant decisions, policy. Beyond the value chain is often where you can shape the most change.',
     accent: '#c46094',
     accentRgb: '196 96 148',
   },
