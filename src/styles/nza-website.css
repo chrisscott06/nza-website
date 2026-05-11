@@ -1090,9 +1090,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   left: min(var(--panel-left, 0%), calc(100% - 24% - 6px));
   width: 24%;
   min-height: 218px;
-  background: rgba(245, 241, 232, 0.97);
-  -webkit-backdrop-filter: blur(6px) saturate(135%);
-          backdrop-filter: blur(6px) saturate(135%);
+  /* Fully solid cream so the navy + zone glow don't bleed through and
+     wash out the body copy. Previous translucent + backdrop-blur
+     approach was making the dark text appear faintly orange against
+     the peach-tinted surface. */
+  background: var(--cream);
   color: var(--ink);
   border-left: 2px solid var(--zone-color, var(--coral));
   border-radius: 3px;
@@ -1112,30 +1114,27 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   transform: translateY(0);
   pointer-events: auto;
 }
-/* Title in upright Stolzl Medium; colour follows the active zone. */
+/* Title in DM Serif Display (upright), colour follows the active zone. */
 .ghg-zone-panel-heading {
   margin: 0 0 6px;
-  font-family: var(--font-display);
-  font-weight: 500;
+  font-family: var(--font-italic);
+  font-weight: 400;
   font-style: normal;
-  font-size: 13.5px;
+  font-size: 16px;
   letter-spacing: -0.005em;
-  line-height: 1.2;
+  line-height: 1.15;
   color: var(--zone-color, var(--coral));
   transition: color 220ms var(--ease-out-soft);
 }
-/* Body uses ink-2 mid-grey on the near-opaque cream - dark enough to
-   read clearly at 11.25px without going to full near-black, which
-   felt heavy against the small headings above. Weight bumped to 400
-   from the inherited body Inter Light (300) for an extra contrast
-   nudge. */
+/* Body sits on solid cream - use ink (near-black) at weight 400 for
+   confident readability at 11.25px. */
 .ghg-zone-panel-body {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 11.25px;
   line-height: 1.5;
-  color: #2A2E33;
+  color: var(--ink);
 }
 
 /* Invisible hit-targets over each zone's x-slice of the SVG. Hovering
