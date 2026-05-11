@@ -24,7 +24,7 @@ export function ProductsScreen() {
           </div>
           <div className="products-header-right reveal-layer" data-d="2">
             <p className="lede">
-              NZA is moving from <i>advisory</i> to <i>intelligence</i> - from
+              NZA is moving from advisory to intelligence - from
               reports that depreciate, to systems that keep working long after
               the engagement ends. Three things sit alongside the consulting
               practice: a digital tool, a way of working, and a movement we're
