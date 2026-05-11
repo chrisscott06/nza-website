@@ -12,14 +12,22 @@
   --p-cream:        #F2F2E6;
   --p-slate:        #1A1E2B;     /* slate panel - for cards on the violet-navy ground */
   --p-navy:         #0E1120;     /* matches NZA navy */
-  --p-ground:       #15132A;     /* PABLO's signature deep violet-navy */
-  --p-ground-2:     #1B1736;     /* slightly lifted variant for cards */
+  /* Richer plum/aubergine ground per Chris (May 2026) - the previous
+     #15132A / #1B1736 read too navy and too blue. New values push the
+     hue toward the brand gradient's purple terminus (#AF5FA0), so the
+     PABLO page surface ties cleanly to the logo gradient on it. */
+  --p-ground:       #1C1135;     /* PABLO's signature deep plum-navy */
+  --p-ground-2:     #251843;     /* slightly lifted variant for cards */
 
   --p-coral:        #FF5A7D;     /* hot coral (sharper than NZA coral, but compatible) */
   --p-amber:        #FF9A3C;     /* amber/orange */
-  --p-violet:       #806BFF;     /* violet - primary PABLO accent */
-  --p-violet-soft:  rgba(128, 107, 255, 0.14);
-  --p-violet-glow:  rgba(128, 107, 255, 0.28);
+  /* Primary PABLO accent - swapped from a blue-leaning #806BFF to the
+     brand gradient's terminus (#AF5FA0) so PABLO's accent reads as
+     rich purple, not violet. In-family with the GHG arrow gradient on
+     Expertise (which lands on this exact value). */
+  --p-violet:       #AF5FA0;
+  --p-violet-soft:  rgba(175, 95, 160, 0.14);
+  --p-violet-glow:  rgba(175, 95, 160, 0.28);
   --p-amber-soft:   rgba(255, 154, 60, 0.14);
   --p-coral-soft:   rgba(255, 90, 125, 0.14);
 
@@ -211,7 +219,7 @@ body.pablo-page .footer {
   position: relative;
   width: 100%;
   aspect-ratio: 7 / 5;
-  background: linear-gradient(180deg, rgba(128,107,255,0.05), transparent 60%);
+  background: linear-gradient(180deg, rgba(175,95,160,0.05), transparent 60%);
   border: 1px solid var(--p-rule-soft);
   border-radius: 6px;
   overflow: hidden;

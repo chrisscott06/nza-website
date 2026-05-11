@@ -2264,7 +2264,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
    Whole-card click. Hover lifts 2px and intensifies the accent.
    ========================================================================= */
 :root {
-  --pablo-violet:  #7B6FE0;   /* PABLO indigo/violet */
+  /* PABLO accent. Was a blue-leaning #7B6FE0; swapped to the brand
+     gradient's purple terminus #AF5FA0 per Chris (May 2026) so the
+     Products card accent matches the PABLO page chrome on click-
+     through. Same value lives in pablo.css as --p-violet. */
+  --pablo-violet:  #AF5FA0;
   --nzai-teal:     #22C39A;   /* NZ:AI teal */
   /* decodED accent. Variable name kept as --decoded-green for codebase
      stability (rename would touch 5+ refs) but the colour is now lifted
@@ -2274,7 +2278,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
      #F69247 and the redder #F17134 - distinct from both Expertise
      zones, unambiguously NZA. */
   --decoded-green: #F37A38;
-  --pablo-tint:    rgba(123, 111, 224, 0.06); /* card background tint */
+  --pablo-tint:    rgba(175, 95, 160, 0.06); /* card background tint */
   --nzai-tint:     rgba(34, 195, 154, 0.04);
   --decoded-tint:  rgba(243, 122, 56, 0.06);
 }
@@ -2357,7 +2361,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 /* Per-accent CSS variables */
 .product-card[data-accent="indigo"] {
   --accent: var(--pablo-violet);
-  --accent-glow: rgba(123, 111, 224, 0.22);
+  --accent-glow: rgba(175, 95, 160, 0.22);
   --accent-tint: var(--pablo-tint);
 }
 .product-card[data-accent="coral"] {
