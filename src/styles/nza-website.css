@@ -893,6 +893,12 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   justify-self: end;
 }
 .capabilities .diagram { order: 1; }
+/* Interactive GHG wrap (zone labels + stage with the diagram inside) sits
+   in the diagram's old slot - left column on desktop, hidden on phone. */
+.capabilities .ghg-interactive { order: 1; }
+@media (max-width: 599px) {
+  .capabilities .ghg-interactive { display: none; }
+}
 .capabilities-text .eyebrow { margin-bottom: 32px; }
 .capabilities-text .headline { margin-bottom: 24px; }
 
@@ -919,6 +925,239 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   margin: 0;
 }
 .diagram.diagram-ghg svg { width: 100%; height: 100%; display: block; }
+
+/* =========================================================================
+   EXPERTISE INTERACTIVE ZONES - hover/click reveals a panel + coral glow
+
+   The page brief (docs/briefs/expertise-page-brief.md) splits the GHG
+   diagram into four x-coordinate slices: Operations 0-327, Energy
+   327-649, Supply chain 649-969, Influence 969-1289 (viewBox 1289.12).
+
+   Four <button>s above the SVG act as tabs. Hover or focus reveals:
+     a) A coral radial glow clipped to the active zone's x-slice
+     b) A cream callout panel anchored over the upper half of the SVG
+        within the same x-slice (clamped to container edges)
+
+   Both transitions are ~220ms ease-out; the glow leads by ~80ms so
+   the eye lands on the illustration first, then the panel arrives.
+   Dismissal is 150ms - snappier on the way out per the brief.
+
+   Mobile (<600): this whole block is hidden; the four zones become
+   <details> cards in the .ghg-zone-cards list inside .capabilities-text.
+   ========================================================================= */
+
+.ghg-interactive {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+/* Zone label row - small caps Stolzl Medium in cream, coral on hover/
+   focus/active. Sits flush above the SVG, evenly spaced across the
+   four zones so each label sits roughly over its slice. */
+.ghg-zone-labels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 4%;
+}
+.ghg-zone-label {
+  background: transparent;
+  border: 0;
+  padding: 10px 8px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-on-navy-2);
+  cursor: pointer;
+  text-align: center;
+  transition: color 180ms var(--ease-out-soft);
+  position: relative;
+}
+.ghg-zone-label::after {
+  /* Hairline coral underline that grows in when active. */
+  content: '';
+  position: absolute;
+  left: 22%; right: 22%;
+  bottom: 4px;
+  height: 1px;
+  background: var(--coral);
+  transform: scaleX(0);
+  transition: transform 220ms var(--ease-out-soft);
+  transform-origin: center;
+}
+.ghg-zone-label:hover,
+.ghg-zone-label:focus-visible,
+.ghg-zone-label.is-active {
+  color: var(--coral);
+  outline: none;
+}
+.ghg-zone-label:hover::after,
+.ghg-zone-label:focus-visible::after,
+.ghg-zone-label.is-active::after {
+  transform: scaleX(1);
+}
+
+/* Stage - SVG sits here, with the glow + panel as absolutely positioned
+   siblings. position: relative so the absolute children resolve against it. */
+.ghg-stage {
+  position: relative;
+}
+.ghg-stage .diagram-ghg {
+  width: 100%;
+}
+
+/* Coral radial glow overlay. Clipped to the active zone's x-slice via
+   the --glow-left / --glow-right CSS vars (set inline from JS); the
+   radial gradient inside that slice falls off to transparent. */
+.ghg-zone-glow {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: var(--glow-left, 0%);
+  right: var(--glow-right, 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-out-soft),
+              left 280ms var(--ease-out-soft),
+              right 280ms var(--ease-out-soft);
+  background: radial-gradient(
+    ellipse at center 45%,
+    rgba(247, 90, 85, 0.30) 0%,
+    rgba(247, 90, 85, 0.18) 35%,
+    rgba(247, 90, 85, 0.04) 65%,
+    transparent 80%
+  );
+  -webkit-filter: blur(6px);
+          filter: blur(6px);
+  z-index: 1;
+}
+.ghg-zone-glow.is-on { opacity: 1; }
+
+/* Panel - cream callout that floats over the upper half of the SVG,
+   anchored to the active zone's x-centre. clamp() prevents it from
+   running off the container edges at the leftmost or rightmost zones. */
+.ghg-zone-panel {
+  position: absolute;
+  top: 8%;
+  left: clamp(8px, calc(var(--panel-center, 50%) - 160px), calc(100% - 320px));
+  width: 312px;
+  background: var(--cream);
+  color: var(--ink);
+  border-left: 3px solid var(--coral);
+  border-radius: 4px;
+  padding: 18px 20px 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 220ms var(--ease-out-soft) 80ms,
+              transform 240ms var(--ease-out-soft) 80ms,
+              left 320ms var(--ease-out-soft);
+  z-index: 2;
+}
+.ghg-zone-panel.is-on {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.ghg-zone-panel-heading {
+  margin: 0 0 6px;
+  font-family: var(--font-italic);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.15;
+  color: var(--coral);
+}
+.ghg-zone-panel-body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* Dismissal is snappier than reveal - 150ms per the brief. When the
+   panel/glow flips back to no .is-on, just shorten the opacity transition. */
+.ghg-zone-glow:not(.is-on),
+.ghg-zone-panel:not(.is-on) {
+  transition-duration: 150ms;
+  transition-delay: 0ms;
+}
+
+/* SVG OVERRIDES driven by inline CSS in the diagram (the .st0 .st1 etc.
+   classes). The brief asks for the in-SVG label text to hide (the
+   ALL-CAPS OPERATIONS / ENERGY SYSTEMS / SUPPLY CHAINS / INFLUENCE labels
+   that live inside `_6_-_annotation`'s nested <g class="st12"> wrappers)
+   - replaced by the HTML zone-label buttons above. The gradient arrow
+   inside `_6_-_text` and the four vertical separator lines stay. */
+.diagram-ghg #_6_-_annotation > g.st12 { display: none; }
+
+/* Stroke weight bump for the cream line art so it reads more clearly on
+   navy. Only touches the .st0 hairlines - the gradient arrow and dashed
+   lines keep their natural weights. */
+.diagram-ghg svg .st0 { stroke-width: 2px; }
+
+/* MOBILE EXPANDABLE CARDS - the phone replacement for the SVG. Hidden
+   on >=600 where the desktop ghg-interactive is shown instead. */
+.ghg-zone-cards {
+  display: none;
+}
+@media (max-width: 599px) {
+  .ghg-zone-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+    border-top: 1px solid var(--rule-dark);
+  }
+}
+.ghg-zone-card {
+  border-bottom: 1px solid var(--rule-dark);
+  padding: 0;
+}
+.ghg-zone-card summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 4px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--coral);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ghg-zone-card summary::-webkit-details-marker { display: none; }
+.ghg-zone-card summary::after {
+  content: '+';
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--coral);
+  transition: transform 220ms var(--ease-out-soft);
+}
+.ghg-zone-card[open] summary::after {
+  content: '\2013'; /* en dash */
+  transform: rotate(0deg);
+}
+.ghg-zone-card p {
+  margin: 0 4px 14px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--fg-on-navy-2);
+}
+
 
 /* =========================================================================
    GHG illustration - per-layer reveal is driven by JS (see setupGhgReveal in
