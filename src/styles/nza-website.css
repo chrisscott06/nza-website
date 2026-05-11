@@ -2266,10 +2266,14 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 :root {
   --pablo-violet:  #7B6FE0;   /* PABLO indigo/violet */
   --nzai-teal:     #22C39A;   /* NZ:AI teal */
-  --decoded-green: #5BCD7B;   /* decodED green (was sharing the NZ:AI teal) */
+  /* decodED accent. Kept the --decoded-green variable name for stability
+     across the codebase (rename would touch 5+ refs), but the colour is
+     now a saturated burnt orange per Chris's call - "ED" sample provided
+     May 2026. The earlier green was a placeholder. */
+  --decoded-green: #C76A1F;
   --pablo-tint:    rgba(123, 111, 224, 0.06); /* card background tint */
   --nzai-tint:     rgba(34, 195, 154, 0.04);
-  --decoded-tint:  rgba(91, 205, 123, 0.06);
+  --decoded-tint:  rgba(199, 106, 31, 0.06);
 }
 /* Header - same baseline-aligned two-column treatment as Approach */
 .products-header {
@@ -2362,7 +2366,7 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .product-card[data-accent="amber"] {
   /* decodED - now its own green, was sharing NZ:AI's teal */
   --accent: var(--decoded-green);
-  --accent-glow: rgba(91, 205, 123, 0.22);
+  --accent-glow: rgba(199, 106, 31, 0.22);
   --accent-tint: var(--decoded-tint);
 }
 
