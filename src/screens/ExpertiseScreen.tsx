@@ -54,9 +54,9 @@ export function ExpertiseScreen() {
             </h2>
             <p className="lede reveal-layer" data-d="2">
               NZA's foundation is in building physics, systems engineering and energy
-              markets. From there we work outward - across the wider networks,
-              decisions and markets that shape every estate - with the digital tools
-              to model all of it together.
+              markets. From there the practice extends outward - across operations,
+              energy, supply chain and influence - the four themes shaping every
+              organisation.
             </p>
 
             {/* Mobile-only: four expandable cards. Hidden on >=600px via CSS;
