@@ -2402,13 +2402,14 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 /* The <em>s inside taglines (if any) still go italic - rare edge case. */
 .product-card-tagline em { font-style: italic; }
 
-/* Description */
+/* Description - sits below the new 14px inner-tier body so the card
+   description reads as a quieter detail layer, not at body weight. */
 .product-card-desc {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 300;
-  font-size: 14.5px;
-  line-height: 1.6;
+  font-size: 12.5px;
+  line-height: 1.55;
   color: rgba(245, 241, 232, 0.78);
   max-width: 38ch;
 }
