@@ -114,13 +114,25 @@ export function DevicePreview() {
 function PreviewOverlay({ device, onClose }: { device: Device; onClose: () => void }) {
   // The iframe loads whatever route + hash the host is on right now.
   const path = window.location.pathname + window.location.search + window.location.hash
+  // Frame chrome adds 6px border on every side + a chrome bar on top
+  // (~24px). The outer container is sized to fit the iframe at the EXACT
+  // device dimensions inside - that's what the page must measure when it
+  // reads window.innerWidth. (Earlier the iframe was width: 100% of the
+  // bordered container, so a 1024px preset rendered at 1012, kicking the
+  // page into the wrong @media bucket.)
+  const BORDER = 6
+  const CHROME_H = 24
   return (
     <div style={overlayStyle} onClick={onClose}>
       <div
-        style={{ ...overlayInnerStyle, width: device.w, height: device.h }}
+        style={{
+          ...overlayInnerStyle,
+          width: device.w + BORDER * 2,
+          height: device.h + BORDER * 2 + CHROME_H,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={overlayChromeStyle}>
+        <div style={{ ...overlayChromeStyle, height: CHROME_H }}>
           <span>{device.label} · {device.w}×{device.h}</span>
           <button type="button" onClick={onClose} style={closeBtnStyle} aria-label="Close preview">
             ×
@@ -129,7 +141,7 @@ function PreviewOverlay({ device, onClose }: { device: Device; onClose: () => vo
         <iframe
           src={path}
           title={`Preview at ${device.label}`}
-          style={iframeStyle}
+          style={{ ...iframeStyle, width: device.w, height: device.h }}
         />
       </div>
     </div>
@@ -276,11 +288,11 @@ const overlayChromeStyle: React.CSSProperties = {
 }
 
 const iframeStyle: React.CSSProperties = {
-  flex: 1,
-  width: '100%',
   border: 'none',
   background: '#fff',
   display: 'block',
+  /* width + height are injected per-render from the chosen device preset
+     so the iframe content area matches the preset exactly. */
 }
 
 function PhoneIcon() {
