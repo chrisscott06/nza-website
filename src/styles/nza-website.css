@@ -2894,5 +2894,54 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   /* Trim the header lede so the row of cards has more vertical room. */
   .products-header { margin-bottom: 24px; }
   .products-header-right .lede { font-size: 15px; max-width: 56ch; }
+
+  /* CAP-EXPANDED PANEL (the in-place modal that grows out of an Approach
+     card on desktop). Same principle as the section trims above: shrink
+     the panel content so it stays in proportion to the cap-cards behind
+     it. Without this, tapping a card on iPad opened a panel at full
+     desktop scale - lens labels wrapped, the lead headline overshot. */
+  .cap-expanded-header-icon { padding: 14px 18px; min-width: 80px; }
+  .cap-expanded-header-icon .cap-icon { width: 80px; height: 80px; }
+  .cap-expanded-header-icon .cap-icon img { width: 52px; height: 52px; }
+  .cap-expanded-header-icon .cap-icon img[src$="smart-energy.svg"],
+  .cap-expanded-header-icon .cap-icon img[src$="carbon-pathways.svg"],
+  .cap-expanded-header-icon .cap-icon img[src$="climate-resilience.svg"] {
+    width: 66px; height: 66px;
+  }
+  .cap-expanded-descriptor { padding: 14px 22px 20px; }
+  .cap-expanded-desc-lead { font-size: 22px; line-height: 1.2; }
+  .cap-expanded-desc-body { font-size: 12.5px; }
+
+  .cap-expanded-lenses { padding: 18px 18px; gap: 0; }
+  .cap-expanded-lens { padding: 0 16px; }
+  .cap-expanded-lens:first-child { padding-left: 0; }
+  .cap-expanded-lens:last-child  { padding-right: 0; }
+  .cap-expanded-lens-head {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .cap-expanded-lens-head .lens-mark { width: 40px; height: 40px; }
+  .cap-expanded-lens-head .lens-mark img { width: 28px; height: 28px; }
+  .cap-expanded-lens p { font-size: 12.5px; line-height: 1.5; }
+
+  /* CLIENT POPOVER. Same story - desktop-scaled by default, looked
+     enormous when opened on iPad. Trim everything one tier so the
+     panel sits in proportion to the carousel behind it. */
+  .client-popover-header { min-height: 0; }
+  .client-popover-mark { padding: 16px; }
+  .client-popover-mark .client-logo-img { max-height: 72px; max-width: 100px; }
+  .client-popover-meta-block { padding: 22px 40px 22px 22px; gap: 4px; }
+  .client-popover-eyebrow { font-size: 9px; letter-spacing: 0.18em; }
+  .client-popover-name { font-size: 22px; line-height: 1.1; }
+  .client-popover-context { font-size: 12.5px; line-height: 1.5; }
+  .client-popover-col { padding: 18px 22px; }
+  .client-popover-col-label { font-size: 9px; margin-bottom: 10px; }
+  .client-popover-col-text { font-size: 12.5px; line-height: 1.55; }
+  .client-popover-caps { font-size: 12.5px; }
+  .client-popover-footer { padding: 12px 22px 16px; }
+  .client-popover-footer-chip-label { font-size: 8px; }
+  .client-popover-footer-chip-value { font-size: 11px; }
 }
 
