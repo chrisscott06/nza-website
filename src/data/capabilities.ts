@@ -67,7 +67,7 @@ export const CAPABILITIES: Capability[] = [
     title: 'Carbon accounting & pathways',
     icon: 'carbon-pathways',
     desc:
-      "Inventory and pathway done as one piece of work. Where the footprint sits today. Where it's heading if nothing changes. And what it takes to land on net zero.",
+      "Inventory and pathway done as one piece of work. Where the footprint sits today. Where business-as-usual takes it tomorrow. And what it takes to land on net zero.",
     data:
       "From global footprint to specific supplier data. Activity-based Scope 1, 2 and 3 inventories with data-quality grading and a transparent path from sector averages to primary data. The breadth of the supply chain made visible - and interrogable.",
     tools:
