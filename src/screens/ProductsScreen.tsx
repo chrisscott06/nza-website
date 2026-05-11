@@ -19,7 +19,7 @@ export function ProductsScreen() {
               04 · Products
             </div>
             <h2 className="headline reveal-layer" data-d="1">
-              <span className="coral">Intelligence</span>, not just advice.
+              <em>Intelligence</em>, not just advice.
             </h2>
           </div>
           <div className="products-header-right reveal-layer" data-d="2">
