@@ -143,8 +143,8 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
     transform: none;
   }
   .approach-header-left .eyebrow { margin-bottom: 4px; }
-  /* Trim Approach headline harder so the list dominates. */
-  #approach .headline { font-size: clamp(24px, 7vw, 30px); }
+  /* Headline + lede sizes now come from the inner-screen tier rules
+     (single fluid clamp, no per-tier override needed). */
 
   /* Selectors below are scoped with .cap-grid prefix to beat the base
      .cap-card { display: flex } rule (later in source order, would
@@ -217,7 +217,8 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
      so they beat the later base rules. */
   .products-header-right .lede { display: none; }
   .products-header { margin-bottom: 16px; }
-  #products .headline { font-size: clamp(24px, 7vw, 30px); }
+  /* Headline + lede sizes now come from the inner-screen tier rules
+     (single fluid clamp, no per-tier override needed). */
 
   .product-cards { gap: 10px; }
   .product-cards .product-card {
@@ -892,18 +893,39 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   order: 2;
   justify-self: end;
 }
-/* Expertise text column trim - the diagram is the hero on this screen,
-   so the body sits in a narrower, smaller-typeset column on the right.
-   Scoped via #capabilities so other screens keep their full headline
-   scale. Smaller text + tighter max-width pushes the column inward
-   (its left edge moves rightward) for more breathing room between the
-   diagram and the copy. */
-#capabilities .capabilities-text { max-width: 360px; }
-#capabilities .headline { font-size: clamp(34px, 3.8vw, 56px); }
-#capabilities .lede {
+/* INNER-SCREEN TYPE SCALE - one rule that scales smoothly across the
+   full viewport range, no per-tier @media overrides needed.
+   Applies to every screen except the Home hero, which keeps the louder
+   global .headline / .lede clamps.
+
+   Headline clamp behaviour:
+     - 375px (small phone): floor at 26px
+     - 600px (iPad edge):  ~26px (still at floor, 4vw=24)
+     - 768px (iPad portrait): ~31px
+     - 1024px (iPad land / half-screen): ~41px
+     - 1280px:               ~51px
+     - >=1400px:             cap at 56px (matches the Expertise tuning
+                             Chris signed off on)
+
+   Body (.lede) sits flat at 14px on every viewport - same compactness
+   on phone, iPad and desktop. Home keeps its 17-19px hero lede. */
+#capabilities .headline,
+#approach .headline,
+#products .headline,
+#clients .headline {
+  font-size: clamp(26px, 4vw, 56px);
+}
+#capabilities .lede,
+#approach .lede,
+#products .lede,
+#clients .lede {
   font-size: 14px;
   line-height: 1.55;
 }
+/* Expertise text column trim - the diagram is the hero on this screen,
+   so the body sits in a narrower column on the right. Other inner
+   screens keep their default text width. */
+#capabilities .capabilities-text { max-width: 360px; }
 .capabilities .diagram { order: 1; }
 /* Interactive GHG wrap (zone labels + stage with the diagram inside) sits
    in the diagram's old slot - left column on desktop, hidden on phone. */
