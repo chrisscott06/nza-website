@@ -112,22 +112,131 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
   .diagram-ghg { display: none; }
   .capabilities { gap: 24px; }
 
-  /* Approach card icon disc shrinks - 84px is desktop scale, too dominant
-     on a 1-col phone card. */
-  .cap-icon { width: 64px; height: 64px; }
-  .cap-icon img { width: 44px; height: 44px; }
-  .cap-icon img[src$="smart-energy.svg"],
-  .cap-icon img[src$="carbon-pathways.svg"],
-  .cap-icon img[src$="climate-resilience.svg"] {
-    width: 56px; height: 56px;
-  }
-  .cap-card { padding: 20px 22px; }
-  .cap-num { font-size: 10px; }
-  .cap-title { font-size: 19px; max-width: none; }
+  /* APPROACH SCREEN - COMPACT LIST LAYOUT.
+     The desktop card design (icon top, title bottom, ~180-230px tall)
+     pushes all 6 cards onto multiple scroll screens on a phone. Chris
+     wanted them collapsed to a single-line list so the whole set is
+     visible at once, with the three-lens mark sitting above the title
+     so context comes before content.
 
-  /* Tighter section header rhythm. */
-  .approach-header { margin-bottom: 24px; }
-  .three-lens-mark { max-width: 200px; }
+     The JSX structure (button > div.cap-card-top + div.cap-card-foot)
+     is unchanged; `display: contents` flattens the nested wrappers so
+     their children participate in the .cap-card grid directly. */
+  /* Tighter header. The three-lens-mark sits ABOVE the headline so the
+     reader sees the three-lens context before the section title. */
+  .approach-header { margin-bottom: 12px; gap: 8px; }
+  .approach-header-right {
+    order: -1;
+    justify-content: flex-start;
+  }
+  .three-lens-mark { max-width: 140px; margin: 0; transform: none; }
+  .approach-header-left .eyebrow { margin-bottom: 4px; }
+  /* Trim Approach headline harder so the list dominates. */
+  #approach .headline { font-size: clamp(24px, 7vw, 30px); }
+
+  /* Selectors below are scoped with .cap-grid prefix to beat the base
+     .cap-card { display: flex } rule (later in source order, would
+     otherwise win on tied specificity). */
+  .cap-grid {
+    border-top: 1px solid var(--rule);
+    /* Lose the gap line between rows; rely on per-card border-bottom
+       so the list reads as a continuous menu, not boxed cards. */
+    gap: 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+  .cap-grid .cap-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    flex-direction: row;
+    gap: 12px;
+    padding: 10px 12px;
+    min-height: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  /* Flatten the two inner wrappers so icon / title / arrow become
+     direct grid children of .cap-card. */
+  .cap-grid .cap-card .cap-card-top,
+  .cap-grid .cap-card .cap-card-foot {
+    display: contents;
+  }
+  /* Drop the numeral - too much visual at row height. */
+  .cap-grid .cap-card .cap-num { display: none; }
+
+  /* Small icon disc + arrow scoped under .cap-card so the phone sizes
+     beat the later base rules on the cascade. */
+  .cap-card .cap-icon { width: 36px; height: 36px; }
+  .cap-card .cap-icon img { width: 24px; height: 24px; }
+  .cap-card .cap-icon img[src$="smart-energy.svg"],
+  .cap-card .cap-icon img[src$="carbon-pathways.svg"],
+  .cap-card .cap-icon img[src$="climate-resilience.svg"] {
+    width: 30px; height: 30px;
+  }
+  /* Title set in Stolzl Medium on the row - DM Serif at the same
+     pixel size wraps to 2 lines for "Whole-estate strategy" etc.
+     The DM Serif still shows up in the modal lead, so the editorial
+     italic isn't lost - just moved to where there's room for it. */
+  .cap-grid .cap-card .cap-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0;
+    max-width: none;
+  }
+  /* Arrow inline. */
+  .cap-card .cap-arrow { width: 22px; height: 22px; }
+  .cap-card .cap-arrow svg { width: 12px; height: 12px; }
+
+  /* Disrupt #6 keeps its navy register but as a row, not a tile. */
+  .cap-card.disrupt {
+    /* Drop the radial glow ::before on phone - it overflows the
+       short row. */
+    overflow: hidden;
+  }
+  .cap-card.disrupt::before { display: none; }
+
+  /* PRODUCTS SCREEN - COMPACT LIST.
+     Drop the long description paragraph, the top hairline rule, and
+     the products-header lede. Selectors scoped under .product-cards
+     so they beat the later base rules. */
+  .products-header-right .lede { display: none; }
+  .products-header { margin-bottom: 16px; }
+  #products .headline { font-size: clamp(24px, 7vw, 30px); }
+
+  .product-cards { gap: 10px; }
+  .product-cards .product-card {
+    padding: 14px 16px;
+    gap: 4px;
+    border-radius: 4px;
+  }
+  .product-cards .product-card-rule { display: none; }
+  .product-cards .product-card-desc { display: none; }
+  .product-cards .product-card-tag {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    margin: 0;
+  }
+  .product-cards .product-card-name {
+    font-size: 22px;
+    line-height: 1;
+    margin: 2px 0;
+  }
+  .product-cards .product-card-name--logo .pablo-logo {
+    height: 22px; width: auto;
+  }
+  .product-cards .product-card-tagline {
+    font-size: 13px;
+    line-height: 1.3;
+    margin: 0;
+  }
+  .product-cards .product-card-cta {
+    font-size: 12px;
+    margin-top: 2px;
+  }
 }
 
 /* =========================================================================
