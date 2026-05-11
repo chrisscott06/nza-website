@@ -2,6 +2,17 @@
 
 ## Last completed chunk
 
+**Expertise: Molson-style zone panel + hoverable quadrants + type-scale plan** (`7109e33`).
+
+Iteration on the Expertise interactive (built in `9691bba`) per Chris's review:
+
+- Zone panel restyled to feel like a Molson Scope 3 callout — upright Stolzl Medium coral title (was DM Serif italic), body text dropped 13 to 11.25px, width trimmed 312 to 216px so the panel fits inside its zone slice. Background is now translucent cream (rgba 0.94) with backdrop-blur, so the illustration shows through faintly.
+- Hoverable quadrants: new `.ghg-zone-hits` overlay layer adds four invisible buttons over each zone's x-slice. Hovering anywhere within a zone triggers the same panel reveal as the label button above. Z-stack: SVG (0) → glow (1) → hits (3) → panel (4).
+- Right-column squeeze fix on Expertise: `#capabilities`-scoped overrides shrink the text column max-width 480 to 360, headline to `clamp(28px, 3vw, 42px)`, lede to `clamp(14.5px, 1vw, 16px)`. The diagram size is unchanged — just less weight on the right.
+- Type-scale plan drafted at `docs/briefs/type-scale-recalibration-plan.md`. Two-tier proposal (Hero / Inner-screen). Home unchanged; Expertise / Approach / Products / Clients drop ~30% on headline + lede. Awaiting Chris sign-off before implementing.
+
+## Previously completed
+
 **Phone redesign — 4 commits.** Two-tier responsive system with the boundary at 600px. iPad and half-screen browsers ride the desktop layout; phones get a properly-designed experience.
 
 Commits on `origin/main`:
