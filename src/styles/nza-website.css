@@ -849,6 +849,25 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .screen.in-view .reveal-layer[data-d="7"] { transition-delay: 1400ms; }
 .screen.in-view .reveal-layer[data-d="8"] { transition-delay: 1700ms; }
 
+/* Slow stylish float-in variant. Used on the three Product cards so
+   each one drifts up over ~1200ms with a bigger initial translate
+   (24px) than the standard reveal. Combined with the wider data-d
+   delays (slots 3/5/7 = 400/850/1400ms) the cards arrive one after
+   another with a ~450ms gap - reads as a deliberate one-by-one
+   sequence, not a parallel reveal. */
+.reveal-layer.reveal-float {
+  transition: opacity 1200ms var(--ease-out-soft),
+              transform 1200ms var(--ease-out-soft);
+}
+.screen:not(.in-view) .reveal-layer.reveal-float {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.screen.in-view .reveal-layer.reveal-float {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Slow, image-friendly fade variant. The .three-lens-mark on Approach uses
    this to gently fade in (no upward translate - just opacity) once the
    screen is in view, ~3s for a soft settle. */
@@ -2401,8 +2420,10 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 /* decodED - "ED" in green to match its own card accent. */
 .decoded-ed { color: var(--decoded-green); }
 /* "decod" sits a tier lighter than the green "ED" so the suffix reads
-   as the moment it is. Stolzl Light (300) vs the inherited Medium (500). */
-.decoded-base { font-weight: 300; }
+   as the moment it is. Stolzl Light (300) vs the inherited Medium (500),
+   and pure white so only the "ED" carries the green accent - same
+   pattern as NZ:AI where only the colon picks up the card's colour. */
+.decoded-base { font-weight: 300; color: #FFFFFF; }
 /* NZ:AI - "NZ" and "AI" in white Stolzl Book, only the colon picks up
    the teal accent. Attribute-scoped specificity beats the base
    .product-card-name { color: var(--accent) } for this card. */

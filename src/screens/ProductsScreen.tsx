@@ -34,9 +34,12 @@ export function ProductsScreen() {
         </header>
 
         <div className="product-cards" data-density="editorial" data-variant="cards">
-          {/* Card 1 - PABLO · indigo accent */}
+          {/* Card 1 - PABLO · indigo accent. Slow staggered float-in
+              via reveal-layer reveal-float; data-d slot 3 (400ms delay)
+              follows the header (slots 0/1/2). */}
           <Link
-            className="product-card"
+            className="product-card reveal-layer reveal-float"
+            data-d="3"
             data-accent="indigo"
             to="/pablo"
             aria-label="See PABLO - the energy intelligence platform"
@@ -66,7 +69,8 @@ export function ProductsScreen() {
 
           {/* Card 2 - NZ:AI · coral accent (the colon is the coral moment) */}
           <a
-            className="product-card"
+            className="product-card reveal-layer reveal-float"
+            data-d="5"
             data-accent="coral"
             href="#"
             aria-label="How NZ:AI works - Net Zero Intelligence partnership model"
@@ -95,7 +99,8 @@ export function ProductsScreen() {
 
           {/* Card 3 - decodED · amber accent */}
           <a
-            className="product-card"
+            className="product-card reveal-layer reveal-float"
+            data-d="7"
             data-accent="amber"
             href="#"
             aria-label="Try your postcode - decodED Climate Action platform"
