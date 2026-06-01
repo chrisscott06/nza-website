@@ -241,8 +241,8 @@ export function NzAiPage() {
                 <p className="nz-ai-phase-card-body">
                   Discovery gets inside your data, your operations, and how
                   decisions actually get made in your organisation. The pace
-                  can move fast or stay slow - set by you and by what the data
-                  is telling us. The first cycle typically runs anywhere from
+                  can move fast or stay slow - set by you and by what the
+                  data reveals. The first cycle typically runs anywhere from
                   a few months to a year, depending on where you are starting
                   from.
                 </p>
@@ -587,9 +587,14 @@ export function NzAiPage() {
               </div>
             </div>
 
-            {/* Quiet link to the homepage Clients section per brief. */}
+            {/* Quiet link to the homepage Clients section per brief.
+                Brief specifies "See who we work with" verbatim, but the
+                no-first-person rule asks for a rewrite. Going with
+                "See NZA's clients" - keeps the action, drops the "we",
+                reads natural at link weight. Flag for Chris if he
+                prefers the brief's exact wording. */}
             <a className="nz-ai-quiet-link" href="/#clients">
-              See who we work with
+              See NZA's clients
               <span className="nz-ai-quiet-link-arrow" aria-hidden="true">→</span>
             </a>
           </div>

@@ -2,6 +2,32 @@
 
 ## Last completed chunk
 
+**NZ:AI product page — 8 chunks landed.** New `/nz-ai` product page mirroring `/pablo` structurally. Eight sections per the brief at `docs/briefs/nz-ai-page-brief.md`, copy from v8 at `docs/briefs/nz-ai-copy-v8.md`.
+
+Commits on `origin/main`:
+- `615d68f` — chunk 1: route + shell + brief/copy stored in docs
+- `72998a1` — chunk 2: hero + closing CTA
+- `cfb07e6` — chunk 3: Sections 2 (Opportunity) + 3 (What It Is)
+- `295ca27` — chunk 4: Section 4 (How It Works) with Discovery weighted
+- `c1ef2c4` — chunks 5–7: What It Does + Who It's For + Why Now
+- (this) — chunk 8: Products card rewire to `/nz-ai`, voice audit, verification
+
+**Voice rewrite pass:** all v8 "we"/"us"/"our" instances rewritten to third-person; final audit (`grep -nwE "we|us|our"` excluding JSX comments) returns zero in user-facing copy. Two notable rewrites flagged:
+- Closing CTA: rewritten to preserve "together" warmth without "we" — *"…to work out together whether a discovery sprint suits, or something else fits the situation better."*
+- Quiet link to Clients: brief specified *"See who we work with →"* verbatim — rewrote to *"See NZA's clients →"* to keep the no-first-person rule.
+
+**AI mention budget:** exactly three on the page — Discovery card *"AI accelerates the build"*, Stewardship card *"rate at which AI is changing what's possible"*, plus the brand name "NZ:AI" itself. No extras.
+
+**Italic emphasis** rendered via the existing site convention (Times New Roman italic, coral) rather than the brief's DM Serif Display — keeps the typographic fingerprint consistent across the website. Words italicised per brief: *act on* (hero), *see* (S2), *your* (S3, instead of "you" since v8 has no standalone "you"), *you* (S4), *questions* (S5), *more* (S6), *caught up* (S7), *fit* (S8).
+
+**Visual placeholders:** every section's visual is a navy card with a thin coral rule and a monospace label, aspect-ratio-matched to the final asset so layout doesn't shift on delivery — hero animation, before/after, configuration sequence (4 client frames with gradient-sampled border colours), three-phase diagram (inline SVG), three screenshot tiles for What It Does.
+
+**Products card** on the home page rewired: NZ:AI card now `<Link to="/nz-ai">` (was `<a href="#">`). PABLO card was already wired.
+
+**Out of scope (per brief):** final hero animation, demo screenshots, configuration sequence visuals, three-phase diagram production version, Calendly/contact form (CTA uses `mailto:chrisscott@thenza.co.uk` for launch), SEO meta, Open Graph cards. All scaffolded so visual delivery is a one-for-one swap.
+
+## Previously completed
+
 **Expertise: Molson-style zone panel + hoverable quadrants + type-scale plan** (`7109e33`).
 
 Iteration on the Expertise interactive (built in `9691bba`) per Chris's review:

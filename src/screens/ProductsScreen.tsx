@@ -67,12 +67,14 @@ export function ProductsScreen() {
             </span>
           </Link>
 
-          {/* Card 2 - NZ:AI · coral accent (the colon is the coral moment) */}
-          <a
+          {/* Card 2 - NZ:AI · coral accent (the colon is the coral moment).
+              Card 1 (PABLO) uses react-router <Link to="/pablo">; this
+              card now routes to /nz-ai using the same pattern. */}
+          <Link
             className="product-card reveal-layer reveal-float"
             data-d="5"
             data-accent="coral"
-            href="#"
+            to="/nz-ai"
             aria-label="How NZ:AI works - Net Zero Intelligence partnership model"
           >
             <div className="product-card-rule" aria-hidden="true" />
@@ -95,7 +97,7 @@ export function ProductsScreen() {
               How it works
               <span className="product-card-arrow" aria-hidden="true">→</span>
             </span>
-          </a>
+          </Link>
 
           {/* Card 3 - decodED · amber accent */}
           <a
