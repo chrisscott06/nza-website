@@ -99,7 +99,124 @@ export function NzAiPage() {
         </section>
 
         {/* ============================================================
-            SECTIONS 2-7 land in subsequent chunks
+            SECTION 2 - THE OPPORTUNITY
+            ============================================================ */}
+        <section className="nz-ai-section" id="opportunity">
+          <div className="nz-ai-frame">
+            <div className="nz-ai-editorial-grid">
+              <div className="nz-ai-editorial-text">
+                <h2 className="nz-ai-section-headline">
+                  You can't meaningfully change what you can't meaningfully{' '}
+                  <em>see</em>.
+                </h2>
+                <p className="nz-ai-body">
+                  Most organisations trying to take decarbonisation seriously are
+                  working from static reports and scattered spreadsheets.
+                  Numbers that are months old by the time they land.
+                  Aggregations that don't tell you where to act.
+                </p>
+                <p className="nz-ai-body">
+                  The cost of building genuinely bespoke intelligence has
+                  dropped dramatically. Work that until recently required
+                  enterprise-scale budgets can now be delivered as a
+                  partnership, for organisations of every size.
+                </p>
+              </div>
+              <div className="nz-ai-editorial-visual">
+                <div className="nz-ai-before-after">
+                  <div
+                    className="nz-ai-placeholder nz-ai-placeholder--before"
+                    role="img"
+                    aria-label="Before state placeholder"
+                  >
+                    <span className="nz-ai-placeholder-label">[before]</span>
+                  </div>
+                  <div
+                    className="nz-ai-placeholder nz-ai-placeholder--after"
+                    role="img"
+                    aria-label="After state placeholder"
+                  >
+                    <span className="nz-ai-placeholder-label">[after]</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 3 - WHAT IT IS
+            ============================================================ */}
+        <section className="nz-ai-section" id="what-it-is">
+          <div className="nz-ai-frame">
+            {/* Brief flagged italic emphasis on "you" but the v8 headline
+                doesn't contain a standalone "you" - italicised "your"
+                instead, which carries the same personalisation axis the
+                brief intended. */}
+            <h2 className="nz-ai-section-headline">
+              A platform built entirely for the way <em>your</em> organisation
+              works.
+            </h2>
+            <p className="nz-ai-body">
+              NZ:AI is a bespoke carbon intelligence platform, configured around
+              how your organisation actually runs. Your data, your sites, your
+              departments, your projects, your suppliers. Whatever the units are
+              that shape how decisions get made in your business.
+            </p>
+            <p className="nz-ai-body">
+              The result is a platform your team interrogates the way they
+              think - not the way someone else's product roadmap decided they
+              should. Different roles see different views. The same underlying
+              numbers serve a sustainability lead, an estates team, a finance
+              director, and a board.
+            </p>
+            {/* v8: "...we can also ingest historic data..." rewritten to
+                drop the "we" while keeping the conditional opener. */}
+            <p className="nz-ai-body">
+              Where the relationship supports it, NZ:AI also ingests historic
+              data alongside current-year - turning what you already have into
+              a multi-year story rather than a starting point.
+            </p>
+
+            {/* CONFIGURATION SEQUENCE PLACEHOLDER - per brief.
+                Four small frames with fictional client names, frame
+                border colour shifts across the row (orange -> purple,
+                echoing the GHG arrow gradient on Expertise). */}
+            <div className="nz-ai-config-sequence">
+              <div
+                className="nz-ai-config-frame"
+                style={{ '--frame-accent': '#F69247' } as React.CSSProperties}
+              >
+                <p className="nz-ai-config-frame-name">Northgate Properties</p>
+                <p className="nz-ai-config-frame-label">[configuration 01]</p>
+              </div>
+              <div
+                className="nz-ai-config-frame"
+                style={{ '--frame-accent': '#F16B55' } as React.CSSProperties}
+              >
+                <p className="nz-ai-config-frame-name">Ashford Schools</p>
+                <p className="nz-ai-config-frame-label">[configuration 02]</p>
+              </div>
+              <div
+                className="nz-ai-config-frame"
+                style={{ '--frame-accent': '#F0637B' } as React.CSSProperties}
+              >
+                <p className="nz-ai-config-frame-name">Penwick Group</p>
+                <p className="nz-ai-config-frame-label">[configuration 03]</p>
+              </div>
+              <div
+                className="nz-ai-config-frame"
+                style={{ '--frame-accent': '#AF5FA0' } as React.CSSProperties}
+              >
+                <p className="nz-ai-config-frame-name">Linfield Estates</p>
+                <p className="nz-ai-config-frame-label">[configuration 04]</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            SECTIONS 4-7 land in subsequent chunks
             ============================================================ */}
 
         {/* ============================================================

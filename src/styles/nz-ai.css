@@ -251,6 +251,115 @@ body.nz-ai-page {
   .nz-ai-placeholder-label { font-size: 11px; }
 }
 
+/* EDITORIAL GRID - used by sections that pair text with a visual on
+   the right (Opportunity, What It Does tiles, etc.). Two-column on
+   desktop with the text reading first; stacks on phone. */
+.nz-ai-editorial-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.9fr);
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 599px) {
+  .nz-ai-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+.nz-ai-editorial-text > .nz-ai-section-headline {
+  margin-bottom: 24px;
+}
+
+/* BEFORE/AFTER VISUAL - side-by-side pair of placeholder cards inside
+   one visual column. Left card represents the messy current state,
+   right card the structured platform view. On narrow viewports they
+   stack vertically. */
+.nz-ai-before-after {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 599px) {
+  .nz-ai-before-after {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+/* Before card uses a slightly desaturated rule (no coral) so it visually
+   reads as "the cluttered state"; after card keeps the standard coral
+   rule. The placeholder labels themselves carry the framing. */
+.nz-ai-placeholder--before::before {
+  background: var(--rule-dark-soft);
+  opacity: 1;
+}
+.nz-ai-placeholder--before .nz-ai-placeholder-label {
+  opacity: 0.6;
+}
+.nz-ai-placeholder--before,
+.nz-ai-placeholder--after {
+  aspect-ratio: 1 / 1;
+}
+
+/* CONFIGURATION SEQUENCE - Section 3 visual. Four small frames in a
+   row, each with a fictional client name and a frame border that
+   shifts colour across the row (orange -> coral -> pink -> purple,
+   echoing the brand gradient on the GHG diagram). Stacks to 2x2 on
+   iPad, 1x4 on phone. */
+.nz-ai-config-sequence {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 48px;
+}
+@media (max-width: 899px) {
+  .nz-ai-config-sequence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 479px) {
+  .nz-ai-config-sequence {
+    grid-template-columns: 1fr;
+  }
+}
+.nz-ai-config-frame {
+  position: relative;
+  background: var(--ink-navy-2);
+  border: 1px solid var(--frame-accent, var(--rule-dark));
+  border-radius: 4px;
+  aspect-ratio: 1.1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px 18px;
+  overflow: hidden;
+}
+.nz-ai-config-frame::before {
+  /* Coloured top rule, picks up the per-frame accent via the
+     --frame-accent CSS var set inline. */
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--frame-accent, var(--coral));
+  opacity: 0.85;
+}
+.nz-ai-config-frame-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--fg-on-navy-2);
+  margin: 0;
+}
+.nz-ai-config-frame-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: var(--fg-on-navy-3);
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
 /* CLOSING CTA - the final section. Centred copy, no visual, ends on
    whitespace per the brief. */
 .nz-ai-closing {
