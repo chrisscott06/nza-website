@@ -216,7 +216,192 @@ export function NzAiPage() {
         </section>
 
         {/* ============================================================
-            SECTIONS 4-7 land in subsequent chunks
+            SECTION 4 - HOW IT WORKS
+            Three-card section. Discovery sits full-width and weighted
+            (it's where the substantive work happens); Build and
+            Stewardship sit side-by-side below.
+            ============================================================ */}
+        <section className="nz-ai-section" id="how-it-works">
+          <div className="nz-ai-frame">
+            <h2 className="nz-ai-section-headline">
+              Three phases. One relationship. Shaped to <em>you</em>.
+            </h2>
+
+            <div className="nz-ai-phases">
+              {/* Discovery - full width, visually weighted */}
+              <article className="nz-ai-phase-card nz-ai-phase-card--discovery">
+                <p className="nz-ai-phase-card-num">01 Discovery</p>
+                <h3 className="nz-ai-phase-card-title">
+                  Where the real work happens.
+                </h3>
+                {/* v8: "We get inside your data..." rewritten to drop
+                    the "we"s - Discovery is the subject. The pace line
+                    follows the brief's exact rewrite ("The pace can move
+                    fast or stay slow"). */}
+                <p className="nz-ai-phase-card-body">
+                  Discovery gets inside your data, your operations, and how
+                  decisions actually get made in your organisation. The pace
+                  can move fast or stay slow - set by you and by what the data
+                  is telling us. The first cycle typically runs anywhere from
+                  a few months to a year, depending on where you are starting
+                  from.
+                </p>
+                {/* AI mention #1 (of 3 budgeted on the page). Brief
+                    rewrite: "AI lets us build quickly" -> "AI
+                    accelerates the build". */}
+                <p className="nz-ai-phase-card-body">
+                  AI accelerates the build. The partnership work -
+                  understanding your organisation properly - is what takes the
+                  time, and it's what makes the rest of it stick.
+                </p>
+                <p className="nz-ai-phase-card-body">
+                  You leave Discovery with an agreed methodology, a working
+                  platform, and a defensible inventory.
+                </p>
+              </article>
+
+              {/* Build + Stewardship side-by-side */}
+              <div className="nz-ai-phase-row">
+                <article className="nz-ai-phase-card">
+                  <p className="nz-ai-phase-card-num">02 Build</p>
+                  <h3 className="nz-ai-phase-card-title">
+                    The platform takes shape.
+                  </h3>
+                  {/* v8: "As we learn how your organisation works..."
+                      rewritten to "As the partnership learns..." */}
+                  <p className="nz-ai-phase-card-body">
+                    Discovery and Build run alongside each other. As the
+                    partnership learns how your organisation works, the
+                    platform takes shape: data architecture, ingestion,
+                    configurable views, drill-down, scenario tools, automated
+                    reporting. A plain-English methodology document - versioned,
+                    structured to be readable by both engineers and
+                    non-technical stakeholders - sits alongside the platform as
+                    a deliverable in its own right.
+                  </p>
+                  <p className="nz-ai-phase-card-body">
+                    You own it from day one. Your team uses it. Your future
+                    data flows through it.
+                  </p>
+                </article>
+
+                <article className="nz-ai-phase-card">
+                  <p className="nz-ai-phase-card-num">03 Stewardship</p>
+                  <h3 className="nz-ai-phase-card-title">
+                    A relationship that keeps the platform sharp.
+                  </h3>
+                  {/* AI mention #2 (of 3). Two "we"/"us" rewrites:
+                      "our effort, presence, and judgement" -> drop "our";
+                      "What we commit to..." -> "What the partnership
+                      commits to..." */}
+                  <p className="nz-ai-phase-card-body">
+                    An ongoing partnership that keeps the platform sharp. The
+                    relationship is built around effort, presence, and
+                    judgement, rather than a fixed list of deliverables -
+                    because the rate at which AI is changing what's possible
+                    means a fixed list would be obsolete within months. What
+                    the partnership commits to is direction, methodology
+                    stewardship, and the time to apply both to whatever you
+                    most need.
+                  </p>
+                  {/* v8: "...others want us close in alongside their team"
+                      rewritten to drop the "us". */}
+                  <p className="nz-ai-phase-card-body">
+                    In practice that means strategy reviews, framework support,
+                    methodology updates pushed in without you having to ask,
+                    and a defined block of advisory time for the live
+                    questions. The rhythm is set by you - some clients want
+                    light annual touchpoints, others want close-in support
+                    alongside their team.
+                  </p>
+                  {/* The italic-coral ownership line in full per the
+                      brief. Required to land verbatim. */}
+                  <p className="nz-ai-phase-ownership">
+                    You own your platform - code, data, methodology, and the
+                    architecture that holds it together - whether or not you
+                    continue the partnership. Stewardship is what keeps it
+                    methodologically current and lets your team get more from
+                    it as you grow.
+                  </p>
+                </article>
+              </div>
+            </div>
+
+            {/* THREE-PHASE DIAGRAM - inline SVG. Discovery (larger,
+                coral), Build (overlapping Discovery slightly per brief),
+                Stewardship separated by a flow line. Cream stroke on
+                navy, line-icon style consistent with the rest of the
+                site. Hidden on phone. */}
+            <div className="nz-ai-phase-diagram" aria-hidden="true">
+              <svg viewBox="0 0 520 80" xmlns="http://www.w3.org/2000/svg">
+                {/* Flow line from Build to Stewardship */}
+                <line
+                  x1="220" y1="40" x2="430" y2="40"
+                  stroke="var(--rule-dark)"
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
+                />
+                {/* Discovery - the largest node, coral stroke */}
+                <circle
+                  cx="80" cy="40" r="32"
+                  fill="none"
+                  stroke="var(--coral)"
+                  strokeWidth="1.5"
+                />
+                <text
+                  x="80" y="44"
+                  textAnchor="middle"
+                  fontFamily="var(--font-display)"
+                  fontSize="9"
+                  letterSpacing="0.18em"
+                  fill="var(--fg-on-navy-2)"
+                  style={{ textTransform: 'uppercase' }}
+                >
+                  Discovery
+                </text>
+                {/* Build - overlapping Discovery slightly */}
+                <circle
+                  cx="170" cy="40" r="22"
+                  fill="var(--ink-navy)"
+                  stroke="var(--fg-on-navy-3)"
+                  strokeWidth="1"
+                />
+                <text
+                  x="170" y="43"
+                  textAnchor="middle"
+                  fontFamily="var(--font-display)"
+                  fontSize="8"
+                  letterSpacing="0.18em"
+                  fill="var(--fg-on-navy-2)"
+                  style={{ textTransform: 'uppercase' }}
+                >
+                  Build
+                </text>
+                {/* Stewardship - further along the flow line */}
+                <circle
+                  cx="460" cy="40" r="22"
+                  fill="none"
+                  stroke="var(--fg-on-navy-3)"
+                  strokeWidth="1"
+                />
+                <text
+                  x="460" y="43"
+                  textAnchor="middle"
+                  fontFamily="var(--font-display)"
+                  fontSize="7.5"
+                  letterSpacing="0.18em"
+                  fill="var(--fg-on-navy-2)"
+                  style={{ textTransform: 'uppercase' }}
+                >
+                  Stewardship
+                </text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            SECTIONS 5-7 land in subsequent chunks
             ============================================================ */}
 
         {/* ============================================================

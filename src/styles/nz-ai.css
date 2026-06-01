@@ -360,6 +360,125 @@ body.nz-ai-page {
   margin-top: 4px;
 }
 
+/* HOW IT WORKS - Section 4. Discovery sits full-width on its own row
+   (visually weighted, as the brief calls for - it's where the
+   substantive work happens). Build + Stewardship sit side-by-side
+   below. On phone everything stacks single-column. */
+.nz-ai-phases {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 48px;
+}
+.nz-ai-phase-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 599px) {
+  .nz-ai-phase-row { grid-template-columns: 1fr; }
+}
+
+.nz-ai-phase-card {
+  position: relative;
+  background: var(--ink-navy-2);
+  border: 1px solid var(--rule-dark);
+  border-radius: 4px;
+  padding: 32px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nz-ai-phase-card::before {
+  /* Thin coral rule along the top edge - same family as the
+     placeholder cards but more prominent here since these carry the
+     content weight of the section. */
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--coral);
+  opacity: 0.65;
+}
+.nz-ai-phase-card--discovery {
+  /* Discovery is heavier - more interior padding, a touch darker bg
+     so it sits forward from the row, taller min-height. */
+  padding: 40px 36px 36px;
+  background: linear-gradient(180deg, rgba(247, 90, 85, 0.04), transparent 55%), var(--ink-navy-2);
+}
+.nz-ai-phase-card--discovery::before {
+  height: 2px;
+  opacity: 0.85;
+}
+
+.nz-ai-phase-card-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-on-navy-3);
+  margin: 0;
+}
+.nz-ai-phase-card-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.005em;
+  line-height: 1.1;
+  color: var(--fg-on-navy-1);
+  margin: 0 0 6px;
+}
+.nz-ai-phase-card--discovery .nz-ai-phase-card-title {
+  font-size: 28px;
+}
+.nz-ai-phase-card-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--fg-on-navy-2);
+  margin: 0;
+}
+.nz-ai-phase-card-body + .nz-ai-phase-card-body { margin-top: 6px; }
+
+/* Italic ownership line on Stewardship - the typographic fingerprint
+   in full: DM Serif Display italic in coral, 1.10-1.15em over the
+   surrounding body. Sits at the bottom of the card with a thin top
+   border so it visually reads as a closing note rather than another
+   body paragraph. */
+.nz-ai-phase-ownership {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  color: var(--coral);
+  margin: 12px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-dark-soft);
+}
+
+/* THREE-PHASE DIAGRAM - simple inline SVG below the cards. Three
+   nodes connected by a flow line; Discovery node larger and visually
+   overlapping Build (the brief: "Discovery and Build visually
+   overlapping"); Stewardship sits further along the flow line.
+   Hidden on phone - the cards themselves carry the structure there. */
+.nz-ai-phase-diagram {
+  margin: 56px auto 0;
+  max-width: 520px;
+  width: 100%;
+}
+.nz-ai-phase-diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (max-width: 599px) {
+  .nz-ai-phase-diagram { display: none; }
+}
+
 /* CLOSING CTA - the final section. Centred copy, no visual, ends on
    whitespace per the brief. */
 .nz-ai-closing {
