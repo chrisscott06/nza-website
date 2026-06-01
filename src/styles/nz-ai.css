@@ -1,0 +1,271 @@
+/* =========================================================================
+   NZ:AI PRODUCT PAGE styles
+   Scoped under body.nz-ai-page so they don't leak into the website or
+   the PABLO page. Long-scroll editorial page - no snap, no min-height
+   lock per section.
+
+   Voice: third-person throughout. Brief: docs/briefs/nz-ai-page-brief.md
+   Source copy: docs/briefs/nz-ai-copy-v8.md
+   Sections (eight scroll-stops):
+     1. Hero
+     2. The Opportunity
+     3. What It Is
+     4. How It Works (Discovery / Build / Stewardship)
+     5. What It Does (drill / scenario / report tiles)
+     6. Who It's For (editorial + sector tiles)
+     7. Why Now
+     8. Closing CTA
+   ========================================================================= */
+
+body.nz-ai-page {
+  background: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+}
+/* On NZ:AI the closing CTA is the focal call-to-action. The site nav
+   keeps the standard on-navy treatment (coral active pill) - inherited
+   from .on-navy rules in nza-website.css, no override here. */
+
+.nz-ai-shell {
+  /* Page-level wrapper - sits inside the body, gives consistent
+     horizontal padding and a max-width that matches the other pages. */
+}
+
+.nz-ai-frame {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+  box-sizing: border-box;
+}
+@media (max-width: 599px) {
+  .nz-ai-frame { padding: 0 20px; }
+}
+
+/* Section base - long-scroll, no min-height lock. Comfortable vertical
+   rhythm between sections. */
+.nz-ai-section {
+  position: relative;
+  padding: 96px 0;
+}
+@media (max-width: 599px) {
+  .nz-ai-section { padding: 56px 0; }
+}
+.nz-ai-section + .nz-ai-section {
+  border-top: 1px solid var(--rule-dark);
+}
+
+/* HERO - first section is taller so it carries the brand stamp. The
+   sub-padding kicks down a bit from the top so the eyebrow has room
+   to breathe below the floating nav. */
+.nz-ai-hero {
+  padding-top: 168px;
+  padding-bottom: 120px;
+}
+@media (max-width: 599px) {
+  .nz-ai-hero { padding-top: 104px; padding-bottom: 64px; }
+}
+
+.nz-ai-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.9fr);
+  gap: 80px;
+  align-items: center;
+}
+@media (max-width: 599px) {
+  .nz-ai-hero-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+.nz-ai-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-on-navy-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+/* The teal colon inside "NZ:AI" wordmark, mirroring the Products card */
+.nz-ai-eyebrow .nzai-mark {
+  color: var(--fg-on-navy-1);
+  letter-spacing: 0;
+  font-size: 12px;
+}
+.nz-ai-eyebrow .nzai-mark .nzai-colon { color: var(--nzai-teal); }
+.nz-ai-eyebrow .eyebrow-sep {
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  background: var(--rule-dark);
+}
+
+.nz-ai-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(34px, 4.6vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: inherit;
+  margin: 0 0 24px;
+  text-wrap: pretty;
+}
+.nz-ai-headline em {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+}
+
+/* Section-tier headline (smaller than hero - sits at the section tops) */
+.nz-ai-section-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(28px, 3.6vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: inherit;
+  margin: 0 0 28px;
+  text-wrap: pretty;
+}
+.nz-ai-section-headline em {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+}
+
+.nz-ai-lede {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--fg-on-navy-2);
+  max-width: 56ch;
+  letter-spacing: -0.005em;
+  margin: 0 0 32px;
+}
+
+.nz-ai-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg-on-navy-2);
+  max-width: 60ch;
+  margin: 0 0 18px;
+}
+.nz-ai-body:last-child { margin-bottom: 0; }
+.nz-ai-body em {
+  /* Inline italic emphasis inside body paragraphs uses the same coral-
+     Times pattern as headlines, but un-bumped (no size lift) - so a
+     phrase keeps its rhythm with the line. */
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  color: var(--coral);
+  font-weight: 400;
+}
+
+/* CTA button - coral fill on navy. Same shape across hero and closing
+   CTA so both calls feel identical. */
+.nz-ai-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px 14px 24px;
+  background: var(--coral);
+  color: var(--ink-navy);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: transform 220ms var(--ease-out-soft),
+              box-shadow 220ms var(--ease-out-soft),
+              background-color 220ms var(--ease-out-soft);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.nz-ai-cta:hover,
+.nz-ai-cta:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px -10px rgba(247, 90, 85, 0.55);
+  background: #FF6F6A;
+  outline: none;
+}
+.nz-ai-cta-arrow {
+  display: inline-block;
+  transition: transform 220ms var(--ease-out-soft);
+}
+.nz-ai-cta:hover .nz-ai-cta-arrow,
+.nz-ai-cta:focus-visible .nz-ai-cta-arrow {
+  transform: translateX(3px);
+}
+
+/* PLACEHOLDER CARDS - the brief calls for "navy card with a thin coral
+   rule" and a "centred placeholder label in light grey monospace" for
+   every section's visual that hasn't been produced yet. Pattern is
+   shared across all six placeholder types (hero animation, before/
+   after, configuration sequence, three-phase diagram, drill view,
+   scenario tool, report export) so a single visual language reads as
+   a deliberate scaffold rather than missing content. Aspect ratio is
+   tuned per-instance via a modifier class. */
+.nz-ai-placeholder {
+  position: relative;
+  background: var(--ink-navy-2);
+  border: 1px solid var(--rule-dark);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  aspect-ratio: 1.5 / 1;
+}
+.nz-ai-placeholder::before {
+  /* Thin coral rule along the top edge */
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--coral);
+  opacity: 0.6;
+}
+.nz-ai-placeholder-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--fg-on-navy-3);
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  padding: 12px 20px;
+  text-align: center;
+}
+@media (max-width: 599px) {
+  .nz-ai-placeholder { aspect-ratio: 1.4 / 1; min-height: 220px; }
+  .nz-ai-placeholder-label { font-size: 11px; }
+}
+
+/* CLOSING CTA - the final section. Centred copy, no visual, ends on
+   whitespace per the brief. */
+.nz-ai-closing {
+  text-align: center;
+  padding: 120px 0 144px;
+}
+@media (max-width: 599px) {
+  .nz-ai-closing { padding: 64px 0 88px; }
+}
+.nz-ai-closing .nz-ai-section-headline,
+.nz-ai-closing .nz-ai-body {
+  margin-left: auto;
+  margin-right: auto;
+}
+.nz-ai-closing .nz-ai-body {
+  max-width: 56ch;
+  margin-bottom: 36px;
+}
