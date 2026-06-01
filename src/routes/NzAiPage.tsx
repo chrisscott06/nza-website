@@ -401,8 +401,223 @@ export function NzAiPage() {
         </section>
 
         {/* ============================================================
-            SECTIONS 5-7 land in subsequent chunks
+            SECTION 5 - WHAT IT DOES FOR YOUR TEAM
+            Three tiles, each with screenshot placeholder + bold lead +
+            body. Tile 1 has a quieter closing note.
             ============================================================ */}
+        <section className="nz-ai-section" id="what-it-does">
+          <div className="nz-ai-frame">
+            <h2 className="nz-ai-section-headline">
+              Different people. Different <em>questions</em>. One source of truth.
+            </h2>
+
+            <div className="nz-ai-tiles">
+              {/* Tile 1 - Drill */}
+              <div className="nz-ai-tile">
+                <div
+                  className="nz-ai-placeholder"
+                  role="img"
+                  aria-label="Drill-down view placeholder"
+                >
+                  <span className="nz-ai-placeholder-label">
+                    [drill-down view placeholder]
+                  </span>
+                </div>
+                <p className="nz-ai-tile-lead">
+                  Drill from a headline number to a single decision.
+                </p>
+                <p className="nz-ai-tile-body">
+                  Your sustainability lead can trace any figure to its source
+                  document in a few clicks. Your estates team can isolate a
+                  building, a site, or a contract. Your finance team can
+                  interrogate a category by spend.
+                </p>
+                {/* The two-sentence note lands as a separate foot line
+                    per brief - "Every figure auditable. Every assumption
+                    visible." */}
+                <p className="nz-ai-tile-note">
+                  Every figure auditable. Every assumption visible.
+                </p>
+              </div>
+
+              {/* Tile 2 - Model */}
+              <div className="nz-ai-tile">
+                <div
+                  className="nz-ai-placeholder"
+                  role="img"
+                  aria-label="Scenario tool placeholder"
+                >
+                  <span className="nz-ai-placeholder-label">
+                    [scenario tool placeholder]
+                  </span>
+                </div>
+                <p className="nz-ai-tile-lead">
+                  Model the change you're considering, before you commit to it.
+                </p>
+                <p className="nz-ai-tile-body">
+                  What happens if your headcount grows by 20%? If you open a
+                  new site? If you switch a supplier? Change an assumption, see
+                  the impact immediately. Bring the choices in front of you to
+                  life, instead of guessing.
+                </p>
+              </div>
+
+              {/* Tile 3 - Automate */}
+              <div className="nz-ai-tile">
+                <div
+                  className="nz-ai-placeholder"
+                  role="img"
+                  aria-label="Report export placeholder"
+                >
+                  <span className="nz-ai-placeholder-label">
+                    [report export placeholder]
+                  </span>
+                </div>
+                <p className="nz-ai-tile-lead">
+                  Automate the reporting that currently eats your time.
+                </p>
+                <p className="nz-ai-tile-body">
+                  PPN 0621. SECR. SBTi submissions. Board reports. Client
+                  questionnaires. Generate them from the platform, tailored
+                  for each audience, with every figure linked back to
+                  methodology and source.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 6 - WHO IT'S FOR
+            Editorial section with a sector tile grid.
+            ============================================================ */}
+        <section className="nz-ai-section" id="who-its-for">
+          <div className="nz-ai-frame">
+            <h2 className="nz-ai-section-headline">
+              Organisations that want to do <em>more</em> than report.
+            </h2>
+            {/* v8: "where most of our work still sits" -> "where most of
+                the work still sits" (drop "our"). */}
+            <p className="nz-ai-body">
+              NZA started in the built environment and that's where most of
+              the work still sits. Property, contractors, design and
+              engineering practices, education estates, developers,
+              operators. But carbon decisions get made across every part of
+              an organisation, and the platform is built for any organisation
+              that wants to act on its data rather than just satisfy
+              compliance.
+            </p>
+            {/* v8: "Most of our clients..." -> "Most NZA clients..." */}
+            <p className="nz-ai-body">
+              Most NZA clients have someone internally already leading on
+              sustainability, with more ambition than the tools, depth, or
+              budget allow. NZ:AI gives that person what they need to deliver
+              on it - and connects them to the colleagues across estates,
+              finance, operations, and leadership who hold the levers they
+              need to pull.
+            </p>
+
+            {/* Sector tile grid - six tiles, one per sector named in the
+                body. Lucide-style line glyphs at 22px, 1.5px stroke per
+                the design system rule. */}
+            <div className="nz-ai-sectors">
+              <div className="nz-ai-sector-tile">
+                {/* Property - building outline */}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="3" width="16" height="18" />
+                  <line x1="8" y1="7" x2="10" y2="7" />
+                  <line x1="14" y1="7" x2="16" y2="7" />
+                  <line x1="8" y1="11" x2="10" y2="11" />
+                  <line x1="14" y1="11" x2="16" y2="11" />
+                  <line x1="8" y1="15" x2="10" y2="15" />
+                  <line x1="14" y1="15" x2="16" y2="15" />
+                </svg>
+                <p className="nz-ai-sector-tile-label">Property</p>
+              </div>
+
+              <div className="nz-ai-sector-tile">
+                {/* Contractors - hard hat */}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 18h16" />
+                  <path d="M5 18a7 7 0 0 1 14 0" />
+                  <line x1="9" y1="11" x2="9" y2="14" />
+                  <line x1="15" y1="11" x2="15" y2="14" />
+                </svg>
+                <p className="nz-ai-sector-tile-label">Contractors</p>
+              </div>
+
+              <div className="nz-ai-sector-tile">
+                {/* Design & engineering - compass */}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="7" r="2" />
+                  <line x1="12" y1="9" x2="6" y2="20" />
+                  <line x1="12" y1="9" x2="18" y2="20" />
+                  <line x1="8" y1="16" x2="16" y2="16" />
+                </svg>
+                <p className="nz-ai-sector-tile-label">
+                  Design &amp; engineering
+                </p>
+              </div>
+
+              <div className="nz-ai-sector-tile">
+                {/* Education - graduation cap */}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polygon points="12,5 22,9 12,13 2,9" />
+                  <path d="M6 11v4c0 1 2 3 6 3s6-2 6-3v-4" />
+                </svg>
+                <p className="nz-ai-sector-tile-label">Education</p>
+              </div>
+
+              <div className="nz-ai-sector-tile">
+                {/* Developers - blueprint / layered rectangles */}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="4" y="6" width="12" height="14" />
+                  <path d="M8 4h12v14" />
+                </svg>
+                <p className="nz-ai-sector-tile-label">Developers</p>
+              </div>
+
+              <div className="nz-ai-sector-tile">
+                {/* Operators - gear */}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v3M12 19v3M22 12h-3M5 12H2M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12M19.07 19.07l-2.12-2.12M7.05 7.05L4.93 4.93" />
+                </svg>
+                <p className="nz-ai-sector-tile-label">Operators</p>
+              </div>
+            </div>
+
+            {/* Quiet link to the homepage Clients section per brief. */}
+            <a className="nz-ai-quiet-link" href="/#clients">
+              See who we work with
+              <span className="nz-ai-quiet-link-arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 7 - WHY NOW
+            Editorial section, type-led. No visual for launch.
+            ============================================================ */}
+        <section className="nz-ai-section" id="why-now">
+          <div className="nz-ai-frame">
+            <h2 className="nz-ai-section-headline">
+              The pressure has tipped. The tools have <em>caught up</em>.
+            </h2>
+            <p className="nz-ai-body">
+              Carbon expectations have hardened on every front - procurement
+              frameworks, regulated reporting, investor and client questions,
+              supply chain pass-through requirements. Generic carbon tools
+              were built for the world before these expectations existed.
+            </p>
+            <p className="nz-ai-body">
+              Bespoke, granular, frictionless intelligence used to be the
+              preserve of organisations with enterprise budgets. It isn't any
+              more. NZ:AI is built for the gap that opened up.
+            </p>
+          </div>
+        </section>
+
 
         {/* ============================================================
             SECTION 8 - CLOSING CTA

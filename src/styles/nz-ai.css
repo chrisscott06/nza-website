@@ -479,6 +479,137 @@ body.nz-ai-page {
   .nz-ai-phase-diagram { display: none; }
 }
 
+/* WHAT IT DOES tiles - Section 5. Three tiles each pairing a screenshot
+   placeholder with a bold lead and 2-3 sentences of body. Tile 1 also
+   carries a quieter closing note ("Every figure auditable. Every
+   assumption visible."). 3-col at >=1024, single column below so each
+   tile gets room for its screenshot + copy without crowding. */
+.nz-ai-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 48px;
+}
+@media (max-width: 1023px) {
+  .nz-ai-tiles { grid-template-columns: 1fr; gap: 32px; }
+}
+
+.nz-ai-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.nz-ai-tile .nz-ai-placeholder {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+}
+.nz-ai-tile-lead {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+  color: var(--fg-on-navy-1);
+  margin: 0;
+}
+.nz-ai-tile-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fg-on-navy-2);
+  margin: 0;
+}
+/* The "Every figure auditable. Every assumption visible." note sits at
+   the foot of Tile 1 as a separate quieter line - lighter weight, a
+   touch off-cream, slight letter-spacing to read as a deliberate
+   sign-off rather than another body sentence. */
+.nz-ai-tile-note {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  color: var(--fg-on-navy-3);
+  margin: 4px 0 0;
+}
+
+/* SECTOR TILES - Section 6 (Who It's For). Six abstract tiles, one per
+   sector named in the body copy. Auto-fit layout so the row reflows
+   naturally - 6 across at desktop, 5/4/3/2/1 as the viewport narrows,
+   no hardcoded breakpoints needed. Brief allows neutral placeholder
+   glyphs since sector-specific icons aren't ready. */
+.nz-ai-sectors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 40px;
+}
+.nz-ai-sector-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  background: var(--ink-navy-2);
+  border: 1px solid var(--rule-dark);
+  border-radius: 4px;
+  min-height: 110px;
+}
+.nz-ai-sector-tile svg {
+  width: 22px;
+  height: 22px;
+  color: var(--fg-on-navy-2);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nz-ai-sector-tile-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-on-navy-1);
+  text-align: center;
+  margin: 0;
+}
+
+/* Quiet anchor link below the sector grid - "See who we work with ->".
+   Sized at small-caps weight, coral on hover. */
+.nz-ai-quiet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-on-navy-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-dark);
+  padding-bottom: 4px;
+  transition: color 220ms var(--ease-out-soft),
+              border-color 220ms var(--ease-out-soft);
+}
+.nz-ai-quiet-link:hover,
+.nz-ai-quiet-link:focus-visible {
+  color: var(--coral);
+  border-color: var(--coral);
+  outline: none;
+}
+.nz-ai-quiet-link-arrow {
+  transition: transform 220ms var(--ease-out-soft);
+}
+.nz-ai-quiet-link:hover .nz-ai-quiet-link-arrow,
+.nz-ai-quiet-link:focus-visible .nz-ai-quiet-link-arrow {
+  transform: translateX(3px);
+}
+
 /* CLOSING CTA - the final section. Centred copy, no visual, ends on
    whitespace per the brief. */
 .nz-ai-closing {
