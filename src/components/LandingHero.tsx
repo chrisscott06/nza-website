@@ -17,11 +17,15 @@
  */
 export function LandingHero() {
   return (
-    <div className="landing-hero-inner">
+    <>
       {/* Background blob field - navy-tuned (3 navy shades + coral
           + cream accents) at heavy blur with co-prime durations.
-          Same motion family as the preloader's cream blobs so the
-          two screens read as one continuous brand atmosphere. */}
+          Sits as a sibling of .landing-hero-inner so it fills the
+          full .landing-screen (the inner is max-width 1280 - bounded
+          - which previously cropped the motion). A mask gradient
+          fades the field to transparent on the left so the blob
+          motion lives on the right while the headline column reads
+          on a clean navy ground. */}
       <div className="landing-blobs landing-blobs--hero" aria-hidden="true">
         <span className="landing-blob landing-blob--hero-navy-1" />
         <span className="landing-blob landing-blob--hero-navy-2" />
@@ -30,6 +34,7 @@ export function LandingHero() {
         <span className="landing-blob landing-blob--hero-cream" />
       </div>
 
+      <div className="landing-hero-inner">
       {/* Left column - pinned headline + sub-line - chunk 7 */}
       <div className="landing-hero-text">
         <h1 className="landing-hero-headline">
@@ -45,6 +50,7 @@ export function LandingHero() {
       <div className="landing-hero-visual" aria-hidden="true">
         {/* SVG with three labelled beats lands in chunk 8 */}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
