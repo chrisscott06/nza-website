@@ -197,22 +197,75 @@
 }
 
 /* =========================================================================
-   CONTEXT BACKGROUND VARIANTS (Section 3 of the brief)
-   The logo recolour (per-group) lands in chunk 3.
+   CONTEXT VARIANTS - background + logo recolour per body.context-*
+   (Brief Section 1 + Section 3). The "signature move" per the brief:
+   mark + net + zero share one colour, advisory is independent and
+   picks up the page accent. Default (no context class) is cream/cream
+   for navy ground.
    ========================================================================= */
+
+/* CREAM context - navy mark/net/zero, coral advisory */
 body.context-cream .site-nav {
   background: rgba(250, 245, 235, 0.78);
   border-bottom-color: rgba(39, 51, 77, 0.1);
 }
+body.context-cream #nza-logo-mark,
+body.context-cream #nza-logo-net,
+body.context-cream #nza-logo-zero {
+  fill: var(--ink-navy);
+}
+body.context-cream #nza-logo-advisory {
+  fill: var(--coral);
+}
+/* In a cream context the rest of the nav chrome also flips. Nav items
+   in navy, hover coral. CTA stays coral (the dark-context outlined
+   treatment is replaced by solid-fill in chunk 5; for now just keep
+   the outlined CTA visible on cream too). */
+body.context-cream .site-nav-link,
+body.context-cream .site-nav-trigger {
+  color: var(--ink-navy);
+}
+body.context-cream .site-nav-link:hover,
+body.context-cream .site-nav-trigger:hover,
+body.context-cream .site-nav-link:focus-visible,
+body.context-cream .site-nav-trigger:focus-visible {
+  color: var(--coral);
+}
+
+/* PABLO context - cream mark/net/zero, cream advisory */
 body.context-pablo .site-nav {
   background: rgba(31, 15, 46, 0.62);
 }
+/* No logo recolour needed - cream/cream matches the default. */
+
+/* NZ:AI context - cream mark/net/zero, cream advisory */
 body.context-nzai .site-nav {
   background: rgba(10, 22, 40, 0.7);
 }
+/* No logo recolour needed - cream/cream matches the default. */
+
+/* decodED context - deep green mark/net/zero, orange advisory */
 body.context-decoded .site-nav {
   background: rgba(243, 239, 227, 0.82);
   border-bottom-color: rgba(15, 93, 67, 0.12);
+}
+body.context-decoded #nza-logo-mark,
+body.context-decoded #nza-logo-net,
+body.context-decoded #nza-logo-zero {
+  fill: #0F5D43;
+}
+body.context-decoded #nza-logo-advisory {
+  fill: #E8743C;
+}
+body.context-decoded .site-nav-link,
+body.context-decoded .site-nav-trigger {
+  color: #0F5D43;
+}
+body.context-decoded .site-nav-link:hover,
+body.context-decoded .site-nav-trigger:hover,
+body.context-decoded .site-nav-link:focus-visible,
+body.context-decoded .site-nav-trigger:focus-visible {
+  color: #E8743C;
 }
 
 /* Reduced motion - transitions become instant. */
