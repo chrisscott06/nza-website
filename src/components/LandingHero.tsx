@@ -1,7 +1,8 @@
+import { ThreeBeatInfographic } from './ThreeBeatInfographic'
+
 /**
  * Navy hero - the landing payoff that sits underneath the cream preloader.
  *
- * Layout (filled out across chunks 7-9):
  *   Left column   pinned headline + sub-line
  *                 "We _decode_ decarbonisation for your organisation."
  *                 (decode in Times New Roman italic coral)
@@ -11,7 +12,8 @@
  *
  * Background carries a navy-tuned blob field (3 navy shades + coral +
  * cream accents) at heavy blur, co-prime durations matching the
- * preloader's calm-atmosphere feel.
+ * preloader's calm-atmosphere feel. Mask gradient fades the field to
+ * transparent on the left so the headline column reads on clean navy.
  *
  * Brief: docs/briefs/landing-page-brief.md
  */
@@ -46,9 +48,11 @@ export function LandingHero() {
         </p>
       </div>
 
-      {/* Right column - three-beat infographic SVG - chunk 8 */}
-      <div className="landing-hero-visual" aria-hidden="true">
-        {/* SVG with three labelled beats lands in chunk 8 */}
+      {/* Right column - three-beat infographic. Plays once when the
+          hero enters the viewport (IntersectionObserver-triggered)
+          and holds in its final state. */}
+      <div className="landing-hero-visual">
+        <ThreeBeatInfographic />
       </div>
       </div>
     </>

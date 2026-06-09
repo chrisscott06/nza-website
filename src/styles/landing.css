@@ -468,13 +468,206 @@
 }
 
 .landing-hero-visual {
-  /* Three-beat infographic SVG lands here in chunk 8 */
+  /* Three-beat infographic - sits in this column, plays once on entry */
   position: relative;
   z-index: 1;
   min-height: 320px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* =========================================================================
+   THREE-BEAT INFOGRAPHIC (Decode -> Build -> Partner)
+   Single SVG that evolves through three beats as one continuous
+   animation. All timing in CSS - the component just toggles the
+   `.is-playing` class once the IntersectionObserver fires.
+
+   Timeline (master clock starts when `.is-playing` is applied):
+     0.0 - 0.6s   Dots sit scattered at deterministic positions
+     0.6 - 1.3s   Dots converge to a horizontal line at y=160
+     0.9s         "Decode" label fades in
+     1.3 - 1.8s   Spine line draws in
+     1.3 - 1.8s   6 anchors appear in sequence (80ms apart)
+     2.1s         "Build" label fades in
+     2.6 - 3.6s   6 branches grow from anchors (100ms stagger)
+     2.7 - 3.7s   6 coral nodes appear at branch termini
+     3.4s         "Partner" label fades in
+     4.0s+        Held state - no loop
+   ========================================================================= */
+.three-beat {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.three-beat-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Smaller min-height than the parent so the SVG can size by its
+     viewBox aspect ratio without forcing a tall block. */
+}
+
+/* DOTS (Beat 1) - scattered -> converged. Start at the scatter
+   position; at .is-playing kick they hold for 0.6s then ease into
+   the line position over 0.7s. */
+.three-beat-dot {
+  fill: var(--fg-on-navy-1);
+  opacity: 0.7;
+  transform: translate(var(--from-x), var(--from-y));
+}
+.three-beat.is-playing .three-beat-dot {
+  animation: three-beat-dot-converge 1300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes three-beat-dot-converge {
+  0%   { transform: translate(var(--from-x), var(--from-y)); opacity: 0.7; }
+  45%  { transform: translate(var(--from-x), var(--from-y)); opacity: 0.7; }
+  100% { transform: translate(var(--to-x), var(--to-y)); opacity: 0.95; }
+}
+
+/* SPINE - the long horizontal line. Drawn in at the tail of Beat 1
+   using stroke-dashoffset so it reads as "the line forming". */
+.three-beat-spine {
+  stroke: var(--fg-on-navy-1);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.45;
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+}
+.three-beat.is-playing .three-beat-spine {
+  animation: three-beat-spine-draw 700ms cubic-bezier(0.16, 1, 0.3, 1) 1000ms forwards;
+}
+@keyframes three-beat-spine-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ANCHORS (Beat 2) - appear in sequence along the spine. Each has
+   its own animation-delay set inline so they cascade left-to-right. */
+.three-beat-anchor {
+  fill: var(--fg-on-navy-1);
+  opacity: 0;
+  transform: scale(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.three-beat.is-playing .three-beat-anchor {
+  animation: three-beat-anchor-appear 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes three-beat-anchor-appear {
+  0%   { opacity: 0; transform: scale(0.3); }
+  60%  { opacity: 1; transform: scale(1.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* BRANCHES (Beat 3) - thin lines from each anchor outward to a
+   coral node. Drawn via stroke-dashoffset so they read as growing
+   rather than appearing. */
+.three-beat-branch {
+  stroke: var(--coral);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.7;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.three-beat.is-playing .three-beat-branch {
+  animation: three-beat-branch-draw 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes three-beat-branch-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* NODES (Beat 3) - small coral discs at each branch terminus.
+   Pop in after the branch reaches the end. */
+.three-beat-node {
+  fill: var(--coral);
+  opacity: 0;
+  transform: scale(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.three-beat.is-playing .three-beat-node {
+  animation: three-beat-node-appear 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes three-beat-node-appear {
+  0%   { opacity: 0; transform: scale(0.3); }
+  60%  { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* LABELS - stacked below the SVG, fade in after each beat completes. */
+.three-beat-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.three-beat-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  transform: translateY(4px);
+}
+.three-beat.is-playing .three-beat-label {
+  animation: three-beat-label-rise 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.three-beat-label-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--coral);
+  transform: translateY(-1px);
+}
+.three-beat-label-name {
+  color: var(--coral);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11.5px;
+}
+.three-beat-label-body {
+  color: rgba(245, 241, 232, 0.65);
+}
+@keyframes three-beat-label-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion - skip every transition and hold the final state. */
+@media (prefers-reduced-motion: reduce) {
+  .three-beat-dot {
+    transform: translate(var(--to-x), var(--to-y));
+    opacity: 0.95;
+    animation: none;
+  }
+  .three-beat-spine {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .three-beat-anchor,
+  .three-beat-node {
+    opacity: 1;
+    transform: scale(1);
+    animation: none;
+  }
+  .three-beat-branch {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .three-beat-label {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
 /* =========================================================================
