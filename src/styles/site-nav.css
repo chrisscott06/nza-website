@@ -268,6 +268,83 @@ body.context-decoded .site-nav-trigger:focus-visible {
   color: #E8743C;
 }
 
+/* =========================================================================
+   DROPDOWN PANELS - "Our products" + "About us"
+   Glassmorphic floating panel that drops below the nav bar on hover
+   or click. Stays in DOM only while open; close-grace timing handled
+   in SiteNav state. Animation: 200ms fade + 4px slide-down on open.
+   ========================================================================= */
+.site-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: -8px;
+  min-width: 200px;
+  padding: 12px;
+  background: rgba(15, 24, 40, 0.78);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+          backdrop-filter: blur(20px) saturate(140%);
+  border: 0.5px solid rgba(247, 90, 85, 0.22);
+  border-radius: 10px;
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5);
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: site-nav-dropdown-open 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+}
+@keyframes site-nav-dropdown-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.site-nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  color: rgba(245, 241, 232, 0.85);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-dropdown-item:hover,
+.site-nav-dropdown-item:focus-visible {
+  background: rgba(247, 90, 85, 0.1);
+  color: var(--coral);
+  outline: none;
+}
+
+/* Product swatches - circle to the left of each product name. PABLO
+   gets a gradient, NZ:AI and decodED get flat brand colours. */
+.site-nav-dropdown-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.site-nav-dropdown-swatch--pablo {
+  background: linear-gradient(135deg, #FFC775 0%, #F75A55 45%, #7A74FF 100%);
+}
+.site-nav-dropdown-swatch--nzai {
+  background: #2EC4A8;
+}
+.site-nav-dropdown-swatch--decoded {
+  background: #0F5D43;
+}
+
 /* Reduced motion - transitions become instant. */
 @media (prefers-reduced-motion: reduce) {
   .site-nav,
@@ -278,7 +355,11 @@ body.context-decoded .site-nav-trigger:focus-visible {
   .site-nav-link,
   .site-nav-trigger,
   .site-nav-cta,
-  .site-nav-chevron {
+  .site-nav-chevron,
+  .site-nav-dropdown-item {
     transition: none;
+  }
+  .site-nav-dropdown {
+    animation: none;
   }
 }
