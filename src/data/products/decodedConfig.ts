@@ -28,11 +28,13 @@ export const decodedConfig: ProductPageConfig = {
     ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Get%20in%20touch',
     screens: [
       {
-        /* PNG pending - falls back to placeholder. */
+        /* Real decodED site-loaded / map screen. */
+        src: '/images/products/decoded/decoded-map.png',
         shortLabel: 'Site loaded',
         alt: 'decodED with site loaded after postcode entry, showing map and site info',
       },
       {
+        /* PNG pending - falls back to placeholder. */
         shortLabel: '3D buildings',
         alt: 'decodED 3D buildings detail view',
       },
