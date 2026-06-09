@@ -1174,55 +1174,29 @@
   --accent-start: var(--coral);
   --accent-end: var(--coral);
   /* Interior tint at rest is transparent; on activation fades to
-     opaque cream just behind the border-drawing animation. The
-     SHADOW is the ::after pseudo (see below), not box-shadow - so
-     no box-shadow transition needed here. */
+     opaque cream just behind the border-drawing animation.
+     Shadow is filter: drop-shadow which follows the card's actual
+     rounded-corner shape (no hard angles, no inside leak). A no-op
+     drop-shadow is set at rest so the compositing layer is allocated
+     up-front - activating then JUST changes the filter parameters,
+     not the layer, so no re-rasterisation jitter. */
   background: transparent;
-  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
+  filter: drop-shadow(0 0 0 transparent);
+  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
+              filter 400ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
 }
 @media (max-width: 599px) {
   .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
 .product-card.is-active {
   background: #FCF8EF;
-  /* Shadow lives on .product-card::after below - simple duplicate
-     of the card shape sitting behind it, offset, rounded corners
-     matching the card. NO box-shadow here. */
-}
-
-/* THE SHADOW
-   A pseudo behind the card, offset down-left, with a RADIAL
-   GRADIENT instead of a solid fill. The right angles Chris kept
-   seeing weren't a CSS bug - they were the geometric consequence
-   of the L-shape getting clipped at the card's edges. Where the
-   left strip meets the card's top, and where the bottom strip
-   meets the card's right, the visible shape has to terminate
-   somewhere - and a solid fill creates a hard cutoff there.
-   The fix: center a radial gradient near the corner of the card
-   that's CLOSEST to where the shadow pokes out (card's bottom-
-   left in pseudo's local coords ~3%, 97%). The gradient is most
-   opaque at that point and fades outward radially - by the time
-   the alpha reaches the cutoff edges (top of left strip, right
-   of bottom strip), it's transparent. No visible hard edges. */
-.product-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  background: radial-gradient(
-    circle at 3% 97%,
-    rgba(31, 51, 71, 0.24) 0%,
-    rgba(31, 51, 71, 0.10) 30%,
-    transparent 65%
-  );
-  transform: translate(-10px, 10px);
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
-}
-.product-card.is-active::after {
-  opacity: 1;
+  /* filter: drop-shadow follows the card's actual alpha mask,
+     including the rounded corners - so the shadow is literally the
+     card's shape, offset down-left, with the same bevelled corners.
+     No L-strip clipping = no hard angles where strips terminate.
+     No pseudo behind = no inside-the-box bleed.
+     The blur value gives it the gradient fade per Chris's request. */
+  filter: drop-shadow(-8px 10px 12px rgba(31, 51, 71, 0.22));
 }
 
 /* Per-product accent palettes (Chris's brief):
