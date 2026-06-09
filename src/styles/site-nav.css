@@ -309,15 +309,16 @@ body.context-decoded .site-nav-trigger:focus-visible {
    to be solid-filled to claim space.
    ========================================================================= */
 
-/* PABLO context - outlined light-violet, hover fills primary violet */
+/* PABLO context - swapped from violet to coral per Chris. Outlined
+   coral at rest, hover fills with a deeper coral. */
 body.context-pablo .site-nav-cta {
-  color: #B79CFF;
-  border-color: #B79CFF;
+  color: #F75A55;
+  border-color: #F75A55;
 }
 body.context-pablo .site-nav-cta:hover,
 body.context-pablo .site-nav-cta:focus-visible {
-  background: #7A74FF;
-  border-color: #7A74FF;
+  background: #DC4844;
+  border-color: #DC4844;
   color: #FFFFFF;
 }
 

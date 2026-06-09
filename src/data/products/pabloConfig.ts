@@ -10,10 +10,13 @@ export const pabloConfig: ProductPageConfig = {
   palette: {
     canvas: '#1F0F2E',
     cream: '#FAF5EB',
-    accent: '#7A74FF',
-    accentLight: '#B79CFF',
-    canvasElevated: 'rgba(255, 252, 246, 0.05)',
-    stepVerbColour: '#7A74FF',
+    /* Swapped from pale violet (#B79CFF / #7A74FF) to the brand coral
+       per Chris - the pale purple wasn't sitting right on the aubergine.
+       Coral on aubergine reads as a confident NZA-family identity. */
+    accent: '#DC4844',
+    accentLight: '#F75A55',
+    canvasElevated: 'rgba(247, 90, 85, 0.05)',
+    stepVerbColour: '#F75A55',
   },
 
   hero: {

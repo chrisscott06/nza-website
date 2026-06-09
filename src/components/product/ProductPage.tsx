@@ -253,16 +253,18 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           ========================================================= */}
       <section className="product-lets-show">
         <div className="product-lets-show-inner">
+          {/* Headline now stands alone - the Request Demo pill is no
+              longer inline. Per Chris: a single confident statement,
+              then the CTA beneath it. */}
           <h2 className="product-lets-show-headline">
-            <span>{config.letsShow.leadingText}</span>
-            <Link
-              to={config.letsShow.pillHref}
-              className="product-lets-show-pill"
-            >
-              {config.letsShow.pillLabel}
-            </Link>
-            <span>{config.letsShow.trailingText}</span>
+            {`${config.letsShow.leadingText} ${config.letsShow.trailingText}`}
           </h2>
+          <Link
+            to={config.letsShow.pillHref}
+            className="product-lets-show-pill product-lets-show-pill--standalone"
+          >
+            {config.letsShow.pillLabel}
+          </Link>
         </div>
       </section>
 
@@ -271,7 +273,11 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           ========================================================= */}
       <section className="product-steps">
         <div className="product-steps-inner">
-          <ProductStepsSection steps={config.steps} />
+          <ProductStepsSection
+            steps={config.steps}
+            requestDemoHref={config.letsShow.pillHref}
+            requestDemoLabel={config.letsShow.pillLabel}
+          />
         </div>
       </section>
 

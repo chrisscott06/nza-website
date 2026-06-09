@@ -678,11 +678,11 @@
    reads as a "funny light blue" against the dark navy. White wins. */
 .canvas-navy .landing-hero-sub,
 .landing-hero-sub {
-  /* Stolzl Thin (weight 100) per Chris - lightest available so the
-     sub-line reads as a quiet whisper beneath the display headline.
-     Stolzl Light (300) was reading heavier than expected. */
+  /* Stolzl Medium (500) per Chris - trying a more confident body
+     weight than the Thin (100) we had previously. The Thin read as
+     too whispery against the display headline. */
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 500;
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.35;
   letter-spacing: -0.005em;

@@ -15,11 +15,13 @@ import { useEffect, useRef, useState } from 'react'
  * Brief: docs/briefs/nza-product-page-template-brief.md (Section 1)
  */
 
-// Hold time per screen - halved from the original 4500ms per Chris.
-// Snappier rotation makes the cycle feel more deliberate without
-// keeping the user waiting on a single panel.
-const HOLD_MS = 2250
-const CROSSFADE_MS = 600
+// Hold + crossfade times. Chris's notes:
+//   4500ms (original brief spec) -> too slow, user waits on a panel
+//   2250ms (half) -> too quick, doesn't give time to read each screen
+//   3300ms (this) -> middle of the two, reads as deliberate
+// Crossfade extended 600ms -> 900ms for the smoother fade he asked for.
+const HOLD_MS = 3300
+const CROSSFADE_MS = 900
 
 export type BrowserFrameScreen = {
   /** Path to the PNG. If absent or fails to load, placeholder renders. */

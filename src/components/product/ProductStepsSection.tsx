@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ProductIcon } from './ProductIcons'
 import { ProductIllustration } from './ProductIllustrations'
 
@@ -32,7 +33,18 @@ export type StepData = {
   illustrationConcept: string
 }
 
-export function ProductStepsSection({ steps }: { steps: StepData[] }) {
+type Props = {
+  steps: StepData[]
+  /** Request Demo pill pinned at the top-right of the shared frame. */
+  requestDemoHref: string
+  requestDemoLabel: string
+}
+
+export function ProductStepsSection({
+  steps,
+  requestDemoHref,
+  requestDemoLabel,
+}: Props) {
   const [activeIndex, setActiveIndex] = useState(0)
   const textRefs = useRef<(HTMLDivElement | null)[]>([])
 
@@ -71,23 +83,32 @@ export function ProductStepsSection({ steps }: { steps: StepData[] }) {
               'product-step-text-block' + (i === activeIndex ? ' is-active' : '')
             }
           >
-            <div className="product-step-meta">
-              <span className="product-step-icon" aria-hidden="true">
-                <ProductIcon name={step.iconName} />
-              </span>
-              <span className="product-step-number">{step.number}.</span>
-            </div>
-            <h3 className="product-step-headline">
-              {step.headlinePrefix}
-              <span className="step-verb">{step.highlightedVerb}</span>
-              {step.headlineSuffix}
-            </h3>
-            <p className="product-step-body">{step.body}</p>
+            {/* Text content is sticky WITHIN its 100vh-tall block -
+                so as the user scrolls, the text pins at top-22vh
+                instead of just scrolling past. Combined with the
+                shared sticky frame on the right, both columns are
+                page-locked together during a step's scroll range,
+                then both flip to the next step's content as the
+                block boundary passes (Impilo's page-lock feel). */}
+            <div className="product-step-text-sticky">
+              <div className="product-step-meta">
+                <span className="product-step-icon" aria-hidden="true">
+                  <ProductIcon name={step.iconName} />
+                </span>
+                <span className="product-step-number">{step.number}.</span>
+              </div>
+              <h3 className="product-step-headline">
+                {step.headlinePrefix}
+                <span className="step-verb">{step.highlightedVerb}</span>
+                {step.headlineSuffix}
+              </h3>
+              <p className="product-step-body">{step.body}</p>
 
-            {/* Inline illustration shown ONLY on mobile via CSS - the
-                shared sticky frame on desktop replaces this. */}
-            <div className="product-step-inline-illustration">
-              <ProductIllustration concept={step.illustrationConcept} />
+              {/* Inline illustration shown ONLY on mobile via CSS -
+                  the shared sticky frame on desktop replaces this. */}
+              <div className="product-step-inline-illustration">
+                <ProductIllustration concept={step.illustrationConcept} />
+              </div>
             </div>
           </div>
         ))}
@@ -95,9 +116,20 @@ export function ProductStepsSection({ steps }: { steps: StepData[] }) {
 
       {/* SHARED STICKY FRAME (desktop only via CSS).
           Holds all four illustrations absolutely stacked; one is
-          opacity:1 at a time based on activeIndex. */}
-      <div className="product-steps-frame-col" aria-hidden="true">
+          opacity:1 at a time based on activeIndex. The Request Demo
+          pill is pinned at the top-right INSIDE the frame, so it
+          stays visible the whole time the section is in view (the
+          frame is sticky for the full four-step scroll range). */}
+      <div className="product-steps-frame-col">
         <div className="product-steps-frame">
+          <Link
+            to={requestDemoHref}
+            className="product-steps-request-pill"
+            aria-label={requestDemoLabel}
+          >
+            {requestDemoLabel}
+            <span aria-hidden="true"> →</span>
+          </Link>
           {steps.map((step, i) => (
             <div
               key={i}
@@ -105,6 +137,7 @@ export function ProductStepsSection({ steps }: { steps: StepData[] }) {
                 'product-steps-frame-illustration' +
                 (i === activeIndex ? ' is-active' : '')
               }
+              aria-hidden="true"
             >
               <ProductIllustration concept={step.illustrationConcept} />
             </div>
