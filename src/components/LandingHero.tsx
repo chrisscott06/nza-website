@@ -80,29 +80,20 @@ export function LandingHero() {
               for your organisation.
             </MaskReveal>
           </h1>
-          {/* Body split into two sentences so they float up one by
-              one per Chris. .landing-hero-sub-line tightens the
-              grouping (small bottom margin between, none after the
-              last). */}
-          <div className="landing-hero-sub-group">
-            <MaskReveal
-              as="p"
-              className="landing-hero-sub landing-hero-sub-line"
-              delay={1700}
-              waitForPreloader
-            >
-              We are specialists in buildings, energy and climate.
-            </MaskReveal>
-            <MaskReveal
-              as="p"
-              className="landing-hero-sub landing-hero-sub-line"
-              delay={2200}
-              waitForPreloader
-            >
-              We cut through the complexity of decarbonisation - and build the
-              tools your people need to act on it.
-            </MaskReveal>
-          </div>
+          {/* Body lifts up as one block per Chris's latest - "we can
+              just lift it up in one go, but give it a second or two
+              for that to fade in." 2500ms delay places it ~half a
+              second after the third headline line finishes settling. */}
+          <MaskReveal
+            as="p"
+            className="landing-hero-sub"
+            delay={2500}
+            waitForPreloader
+          >
+            We are specialists in buildings, energy and climate. We cut through
+            the complexity of decarbonisation - and build the tools your people
+            need to act on it.
+          </MaskReveal>
         </div>
       </div>
     </>
