@@ -107,7 +107,12 @@ export function NzaLogoWide({ className }: Props) {
           stacked. */}
       <svg
         className="nza-logo-wide-wordmark-svg"
-        viewBox="0 0 472.7 154.91"
+        /* viewBox was 472.7 x 154.91 - source SVG is 478.65 x 156.04
+           so the right edge of "ADVISORY"'s Y was being clipped.
+           Bumped to the actual source bounds with a 4-unit breathing
+           margin on each side so neither the O on "ZERO" nor the
+           Y on "ADVISORY" hits the viewBox edge. */
+        viewBox="-4 -4 486.65 164.04"
         xmlns="http://www.w3.org/2000/svg"
         aria-label="Net Zero Advisory"
       >

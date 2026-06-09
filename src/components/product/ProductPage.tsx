@@ -41,7 +41,15 @@ export type ProductPageConfig = {
   /** SECTION 1 - Hero */
   hero: {
     microLabel: string
+    /** Plain-text product name. Used as the page heading + alt text
+     *  on the logo image. Kept even when logoSrc is set so the
+     *  document outline and accessibility still resolve to a real
+     *  name. */
     name: string
+    /** Path to the product's brand logo SVG (e.g. /assets/logos/pablo-logo.svg).
+     *  When set, renders as the visual product name in the hero
+     *  instead of the Stolzl text. */
+    logoSrc?: string
     tagline: string
     oneLiner: string
     ctaLabel: string
@@ -176,9 +184,23 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
             <MaskReveal as="p" className="product-hero-micro" delay={100}>
               {config.hero.microLabel}
             </MaskReveal>
-            <MaskReveal as="h1" className="product-hero-name" delay={250}>
-              {config.hero.name}
-            </MaskReveal>
+            {config.hero.logoSrc ? (
+              <MaskReveal
+                as="h1"
+                className="product-hero-name product-hero-name--logo"
+                delay={250}
+              >
+                <img
+                  src={config.hero.logoSrc}
+                  alt={config.hero.name}
+                  className="product-hero-name-img"
+                />
+              </MaskReveal>
+            ) : (
+              <MaskReveal as="h1" className="product-hero-name" delay={250}>
+                {config.hero.name}
+              </MaskReveal>
+            )}
             <MaskReveal as="p" className="product-hero-tagline" delay={450}>
               {config.hero.tagline}
             </MaskReveal>

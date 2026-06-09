@@ -18,7 +18,8 @@ export const nzaiConfig: ProductPageConfig = {
 
   hero: {
     microLabel: 'INTELLIGENCE PLATFORM',
-    name: 'NZ:AI.',
+    name: 'NZ:AI',
+    logoSrc: '/assets/logos/nzai-logo.svg',
     tagline: 'Net zero intelligence, built around you.',
     oneLiner:
       'An AI-native advisory platform for organisations who need to map their carbon, set a credible trajectory, and act on what they find - with technical depth and tools their teams will actually use.',

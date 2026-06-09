@@ -18,7 +18,8 @@ export const pabloConfig: ProductPageConfig = {
 
   hero: {
     microLabel: 'SOFTWARE',
-    name: 'PABLO.',
+    name: 'PABLO',
+    logoSrc: '/assets/logos/pablo-logo.svg',
     tagline: 'Half-hourly intelligence. Real impact.',
     oneLiner:
       'Bespoke energy analytics and optimisation software. PABLO brings intelligence to how buildings consume, generate, and trade energy - turning complexity into clear, actionable insight.',

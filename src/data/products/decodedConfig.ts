@@ -20,7 +20,8 @@ export const decodedConfig: ProductPageConfig = {
 
   hero: {
     microLabel: 'EDUCATION PLATFORM',
-    name: 'decodED.',
+    name: 'decodED',
+    logoSrc: '/assets/logos/decoded-logo.svg',
     tagline: 'Climate action, decoded for education.',
     oneLiner:
       'A platform for schools, colleges, universities and trusts to understand their estates and act on climate. From postcode to plan in minutes.',
