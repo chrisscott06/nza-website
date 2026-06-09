@@ -95,12 +95,14 @@ one-line rationale per decision. Reviewable in the morning.
 
 ## What I deferred
 
-- **Real product screenshots** — partially shipped:
-    - PABLO: all 4 PNGs found in `/public/images/products/pablo/` and
-      wired up (home / flow / financial / optimise).
-    - NZ:AI: 2 of 3 wired (map + data-quality); strategy view still
-      pending and renders the placeholder.
-    - decodED: all 3 pending; placeholders render.
+- **Real product screenshots** — ALL SHIPPED. Chris dropped PNGs into
+  `/public/images/products/{slug}/` during the build and the configs
+  were wired up as each arrived:
+    - PABLO (4 screens): home / flow / financial / optimise
+    - NZ:AI (4 screens): map / waterfall / data-quality / trajectory
+    - decodED (3 screens): map / map-2 / dashboard
+  All product pages now cycle real screens. No placeholders left
+  rendering for first-build purposes.
 - **Real step illustrations** — 12 placeholder line-art SVGs shipped
   in `ProductIllustrations.tsx` per brief allowance. Real artwork
   slots in by replacing the inline paths.
