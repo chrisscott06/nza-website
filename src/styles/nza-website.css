@@ -83,15 +83,11 @@ html { scroll-behavior: auto; /* JS owns the smoothing */ }
     padding: 56px 0 40px;
   }
   /* PHONE TYPOGRAPHY OVERRIDES.
-     The clamp() rules in colors_and_type.css are tuned for >=600 and
-     they bottom out at sizes that still feel desktop-ish on a 375px
-     viewport (e.g. .headline clamps to 42px). Compress everything down
-     so a phone screen reads like a phone screen, not a stretched desk. */
-  .headline {
-    font-size: clamp(28px, 8.5vw, 36px);
-    line-height: 1.08;
-  }
-  /* .lede sized by the global 14px rule - no per-tier override. */
+     With the recalibrated type scale (June 2026), .headline and .lede
+     are sized via clamp() that already produces appropriate phone-tier
+     sizes at the floor. No per-tier overrides needed for those two.
+     Line-height bumped down slightly for the tighter phone viewport. */
+  .headline { line-height: 1.06; }
   .eyebrow {
     font-size: 11px;
     letter-spacing: 0.18em;
@@ -542,7 +538,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .headline {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(42px, 5vw, 76px);
+  /* Page hero tier per the June 2026 type-scale recalibration.
+     Used on Approach, Expertise, Products, Clients, GetInTouch,
+     and the PABLO + NZ:AI product page heros. The Landing hero
+     uses .landing-hero-headline at the next tier up (96px). */
+  font-size: clamp(36px, 5.4vw, 72px);
   line-height: 1.04;
   letter-spacing: -0.025em;
   color: inherit;
@@ -577,17 +577,52 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
 .lede {
   font-family: var(--font-body);
   font-weight: 300; /* Inter Light */
-  /* 14px flat across every screen and every viewport. Home was on
-     clamp(17, 1.3vw, 19) - bumped to match inner screens per Chris,
-     so body weight is uniform site-wide; the Home hero stays loud
-     via its headline alone. */
-  font-size: 14px;
+  /* Body / lede tier per the June 2026 type-scale recalibration -
+     bumped from flat 14px to clamp(15, 1.3vw, 18) for breathing room.
+     At 1400px viewport this lands at 18px, on phones at the 15px
+     floor. Pairs with the 72px page hero above for a confident
+     editorial rhythm. */
+  font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.55;
   color: var(--ink-2);
   max-width: 60ch;
   letter-spacing: -0.005em;
   margin: 0;
 }
+
+/* SECTION HEADING tier - "Our products", section titles within a page.
+   Sits between page hero (72px) and sub-heading (24px). */
+.section-heading {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: inherit;
+  margin: 0;
+  text-wrap: pretty;
+}
+.section-heading em {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.15em;
+}
+
+/* SUB-HEADING tier - sub-lines beneath hero or section heading. Sits
+   between body (18px) and section-heading (40px). */
+.subhead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.4;
+  color: var(--ink-2);
+  letter-spacing: -0.005em;
+  margin: 0;
+  max-width: 60ch;
+}
+.canvas-navy .subhead { color: rgba(245, 241, 232, 0.85); }
 .canvas-navy .lede { color: var(--fg-on-navy-2); }
 
 .body {
@@ -919,30 +954,11 @@ body.on-navy .nav-hamburger:hover { background: rgba(245, 241, 232, 0.08); }
   order: 2;
   justify-self: end;
 }
-/* INNER-SCREEN TYPE SCALE - one rule that scales smoothly across the
-   full viewport range, no per-tier @media overrides needed.
-   Applies to every screen except the Home hero, which keeps the louder
-   global .headline / .lede clamps.
-
-   Headline clamp behaviour:
-     - 375px (small phone): floor at 26px
-     - 600px (iPad edge):  ~26px (still at floor, 4vw=24)
-     - 768px (iPad portrait): ~31px
-     - 1024px (iPad land / half-screen): ~41px
-     - 1280px:               ~51px
-     - >=1400px:             cap at 56px (matches the Expertise tuning
-                             Chris signed off on)
-
-   Body (.lede) sits flat at 14px on every viewport - same compactness
-   on phone, iPad and desktop. Home keeps its 17-19px hero lede. */
-#capabilities .headline,
-#approach .headline,
-#products .headline,
-#clients .headline {
-  font-size: clamp(26px, 4vw, 56px);
-}
-/* .lede sized by the global 14px rule above - same on every screen,
-   including Home. The hero stays loud via its headline alone. */
+/* INNER-SCREEN TYPE SCALE - now driven by the global .headline +
+   .lede clamps after the June 2026 recalibration (page hero 72px,
+   body 18px). The previous id-scoped overrides (capabilities,
+   approach, products, clients) at 56px max have been removed - the
+   global clamp gives them the right size for free. */
 
 /* Expertise text column trim - the diagram is the hero on this screen,
    so the body sits in a narrower column on the right. Other inner

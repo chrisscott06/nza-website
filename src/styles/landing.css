@@ -437,8 +437,11 @@
 .landing-hero-headline {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(34px, 4.4vw, 52px);
-  line-height: 1.08;
+  /* Landing hero - the loudest moment on the site. 96px max per the
+     June 2026 type-scale recalibration. Phone floor at 44px so it
+     stays a display headline even on a small viewport. */
+  font-size: clamp(44px, 8vw, 96px);
+  line-height: 1.04;
   letter-spacing: -0.025em;
   color: var(--fg-on-navy-1);
   margin: 0;
@@ -459,11 +462,14 @@
 
 .landing-hero-sub {
   font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 17px;
-  line-height: 1.55;
-  color: rgba(245, 241, 232, 0.78);
-  max-width: 460px;
+  font-weight: 400;
+  /* Sub-heading tier (24px max) per the June 2026 recalibration.
+     Pairs with the 96px hero so the rhythm reads as a true display
+     pairing rather than headline + body. */
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.4;
+  color: rgba(245, 241, 232, 0.85);
+  max-width: 520px;
   margin: 0;
 }
 
@@ -794,7 +800,9 @@
 .get-in-touch-headline {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(40px, 5vw, 64px);
+  /* Page hero tier (72px) per June 2026 type scale - the closing
+     CTA wants the same weight as a section's primary headline. */
+  font-size: clamp(36px, 5.4vw, 72px);
   line-height: 1.04;
   letter-spacing: -0.025em;
   margin: 0 0 24px;
@@ -808,11 +816,13 @@
 }
 .get-in-touch-body {
   font-family: var(--font-body);
-  font-weight: 300;
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--fg-on-navy-2);
-  max-width: 480px;
+  font-weight: 400;
+  /* Sub-heading tier (24px) - sits just under the closing headline so
+     gets the larger sub tier for editorial pairing. */
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.4;
+  color: rgba(245, 241, 232, 0.85);
+  max-width: 520px;
   margin: 0 auto 40px;
 }
 .get-in-touch-cta {

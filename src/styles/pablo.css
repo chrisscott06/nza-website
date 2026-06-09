@@ -102,8 +102,10 @@ body.pablo-page .footer {
   /* Tighter section padding on phone. */
   .p-section { padding: 56px 0 40px; }
   .p-hero { min-height: 0; padding: 80px 0 40px; }
-  .p-hero-headline { font-size: clamp(28px, 8.5vw, 36px); line-height: 1.08; }
-  .p-headline      { font-size: clamp(26px, 7vw, 32px); line-height: 1.1; }
+  /* Headlines sized by the global clamp() floor at phone widths -
+     no per-tier override needed after the June 2026 recalibration. */
+  .p-hero-headline { line-height: 1.06; }
+  .p-headline      { line-height: 1.1; }
 }
 
 /* =========================================================================
@@ -138,7 +140,10 @@ body.pablo-page .footer {
 .p-headline {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(2rem, 3.4vw, 3rem);
+  /* Section heading tier per June 2026 type scale - 40px max. Used
+     for PABLO's in-page section titles (decomposition deep-dive,
+     etc.) where the page hero (72px) sets a separate beat. */
+  font-size: clamp(24px, 3vw, 40px);
   line-height: 1.08;
   letter-spacing: -0.02em;
   color: var(--p-fg-1);
@@ -157,7 +162,8 @@ body.pablo-page .footer {
 .p-body {
   font-family: var(--font-body);
   font-weight: 300;
-  font-size: clamp(17px, 1.3vw, 19px);
+  /* Body tier per June 2026 - 18px max. Matches site-wide .lede. */
+  font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.55;
   color: var(--p-fg-2);
   max-width: 56ch;
@@ -191,7 +197,10 @@ body.pablo-page .footer {
 .p-hero-headline {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+  /* Page hero tier per June 2026 type scale - 72px max. Matches the
+     site-wide .headline (Approach, Expertise, Products, Clients,
+     NZ:AI) so all product/inner pages share the same hero rhythm. */
+  font-size: clamp(36px, 5.4vw, 72px);
   line-height: 1.04;
   letter-spacing: -0.025em;
   color: var(--p-fg-1);
@@ -207,9 +216,11 @@ body.pablo-page .footer {
 }
 .p-hero-sub {
   font-family: var(--font-body);
-  font-weight: 300;
-  font-size: clamp(17px, 1.3vw, 19px);
-  line-height: 1.55;
+  font-weight: 400;
+  /* Sub-heading tier per June 2026 - 24px max. Pairs with the 72px
+     hero above for proper display rhythm. */
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.4;
   color: var(--p-fg-2);
   max-width: 48ch;
   margin: 0;
