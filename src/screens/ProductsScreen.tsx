@@ -1,134 +1,157 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PabloLogo } from '../components/svg/PabloLogo'
 
 /**
- * Products screen - 1×3 row of product cards previewing each destination
- * page (PABLO / NZ:AI / decodED). Each card has a small product-specific
- * accent dot and an embedded logo or wordmark.
+ * Products section per landing brief v2 Section 4 - "Our products".
  *
- * Source: nza-website.html lines 1302-1399.
+ * Layout: 40/60 split. Left column has the section heading + intro +
+ * mono hint. Right column floats three product marks (PABLO / NZ:AI /
+ * decodED, left to right by maturity) on the navy canvas with no card
+ * chrome at rest.
+ *
+ * Interaction: hover any mark and:
+ *   - The mark scales to 108%
+ *   - A soft tinted bounding container materialises around it
+ *   - A reveal panel grows downward with question + promise + Explore link
+ *   - The other two marks recede to 40% opacity and 94% scale
+ * Hover off and everything returns to the at-rest state.
+ *
+ * Clicking the active mark (or its Explore link) navigates to the
+ * corresponding product page via React Router. Routes are wired:
+ *   /pablo  -> existing full PABLO page
+ *   /nz-ai  -> existing full NZ:AI page
+ *   /decoded -> stub
+ *
+ * Idle motion: each mark has a 6s breathing cycle (~2% scale) staggered
+ * via animation-delay so they don't pulse in sync.
+ *
+ * Brief: docs/briefs/nza-landing-page-brief-v2.md
  */
-export function ProductsScreen() {
+
+type ProductId = 'pablo' | 'nzai' | 'decoded'
+
+type Product = {
+  id: ProductId
+  name: string
+  href: string
+  question: string
+  promise: string
+  exploreLabel: string
+}
+
+const PRODUCTS: Product[] = [
+  {
+    id: 'pablo',
+    name: 'PABLO',
+    href: '/pablo',
+    question: 'Want to cut your electricity costs?',
+    promise:
+      'PV, battery and load optimisation modelling for sites that want to spend less on energy.',
+    exploreLabel: 'Explore PABLO',
+  },
+  {
+    id: 'nzai',
+    name: 'NZ:AI',
+    href: '/nz-ai',
+    question: 'Want to make sense of complex carbon data?',
+    promise:
+      'An AI advisory partnership for teams who have client relationships but need net zero depth.',
+    exploreLabel: 'Explore NZ:AI',
+  },
+  {
+    id: 'decoded',
+    name: 'decodED',
+    href: '/decoded',
+    question: 'Running climate action in education?',
+    promise:
+      'A hosted platform helping schools, universities and trusts move from carbon data to climate strategy.',
+    exploreLabel: 'Explore decodED',
+  },
+]
+
+function ProductMarkVisual({ id }: { id: ProductId }) {
+  // Placeholder marks - the brief flags real marks are pending from
+  // Chris. Each is a styled wordmark in the product's brand colour
+  // so the colour identity reads even without bespoke iconography.
+  if (id === 'pablo') {
+    return <PabloLogo className="product-mark-logo product-mark-logo--pablo" />
+  }
+  if (id === 'nzai') {
+    return (
+      <span className="product-mark-wordmark product-mark-wordmark--nzai">
+        NZ<span className="product-mark-nzai-colon">:</span>AI
+      </span>
+    )
+  }
+  // decoded
   return (
-    <section className="screen canvas-navy" id="products" data-screen-label="04 Products">
+    <span className="product-mark-wordmark product-mark-wordmark--decoded">
+      decod<span className="product-mark-decoded-ed">ED</span>
+    </span>
+  )
+}
+
+export function ProductsScreen() {
+  const [hovered, setHovered] = useState<ProductId | null>(null)
+
+  return (
+    <section
+      className="screen canvas-navy products-section in-view"
+      id="products"
+      data-screen-label="Products"
+    >
       <div className="frame">
-        <header className="products-header">
-          <div className="products-header-left">
-            <div className="eyebrow reveal-layer" data-d="0">
-              <span className="orbit-marker" aria-hidden="true" />
-              04 · Products
-            </div>
-            <h2 className="headline reveal-layer" data-d="1">
-              <em>Intelligence</em>, not just advice.
-            </h2>
-          </div>
-          <div className="products-header-right reveal-layer" data-d="2">
-            <p className="lede">
-              NZA is moving from advisory to intelligence - from
-              static report, to dynamic systems that keep working long after
-              the engagement ends. Three things sit alongside the consulting
-              practice: a digital tool, a way of working, and a movement we're
-              building openly. Each one is part of the same shift.
+        <div className="products-layout">
+          {/* LEFT - section heading + intro + mono hint */}
+          <div className="products-text">
+            <h2 className="section-heading products-heading">Our products</h2>
+            <p className="subhead products-intro">
+              Three tools we've built to help organisations move on net zero -
+              each one solving a different piece of the puzzle.
+            </p>
+            <p className="products-hint">
+              Hover to see what each does. Click to dive in.
             </p>
           </div>
-        </header>
 
-        <div className="product-cards" data-density="editorial" data-variant="cards">
-          {/* Card 1 - PABLO · indigo accent. Slow staggered float-in
-              via reveal-layer reveal-float; data-d slot 3 (400ms delay)
-              follows the header (slots 0/1/2). */}
-          <Link
-            className="product-card reveal-layer reveal-float"
-            data-d="3"
-            data-accent="indigo"
-            to="/pablo"
-            aria-label="Meet PABLO - the energy intelligence platform"
-          >
-            <div className="product-card-rule" aria-hidden="true" />
-            <div className="product-card-tag">
-              <span className="product-card-dot" aria-hidden="true" />
-              The model
-            </div>
-            <h3 className="product-card-name product-card-name--logo">
-              <span className="sr-only">PABLO</span>
-              <PabloLogo className="pablo-logo" />
-            </h3>
-            <p className="product-card-tagline">See your energy clearly.</p>
-            <p className="product-card-desc">
-              PABLO deconstructs commercial electricity costs to the half-hour,
-              models every intervention against real demand, and projects a
-              detailed investment case over the project's lifecycle. The energy
-              intelligence platform that powers NZA's smart energy and
-              behind-the-meter strategy work.
-            </p>
-            <span className="product-card-cta">
-              Meet PABLO
-              <span className="product-card-arrow" aria-hidden="true">→</span>
-            </span>
-          </Link>
-
-          {/* Card 2 - NZ:AI · coral accent (the colon is the coral moment).
-              Card 1 (PABLO) uses react-router <Link to="/pablo">; this
-              card now routes to /nz-ai using the same pattern. */}
-          <Link
-            className="product-card reveal-layer reveal-float"
-            data-d="5"
-            data-accent="coral"
-            to="/nz-ai"
-            aria-label="How NZ:AI works - Net Zero Intelligence partnership model"
-          >
-            <div className="product-card-rule" aria-hidden="true" />
-            <div className="product-card-tag">
-              <span className="product-card-dot" aria-hidden="true" />
-              The framework
-            </div>
-            <h3 className="product-card-name">
-              NZ<span className="nzai-colon">:</span>AI
-            </h3>
-            <p className="product-card-tagline">Net Zero Intelligence, built around you.</p>
-            <p className="product-card-desc">
-              Every NZ:AI engagement produces a bespoke greenhouse gas inventory
-              and net zero strategy - delivered as a living digital system the
-              client owns, not a static report filed annually. AI makes it
-              possible to build something tailored for every client; partnership
-              makes it work.
-            </p>
-            <span className="product-card-cta">
-              How it works
-              <span className="product-card-arrow" aria-hidden="true">→</span>
-            </span>
-          </Link>
-
-          {/* Card 3 - decodED · amber accent */}
-          <a
-            className="product-card reveal-layer reveal-float"
-            data-d="7"
-            data-accent="amber"
-            href="#"
-            aria-label="Try your postcode - decodED Climate Action platform"
-          >
-            <div className="product-card-rule" aria-hidden="true" />
-            <div className="product-card-tag">
-              <span className="product-card-dot" aria-hidden="true" />
-              The movement
-            </div>
-            <h3 className="product-card-name">
-              <span className="decoded-base">decod</span><span className="decoded-ed">ED</span>
-            </h3>
-            <p className="product-card-tagline">Climate action, decoded for education.</p>
-            <p className="product-card-desc">
-              A platform for the 33,000 nurseries, schools, colleges and
-              universities required to produce a Climate Action Plan. decodED
-              turns a postcode into a working baseline across decarbonisation,
-              adaptation, biodiversity, and climate education - using open data
-              and the people who know the site to build something credible from
-              a standing start.
-            </p>
-            <span className="product-card-cta">
-              Try your postcode
-              <span className="product-card-arrow" aria-hidden="true">→</span>
-            </span>
-          </a>
+          {/* RIGHT - three floating marks */}
+          <div className="products-marks">
+            {PRODUCTS.map((p) => {
+              const isActive = hovered === p.id
+              const isReceded = hovered !== null && hovered !== p.id
+              return (
+                <Link
+                  key={p.id}
+                  to={p.href}
+                  className={
+                    'product-mark' +
+                    (isActive ? ' is-active' : '') +
+                    (isReceded ? ' is-receded' : '')
+                  }
+                  data-mark={p.id}
+                  onMouseEnter={() => setHovered(p.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  onFocus={() => setHovered(p.id)}
+                  onBlur={() => setHovered(null)}
+                  aria-label={`${p.exploreLabel} - ${p.question}`}
+                >
+                  <span className="product-mark-visual">
+                    <ProductMarkVisual id={p.id} />
+                  </span>
+                  <span className="product-mark-name">{p.name}</span>
+                  <span className="product-mark-reveal" aria-hidden={!isActive}>
+                    <span className="product-mark-question">{p.question}</span>
+                    <span className="product-mark-promise">{p.promise}</span>
+                    <span className="product-mark-explore">
+                      {p.exploreLabel}
+                      <span aria-hidden="true">→</span>
+                    </span>
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
       </div>
     </section>

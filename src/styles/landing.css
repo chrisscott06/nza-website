@@ -1056,6 +1056,248 @@
 }
 
 /* =========================================================================
+   PRODUCTS SECTION (new landing brief v2 Section 4)
+   40/60 split: left text block, right three product marks floating
+   on the navy canvas. Hover any mark to expand a reveal panel; the
+   other two recede. Section height adjusts smoothly as panels open.
+   ========================================================================= */
+.products-section {
+  background: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+  /* Generous vertical padding per brief - 120px each side on desktop. */
+  padding: 120px 0;
+  min-height: auto;
+}
+@media (max-width: 899px) {
+  .products-section { padding: 96px 0; }
+}
+@media (max-width: 599px) {
+  .products-section { padding: 80px 0; }
+}
+
+.products-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr);
+  gap: 64px;
+  align-items: start;
+}
+@media (max-width: 899px) {
+  .products-layout {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+}
+
+/* LEFT - text block */
+.products-text {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.products-heading { margin: 0; }
+.products-intro {
+  color: rgba(245, 241, 232, 0.75);
+  max-width: 420px;
+}
+.products-hint {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(247, 90, 85, 0.85);
+  margin: 12px 0 0;
+  max-width: 320px;
+}
+
+/* RIGHT - three product marks in a horizontal row */
+.products-marks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 599px) {
+  .products-marks {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.product-mark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 16px 0;
+  text-decoration: none;
+  color: inherit;
+  /* No card chrome at rest. The tinted bounding container appears
+     via ::before only when .is-active. */
+  background: transparent;
+  border-radius: 14px;
+  /* Transitions for the recede-other-marks behaviour and the
+     hover-scale on the visual below. */
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+.product-mark::before {
+  /* Tinted bounding container that materialises on hover. */
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(247, 90, 85, 0.35);
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: -1;
+}
+.product-mark.is-active::before { opacity: 1; }
+
+/* Other-marks recede when one is active. */
+.product-mark.is-receded {
+  opacity: 0.4;
+  transform: scale(0.94);
+}
+
+/* THE MARK VISUAL - 100-120px square per brief. Subtle breathing
+   animation at rest (6s cycle, ~2% scale), staggered per mark. The
+   active mark scales to 108% on top of the idle motion. */
+.product-mark-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Inner-element animation - the wrapper's transform overrides on
+     hover via the parent .is-active class below. */
+  animation: product-mark-breathe 6s ease-in-out infinite;
+}
+.product-mark[data-mark="nzai"] .product-mark-visual {
+  animation-delay: -2s;
+}
+.product-mark[data-mark="decoded"] .product-mark-visual {
+  animation-delay: -4s;
+}
+.product-mark.is-active .product-mark-visual {
+  transform: scale(1.08);
+  /* Hold the active scale - pause the breathe animation so the two
+     don't fight. */
+  animation-play-state: paused;
+}
+@keyframes product-mark-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+
+/* Visuals inside the mark - the brief flags real marks pending so
+   these are placeholder wordmarks with the brand colour identity. */
+.product-mark-logo--pablo {
+  width: 100%;
+  height: auto;
+}
+.product-mark-wordmark {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+}
+.product-mark-wordmark--nzai {
+  color: #FFFFFF;
+  font-weight: 400; /* Stolzl Book */
+}
+.product-mark-nzai-colon { color: var(--nzai-teal); }
+.product-mark-wordmark--decoded {
+  font-weight: 300; /* Stolzl Light */
+  color: #FFFFFF;
+}
+.product-mark-decoded-ed {
+  font-weight: 500;
+  color: #F37A38; /* the new decodED accent */
+}
+
+/* PRODUCT NAME - small Inter label beneath the mark. */
+.product-mark-name {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  color: rgba(245, 241, 232, 0.85);
+  text-align: center;
+}
+
+/* REVEAL PANEL - question + promise + Explore link. Hidden at rest
+   (max-height 0 + opacity 0), grows downward on .is-active. */
+.product-mark-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 8px;
+  transition: max-height 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 280ms cubic-bezier(0.16, 1, 0.3, 1) 60ms,
+              padding 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-mark.is-active .product-mark-reveal {
+  max-height: 280px;
+  opacity: 1;
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+.product-mark-question {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--coral);
+}
+.product-mark-promise {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(245, 241, 232, 0.78);
+}
+.product-mark-explore {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral);
+  border-bottom: 1px solid var(--coral);
+  padding-bottom: 2px;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* prefers-reduced-motion - kill the breathing + recede transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .product-mark,
+  .product-mark-visual,
+  .product-mark-reveal {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* =========================================================================
    GET IN TOUCH closing screen - scaffold (proper styling in chunk B)
    ========================================================================= */
 .get-in-touch-screen {
