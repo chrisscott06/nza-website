@@ -19,13 +19,18 @@
      · Chunk 9       - navy blob field + reduced-motion + mobile pass
    ========================================================================= */
 
-/* The landing screen takes the snap rules off (no min-height: 100dvh
-   lock) so the section sizes itself to its content - the preloader
-   handles its own full-viewport coverage above. */
+/* The landing screen is a flex column containing the LandingHero
+   (grows to fill) and the ClientsStrip (pinned at the bottom as a
+   thin band) - per Chris's revised landing layout where the cream
+   marquee lives inside the landing viewport rather than as its own
+   scroll section. */
 .landing-screen {
   position: relative;
   background: var(--ink-navy);
   color: var(--fg-on-navy-1);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* =========================================================================
@@ -411,12 +416,11 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 96px 64px;
-  min-height: 100vh;
+  /* Grows to fill the landing-screen flex column - the ClientsStrip
+     below sits on the bottom edge of the section. */
+  flex: 1;
   /* Centred single-column layout per Chris's revised landing -
-     headline + sub-line stack vertically, both centred horizontally.
-     The old two-column grid (text left, empty visual right) is gone -
-     the right column was an aria-hidden div anyway since the
-     three-beat infographic moved off the landing. */
+     headline + sub-line stack vertically, both centred horizontally. */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -574,12 +578,11 @@
    reads as a "funny light blue" against the dark navy. White wins. */
 .canvas-navy .landing-hero-sub,
 .landing-hero-sub {
-  /* Stolzl per Chris (was Inter) - display weight reads more
-     editorial alongside the headline above. Stolzl Light (300) so
-     the sub-line sits as a quieter beat to the headline's Light
-     weight, not competing. */
+  /* Stolzl Thin (weight 100) per Chris - lightest available so the
+     sub-line reads as a quiet whisper beneath the display headline.
+     Stolzl Light (300) was reading heavier than expected. */
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 100;
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.35;
   letter-spacing: -0.005em;
@@ -856,6 +859,39 @@
   .clients-slider-screen { padding: 64px 0; }
 }
 
+/* THIN strip variant - used inside the landing hero. Cream band
+   pinned to the bottom of the landing-screen flex column, much
+   shorter than the standalone variant ("really thin and run along
+   the bottom of the page" per Chris). */
+.clients-slider--thin {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 14px 0;
+  position: relative;
+  z-index: 2; /* above the navy blob field */
+}
+.clients-slider--thin .clients-slider-cell {
+  width: 130px;
+  height: 48px;
+  padding: 0 16px;
+}
+.clients-slider--thin .clients-slider-logo-img {
+  /* Slightly less aggressive greyscale so the logos still read at
+     the smaller size. */
+  filter: grayscale(1) opacity(0.65);
+}
+.clients-slider--thin .clients-slider-cell:hover .clients-slider-logo-img {
+  filter: grayscale(0) opacity(1);
+}
+@media (max-width: 599px) {
+  .clients-slider--thin { padding: 10px 0; }
+  .clients-slider--thin .clients-slider-cell {
+    width: 100px;
+    height: 40px;
+    padding: 0 12px;
+  }
+}
+
 .clients-slider {
   width: 100%;
   overflow: hidden;
@@ -982,11 +1018,11 @@
    specificity fix as .landing-hero-sub. */
 .canvas-navy .get-in-touch-body,
 .get-in-touch-body {
-  /* Stolzl Light per Chris - matches the landing hero sub-line
+  /* Stolzl Thin per Chris - matches the landing hero sub-line
      treatment so the two navy-body moments on the homepage flow
      read as one continuous editorial voice. */
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 100;
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.4;
   letter-spacing: -0.005em;

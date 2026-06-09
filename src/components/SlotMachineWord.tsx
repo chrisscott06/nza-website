@@ -10,22 +10,28 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
  *   3. energy markets
  *   4. digital intelligence
  *
- * Each word holds in position for ~1.8s, then the next word slides up
- * from below the dotted frame, pushing the current word up and out
- * over ~700ms. The frame itself stays at a fixed visible-line height,
- * but its WIDTH stretches and squashes between words - sized to fit
- * each word's natural rendered width via JS measurement, with a CSS
- * width transition synchronised with the rotation.
+ * Each word holds for ~1.8s, then the next word slides up into
+ * position over 700ms while the frame width simultaneously stretches
+ * or squashes to fit. The width pre-transitions during the rotation
+ * (not after) so by the time the new word lands the frame is already
+ * the right size - per Chris: "by the time the text lands, the box
+ * is already the right width".
  *
- * Width measurement uses a hidden span that inherits the frame's
- * computed font/padding/letter-spacing properties. measureRef's
- * offsetWidth gives the natural rendered width per word. Re-measures
- * on window resize because the headline font-size is viewport-scaled
- * via clamp().
+ * Two-tick architecture:
+ *   - rotIndex   advances every 2500ms (drives the rotation animation
+ *                 and which word pair is rendered)
+ *   - widthIndex advances 1800ms after each rotIndex tick (drives
+ *                 the frame width). Width tick is offset so it fires
+ *                 just before the rotation animation begins, meaning
+ *                 width and rotation animate simultaneously rather
+ *                 than width-after-rotation.
  *
- * Reduced motion: animation disabled via media query; the first word
- * stays visible permanently. Frame width still measures so the
- * outline fits the visible word.
+ * Width is measured from a hidden span that inherits the frame's
+ * box layout exactly (same padding + transparent 1px border to
+ * mirror the visible frame's dashed border). offsetWidth gives the
+ * exact width the frame needs to be to hold each word.
+ *
+ * Reduced motion: animation disabled; first word stays permanently.
  */
 
 const WORDS = [
@@ -36,26 +42,45 @@ const WORDS = [
 ] as const
 
 const CYCLE_MS = 2500
+// Width tick fires WIDTH_OFFSET_MS into each cycle - timed to coincide
+// with the slot-rotate animation delay so width and rotation animate
+// together (not width-after-rotation).
+const WIDTH_OFFSET_MS = 1800
 
 export function SlotMachineWord() {
   const measureRef = useRef<HTMLSpanElement>(null)
-  const [index, setIndex] = useState(0)
+  const [rotIndex, setRotIndex] = useState(0)
+  const [widthIndex, setWidthIndex] = useState(0)
   const [widths, setWidths] = useState<number[]>([])
 
-  // Cycle ticker - monotonically increasing index.
+  // Rotation tick - drives the rendered word pair + the CSS animation key.
   useEffect(() => {
     const id = window.setInterval(() => {
-      setIndex((i) => i + 1)
+      setRotIndex((i) => i + 1)
     }, CYCLE_MS)
     return () => window.clearInterval(id)
   }, [])
 
-  // Measure each word's natural rendered width. Re-runs:
-  //   - On mount (initial measurement)
-  //   - When fonts finish loading (Stolzl may load async)
-  //   - On window resize (font-size scales with viewport via clamp)
-  // useLayoutEffect so the first measurement happens synchronously
-  // before paint, avoiding a one-frame flash of un-sized frame.
+  // Width tick - offset WIDTH_OFFSET_MS after each rotation tick so the
+  // width transition starts as the rotation begins (not after it).
+  useEffect(() => {
+    let intervalId: number | null = null
+    const firstTickId = window.setTimeout(() => {
+      setWidthIndex((i) => i + 1)
+      intervalId = window.setInterval(() => {
+        setWidthIndex((i) => i + 1)
+      }, CYCLE_MS)
+    }, WIDTH_OFFSET_MS)
+
+    return () => {
+      window.clearTimeout(firstTickId)
+      if (intervalId !== null) window.clearInterval(intervalId)
+    }
+  }, [])
+
+  // Measure each word's natural rendered width. Re-runs on mount,
+  // when fonts finish loading (Stolzl may load async), and on
+  // window resize (font-size scales with viewport via clamp).
   useLayoutEffect(() => {
     const measureEl = measureRef.current
     if (!measureEl) return
@@ -72,10 +97,7 @@ export function SlotMachineWord() {
     measureAll()
 
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        // Font may have swapped in - remeasure to catch the new metrics.
-        measureAll()
-      })
+      document.fonts.ready.then(measureAll)
     }
 
     const onResize = () => measureAll()
@@ -83,29 +105,34 @@ export function SlotMachineWord() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  const currentWord = WORDS[index % WORDS.length]
-  const nextWord = WORDS[(index + 1) % WORDS.length]
-  const currentWidth = widths[index % WORDS.length]
+  const currentWord = WORDS[rotIndex % WORDS.length]
+  const nextWord = WORDS[(rotIndex + 1) % WORDS.length]
+  // Width pre-targets the NEXT word (the one about to roll in) so the
+  // frame stretches/squashes to fit the new word as the rotation
+  // happens, settling at the correct size by the moment the new word
+  // is in place.
+  const targetWidth = widths[widthIndex % WORDS.length]
 
   return (
     <span
       className="slot-frame"
-      style={currentWidth ? { width: `${currentWidth}px` } : undefined}
+      style={targetWidth ? { width: `${targetWidth}px` } : undefined}
     >
       {/* Hidden width measurer - absolute-positioned out of the
           frame's flow so it doesn't affect the frame's natural
-          size. Inherits font properties via class so the measured
-          offsetWidth matches what the visible word will render to. */}
+          size. Matches the frame's box (padding + transparent 1px
+          border, box-sizing border-box) so offsetWidth gives the
+          exact natural rendered width including the frame's chrome. */}
       <span
         ref={measureRef}
         className="slot-measurer"
         aria-hidden="true"
       />
-      {/* key on the stack forces a fresh DOM each cycle, restarting
-          the CSS animation from translateY(0) without any reverse-
-          rotation glitch when wrapping from the last word back to
-          the first. */}
-      <span key={index} className="slot-stack">
+      {/* key on the stack forces a fresh DOM each rotation cycle,
+          restarting the CSS animation from translateY(0) without any
+          reverse-rotation glitch when wrapping from the last word
+          back to the first. */}
+      <span key={rotIndex} className="slot-stack">
         <span className="slot-word">{currentWord}</span>
         <span className="slot-word">{nextWord}</span>
       </span>
