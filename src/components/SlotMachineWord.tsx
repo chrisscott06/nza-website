@@ -30,14 +30,12 @@ import { preloaderState, PRELOADER_DISMISSED_EVENT } from '../lib/preloaderState
  *                         cycling begins)
  *   2. climate complexity
  *   3. the energy transition
- *   4. digital intelligence
  */
 
 const WORDS = [
   'decarbonisation',
   'climate complexity',
   'the energy transition',
-  'digital intelligence',
 ] as const
 
 const CYCLE_MS = 2500
