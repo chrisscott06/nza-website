@@ -2,8 +2,7 @@ import { useEffect, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
-import { ProductIcon } from './ProductIcons'
-import { ProductIllustration } from './ProductIllustrations'
+import { ProductStep } from './ProductStep'
 import { useContextClass } from '../../hooks/useContextClass'
 
 /**
@@ -92,6 +91,16 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [config.slug])
+
+  // Set the document title per product so browser tabs read the
+  // product name. Restores on unmount.
+  useEffect(() => {
+    const previous = document.title
+    document.title = `${config.hero.name.replace(/\.$/, '')} · Net Zero Advisory`
+    return () => {
+      document.title = previous
+    }
+  }, [config.hero.name])
 
   const rootStyle: CSSProperties = {
     // CSS variables that the product-page.css rules read.
@@ -240,49 +249,9 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           ========================================================= */}
       <section className="product-steps">
         <div className="product-steps-inner">
-          {config.steps.map((step, i) => {
-            return (
-              <div key={i} className="product-step">
-                <div className="product-step-text">
-                  <MaskReveal as="div" className="product-step-meta" delay={0}>
-                    <span className="product-step-icon" aria-hidden="true">
-                      <ProductIcon name={step.iconName} />
-                    </span>
-                    <span className="product-step-number">{step.number}.</span>
-                  </MaskReveal>
-                  <MaskReveal
-                    as="h3"
-                    className="product-step-headline"
-                    delay={120}
-                  >
-                    <>
-                      {step.headlinePrefix}
-                      <span className="step-verb">{step.highlightedVerb}</span>
-                      {step.headlineSuffix}
-                    </>
-                  </MaskReveal>
-                  <MaskReveal
-                    as="p"
-                    className="product-step-body"
-                    delay={200}
-                  >
-                    {step.body}
-                  </MaskReveal>
-                </div>
-
-                <div className="product-step-illustration-col">
-                  <MaskReveal
-                    as="div"
-                    className="product-step-illustration"
-                    delay={400}
-                    threshold={0.2}
-                  >
-                    <ProductIllustration concept={step.illustrationConcept} />
-                  </MaskReveal>
-                </div>
-              </div>
-            )
-          })}
+          {config.steps.map((step, i) => (
+            <ProductStep key={i} {...step} />
+          ))}
         </div>
       </section>
 

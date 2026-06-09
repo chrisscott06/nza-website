@@ -556,6 +556,10 @@
   gap: 80px;
   align-items: start;
   padding: 80px 0;
+  /* min-height 100vh per row so the sticky illustration has scroll
+     range to pin against - feels like Impilo's scrollytelling step
+     mechanic without needing scroll-driven JS. */
+  min-height: 100vh;
 }
 @media (max-width: 1023px) {
   .product-step {
@@ -620,6 +624,44 @@
   color: var(--product-text-muted-on-cream);
   margin: 0;
   max-width: 440px;
+}
+
+/* COORDINATED ARRIVAL ANIMATION
+   When the parent .product-step has .is-revealed, child elements
+   marked with product-step-fade or product-step-rise animate from
+   their resting (hidden) state to visible. Delays staggered per
+   brief spec - icon/number at 0, headline at 120ms, body at 200ms,
+   illustration at 400ms - so the row arrives as one orchestrated
+   gesture rather than each element fighting for attention. */
+.product-step-fade {
+  opacity: 0;
+  transition: opacity 600ms var(--product-ease);
+}
+.product-step-rise {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 600ms var(--product-ease),
+              transform 700ms var(--product-ease);
+}
+.product-step.is-revealed .product-step-fade,
+.product-step.is-revealed .product-step-rise {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger via per-class transition-delay */
+.product-step.is-revealed .product-step-fade { transition-delay: 0ms; }
+.product-step.is-revealed .product-step-rise { transition-delay: 120ms; }
+.product-step.is-revealed .product-step-rise--late { transition-delay: 200ms; }
+.product-step.is-revealed .product-step-fade--late { transition-delay: 400ms; }
+
+/* Reduced motion: instant reveal, no transition */
+@media (prefers-reduced-motion: reduce) {
+  .product-step-fade,
+  .product-step-rise {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Illustration column - sticky during the step's scroll range */
