@@ -1186,24 +1186,19 @@
 }
 .product-card.is-active {
   background: #FCF8EF;
-  /* OFFSET DROP SHADOW via box-shadow only.
-     - box-shadow paints OUTSIDE the element's box by definition,
-       NEVER inside, so the shade-inside-the-box issue Chris flagged
-       is structurally impossible here. No more pseudo-element trying
-       to be a "clone shape" - that was the cause of BOTH the
-       shade-bleed (translucent pseudo behind a translucent card body
-       showed through) AND the 1px hover jitter (filter: blur on a
-       fading pseudo forces a new compositing layer that the browser
-       sub-pixel-shifts).
-     - Two stacked layers for the clone-shape feel:
-         1. Tighter, denser nearer the element edge
-         2. Softer, wider further out
-     - Each respects the 16px border-radius so the shadow matches the
-       card's bevelled corners exactly - i.e. it IS the offset shape
-       Chris asked for, just rendered via box-shadow not pseudo. */
-  box-shadow:
-    -6px 8px 14px -6px rgba(31, 51, 71, 0.18),
-    -12px 16px 32px -8px rgba(31, 51, 71, 0.10);
+  /* SINGLE soft box-shadow, no spread, no stacked layers.
+     - Earlier the shadow was two stacked layers with negative
+       spread - which caused TWO problems:
+         a) Negative spread shrinks the shadow box, creating a
+            denser "core" in the bottom-left corner area that
+            reads as a hard block.
+         b) Two layers overlap, summing alphas in the visible
+            corner (0.18 + 0.10 layered = ~0.26 in the overlap)
+            so the dense area was even darker.
+     - One layer, large blur, no spread, low alpha = a soft
+       gradient fade with no visible hard edge or core. Just a
+       gentle depth lift to the bottom-left. */
+  box-shadow: -10px 12px 28px rgba(31, 51, 71, 0.14);
 }
 
 /* Per-product accent palettes (Chris's brief):
@@ -1381,13 +1376,15 @@
 
 .product-card-question {
   margin: 0;
-  /* Stolzl Light (not italic) per Chris - "please remove the italic
-     font from the catch line, just make it normal". Sized + weighted
-     so it still reads as the hero phrase of the reveal panel, just
-     without the serif italic styling. */
-  font-family: var(--font-display);
-  font-weight: 300;
+  /* SAME font face as the landing-page italic emphasis (Times New
+     Roman via var(--font-italic) per the project MEMORY note),
+     but font-style: normal so it's NOT italic - that's what Chris
+     asked for: "I still like the font type, just not it being
+     italic." Times New Roman regular reads as a confident serif
+     statement of the catch-line phrase. */
+  font-family: var(--font-italic);
   font-style: normal;
+  font-weight: 400;
   font-size: clamp(18px, 1.8vw, 22px);
   line-height: 1.25;
   color: var(--accent-text);
