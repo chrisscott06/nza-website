@@ -28,17 +28,15 @@ export const decodedConfig: ProductPageConfig = {
     ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Get%20in%20touch',
     screens: [
       {
-        src: '/images/products/decoded/screen-01-site-loaded.png',
+        /* PNG pending - falls back to placeholder. */
         shortLabel: 'Site loaded',
-        alt: 'decodED with Exeter College site loaded after postcode entry, showing map and site info',
+        alt: 'decodED with site loaded after postcode entry, showing map and site info',
       },
       {
-        src: '/images/products/decoded/screen-02-3d-buildings.png',
         shortLabel: '3D buildings',
         alt: 'decodED 3D buildings detail view',
       },
       {
-        src: '/images/products/decoded/screen-03-future-view.png',
         shortLabel: 'Future view',
         alt: 'decodED future view showing climate risk, biodiversity and dashboard',
       },

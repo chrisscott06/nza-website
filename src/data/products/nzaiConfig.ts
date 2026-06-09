@@ -26,17 +26,16 @@ export const nzaiConfig: ProductPageConfig = {
     ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=NZ%3AAI%20-%20Get%20in%20touch',
     screens: [
       {
-        src: '/images/products/nzai/screen-01-inventory-map.png',
+        /* PNG pending - falls back to placeholder until Chris drops it
+           at the path below. */
         shortLabel: 'Inventory map',
         alt: 'NZ:AI global emissions inventory with world map',
       },
       {
-        src: '/images/products/nzai/screen-02-strategy-interventions.png',
         shortLabel: 'Strategy view',
         alt: 'NZ:AI strategy interventions waterfall chart',
       },
       {
-        src: '/images/products/nzai/screen-03-data-quality.png',
         shortLabel: 'Data quality',
         alt: 'NZ:AI data quality explainer with journey chart',
       },

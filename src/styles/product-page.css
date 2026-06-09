@@ -25,10 +25,15 @@
   --product-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Light-canvas variant for decodED. The whole page reads light. */
+/* Light-canvas variant for decodED. The whole page reads light, and
+   per brief Section 4 the body + headline text colour is DEEP GREEN
+   throughout (not the deep navy used by PABLO + NZ:AI on cream),
+   with the orange accent reserved for verb highlights and CTAs. */
 .product-page.is-light {
   --product-text-on-canvas: #0F5D43;
   --product-text-muted-on-canvas: rgba(15, 93, 67, 0.72);
+  --product-text-on-cream: #0F5D43;
+  --product-text-muted-on-cream: rgba(15, 93, 67, 0.72);
 }
 
 /* =========================================================================
@@ -47,7 +52,12 @@
   overflow: hidden;
 }
 @media (max-width: 1023px) {
-  .product-hero { padding: 64px 0 56px; }
+  .product-hero {
+    /* When columns stack, the 92vh lock from desktop would force an
+       awkward gap. Let content drive the height instead. */
+    min-height: auto;
+    padding: 64px 0 56px;
+  }
 }
 .product-hero-inner {
   width: 100%;

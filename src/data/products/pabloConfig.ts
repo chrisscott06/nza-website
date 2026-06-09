@@ -26,17 +26,19 @@ export const pabloConfig: ProductPageConfig = {
     ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=PABLO%20-%20Get%20in%20touch',
     screens: [
       {
-        src: '/images/products/pablo/screen-01-site-workspace.png',
+        /* Real PABLO home / site workspace screen - already in /public. */
+        src: '/images/products/pablo/pablo-home.png',
         shortLabel: 'Site workspace',
-        alt: 'PABLO site workspace showing Hartpury University with map, project panels and financial overview',
+        alt: 'PABLO site workspace showing the home view with map, project panels and financial overview',
       },
       {
-        src: '/images/products/pablo/screen-02-energy-flows.png',
+        /* Real PABLO energy flows screen - already in /public. */
+        src: '/images/products/pablo/pablo-flow.png',
         shortLabel: 'Energy flows',
-        alt: 'PABLO solar configurator with energy flows chart',
+        alt: 'PABLO energy flows view',
       },
       {
-        src: '/images/products/pablo/screen-03-financial-case.png',
+        /* Third screen pending. Falls back to placeholder. */
         shortLabel: 'Financial case',
         alt: 'PABLO financial case showing the payback curve',
       },
