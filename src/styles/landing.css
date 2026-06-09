@@ -45,17 +45,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* The slide-up uses the brand's "settled arrival" curve (per brief) -
-     same easing token the rest of the site already uses. */
-  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 800ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
+  /* HOLE-PUNCH ZOOM-THROUGH transition (per Chris).
+     The cream scales outward from a point in the lower-right of the
+     mark - feels like the camera diving into that corner and falling
+     through it. Combined with a slightly-delayed opacity decay, the
+     cream becomes translucent partway through the scale so the navy
+     hero is already breathing through before the cream fully clears.
+     Both properties end before the scale would push the mark "past"
+     the viewer, so the visible reveal is the zoom-and-fade phase.
+     transform-origin is approximately the bottom-right of the centred
+     mark - a touch right of centre, a touch below mid-height. */
+  transform-origin: 58% 62%;
+  transition: transform 1100ms cubic-bezier(0.55, 0, 0.35, 1),
+              opacity 750ms cubic-bezier(0.55, 0, 0.35, 1) 250ms;
+  will-change: transform, opacity;
 }
 .landing-preloader.is-dismissed {
-  transform: translateY(-100%);
+  transform: scale(8);
+  opacity: 0;
   /* Pointer events disabled mid-transition so the navy hero underneath
      is interactive the moment dismissal starts. */
   pointer-events: none;
+}
+/* Reduced motion - skip the zoom and just fade the cream out so the
+   user gets to the hero quickly without dramatic transform. */
+@media (prefers-reduced-motion: reduce) {
+  .landing-preloader {
+    transition: opacity 400ms ease-out;
+  }
+  .landing-preloader.is-dismissed {
+    transform: none;
+    opacity: 0;
+  }
 }
 
 .landing-preloader-inner {
