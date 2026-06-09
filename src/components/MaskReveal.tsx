@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode, ElementType } from 'react'
+import { preloaderState, PRELOADER_DISMISSED_EVENT } from '../lib/preloaderState'
 
 /**
  * MaskReveal - site-wide upward-mask reveal motion utility.
@@ -32,8 +33,7 @@ import type { ReactNode, ElementType } from 'react'
 type Props = {
   children: ReactNode
   /** Delay in ms before this instance's reveal begins, after the
-   *  IntersectionObserver fires. Use to stagger sequential text
-   *  blocks - eyebrow at 0, headline at 100, sub-line at 200, etc. */
+   *  trigger fires. Use to stagger sequential text blocks. */
   delay?: number
   /** Semantic outer tag (e.g. h1, h2, p). Defaults to div. */
   as?: ElementType
@@ -41,8 +41,17 @@ type Props = {
   className?: string
   /** IntersectionObserver threshold (default 0.15 - fires when ~15%
    *  of the element is in view, generous enough to trigger before
-   *  the content is fully on screen). */
+   *  the content is fully on screen). Ignored when waitForPreloader
+   *  is true. */
   threshold?: number
+  /** When true, the reveal waits for the landing preloader to dismiss
+   *  (via the nza:preloader-dismissed window event) instead of using
+   *  IntersectionObserver. Used by the LandingHero so the staggered
+   *  reveal kicks off AFTER the cream preloader slides up rather than
+   *  during page load (when the hero is geometrically in-viewport
+   *  behind the preloader overlay, which would otherwise trip the
+   *  observer and burn the animation while the user can't see it). */
+  waitForPreloader?: boolean
 }
 
 export function MaskReveal({
@@ -51,11 +60,34 @@ export function MaskReveal({
   as: Tag = 'div',
   className,
   threshold = 0.15,
+  waitForPreloader = false,
 }: Props) {
   const ref = useRef<HTMLElement | null>(null)
   const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
+    if (waitForPreloader) {
+      // Preloader-gated reveal. Three cases:
+      //   (a) Preloader already dismissed before this MaskReveal
+      //       mounted (e.g., user navigated back from another page) -
+      //       fire immediately.
+      //   (b) Preloader hasn't dismissed yet - subscribe to the
+      //       window event so we fire when it does.
+      //   (c) Race - the event already fired between render and
+      //       useEffect. Belt-and-braces: the synchronous flag check
+      //       covers it because the flag is set before the event is
+      //       dispatched.
+      if (preloaderState.dismissed) {
+        setRevealed(true)
+        return
+      }
+      const onDismiss = () => setRevealed(true)
+      window.addEventListener(PRELOADER_DISMISSED_EVENT, onDismiss)
+      return () => window.removeEventListener(PRELOADER_DISMISSED_EVENT, onDismiss)
+    }
+
+    // Default behaviour - IntersectionObserver fires when the element
+    // scrolls into view.
     const el = ref.current
     if (!el) return
     const obs = new IntersectionObserver(
@@ -72,7 +104,7 @@ export function MaskReveal({
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [threshold])
+  }, [threshold, waitForPreloader])
 
   return (
     <Tag

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NzaMarkLayered } from './svg/NzaMarkLayered'
 import { NetZeroAdvisoryLayered } from './svg/NetZeroAdvisoryLayered'
+import { preloaderState, PRELOADER_DISMISSED_EVENT } from '../lib/preloaderState'
 
 /**
  * Cream preloader screen. Full-viewport overlay that sits on top of the
@@ -40,10 +41,21 @@ export function LandingPreloader() {
   const dismissedRef = useRef(false)
 
   useEffect(() => {
+    // Reset the singleton flag on mount so a fresh visit to / makes
+    // hero MaskReveals wait again (they observe this via
+    // waitForPreloader). Without the reset, navigating to /pablo and
+    // back would leave dismissed=true from the previous visit and the
+    // mask reveals would fire immediately on re-mount.
+    preloaderState.dismissed = false
+
     function dismiss() {
       if (dismissedRef.current) return
       dismissedRef.current = true
       setDismissed(true)
+      // Flip the singleton + emit the event so any MaskReveal that
+      // opted into waitForPreloader can fire its reveal sequence now.
+      preloaderState.dismissed = true
+      window.dispatchEvent(new CustomEvent(PRELOADER_DISMISSED_EVENT))
     }
 
     // Manual-scroll override - any wheel / touch / key during the

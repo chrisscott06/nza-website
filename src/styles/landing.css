@@ -640,6 +640,24 @@
   }
 }
 
+/* Sub-line group - the body is split into two MaskReveals so each
+   sentence floats up independently. The group wrapper centres them
+   both at the max-width and adds a small bottom margin between to
+   prevent the two paragraphs running into each other. */
+.landing-hero-sub-group {
+  margin: 0 auto;
+  max-width: 640px;
+}
+@media (max-width: 599px) {
+  .landing-hero-sub-group { max-width: 340px; }
+}
+.landing-hero-sub-line {
+  margin-bottom: 0.25em;
+}
+.landing-hero-sub-line:last-child {
+  margin-bottom: 0;
+}
+
 .landing-hero-visual {
   /* Three-beat infographic - sits in this column, plays once on entry */
   position: relative;

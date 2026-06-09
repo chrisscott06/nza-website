@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { preloaderState, PRELOADER_DISMISSED_EVENT } from '../lib/preloaderState'
 
 /**
  * Slot-machine word swap. Two curly braces { } flank a vertically-
@@ -50,11 +51,30 @@ export function SlotMachineWord() {
   const [widths, setWidths] = useState<number[]>([])
   const [rotationStarted, setRotationStarted] = useState(false)
 
-  // Start gate - holds the first word visible for INITIAL_HOLD_MS
-  // with no motion at all before the rotation cycle unlocks.
+  // Start gate - waits for the preloader to dismiss, THEN holds
+  // decarbonisation visible for INITIAL_HOLD_MS, THEN unlocks the
+  // rotation cycle. If the preloader has already dismissed at mount
+  // (user came back from another page), the hold starts immediately.
   useEffect(() => {
-    const t = window.setTimeout(() => setRotationStarted(true), INITIAL_HOLD_MS)
-    return () => window.clearTimeout(t)
+    let holdTimer: number | null = null
+
+    function startHold() {
+      holdTimer = window.setTimeout(() => setRotationStarted(true), INITIAL_HOLD_MS)
+    }
+
+    if (preloaderState.dismissed) {
+      startHold()
+      return () => {
+        if (holdTimer !== null) window.clearTimeout(holdTimer)
+      }
+    }
+
+    const onPreloaderDismissed = () => startHold()
+    window.addEventListener(PRELOADER_DISMISSED_EVENT, onPreloaderDismissed)
+    return () => {
+      window.removeEventListener(PRELOADER_DISMISSED_EVENT, onPreloaderDismissed)
+      if (holdTimer !== null) window.clearTimeout(holdTimer)
+    }
   }, [])
 
   useEffect(() => {

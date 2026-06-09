@@ -47,30 +47,62 @@ export function LandingHero() {
       <div className="landing-hero-inner">
         <div className="landing-hero-text">
           {/* Three-line centred headline. Each line is its own
-              MaskReveal so they rise into view one after another
-              ("the text appears a bit more slowly, maybe one line
-              at a time" per Chris). The SlotMachineWord lives on
-              its OWN line so the box's stretch/squash never nudges
-              "We decode" or "for your organisation." - all three
-              lines are independently centred to the page. */}
+              MaskReveal with waitForPreloader so the reveal kicks
+              off AFTER the cream preloader slides up rather than
+              during page load (when the hero is geometrically
+              in-viewport behind the cream and the IntersectionObserver
+              would otherwise burn the animation). Sequence per Chris:
+                blank initially -> We decode -> [slot] -> for your
+                organisation -> body lines float up one by one. */}
           <h1 className="landing-hero-headline">
-            <MaskReveal as="span" className="landing-hero-headline-line" delay={200}>
+            <MaskReveal
+              as="span"
+              className="landing-hero-headline-line"
+              delay={200}
+              waitForPreloader
+            >
               We <em>decode</em>
             </MaskReveal>
-            <MaskReveal as="span" className="landing-hero-headline-line" delay={700}>
+            <MaskReveal
+              as="span"
+              className="landing-hero-headline-line"
+              delay={900}
+              waitForPreloader
+            >
               <SlotMachineWord />
             </MaskReveal>
-            <MaskReveal as="span" className="landing-hero-headline-line" delay={1200}>
+            <MaskReveal
+              as="span"
+              className="landing-hero-headline-line"
+              delay={1600}
+              waitForPreloader
+            >
               for your organisation.
             </MaskReveal>
           </h1>
-          {/* Sub-line - fades in after the headline lines have
-              landed. Hyphens not em-dashes per site convention. */}
-          <MaskReveal as="p" className="landing-hero-sub" delay={1700}>
-            We are specialists in buildings, energy and climate. We cut through
-            the complexity of decarbonisation - and build the tools your people
-            need to act on it.
-          </MaskReveal>
+          {/* Body split into two sentences so they float up one by
+              one per Chris. .landing-hero-sub-line tightens the
+              grouping (small bottom margin between, none after the
+              last). */}
+          <div className="landing-hero-sub-group">
+            <MaskReveal
+              as="p"
+              className="landing-hero-sub landing-hero-sub-line"
+              delay={2300}
+              waitForPreloader
+            >
+              We are specialists in buildings, energy and climate.
+            </MaskReveal>
+            <MaskReveal
+              as="p"
+              className="landing-hero-sub landing-hero-sub-line"
+              delay={2800}
+              waitForPreloader
+            >
+              We cut through the complexity of decarbonisation - and build the
+              tools your people need to act on it.
+            </MaskReveal>
+          </div>
         </div>
       </div>
     </>
