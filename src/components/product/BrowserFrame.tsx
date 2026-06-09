@@ -15,7 +15,10 @@ import { useEffect, useRef, useState } from 'react'
  * Brief: docs/briefs/nza-product-page-template-brief.md (Section 1)
  */
 
-const HOLD_MS = 4500
+// Hold time per screen - halved from the original 4500ms per Chris.
+// Snappier rotation makes the cycle feel more deliberate without
+// keeping the user waiting on a single panel.
+const HOLD_MS = 2250
 const CROSSFADE_MS = 600
 
 export type BrowserFrameScreen = {

@@ -274,6 +274,36 @@
 .product-hero-blob--3 { animation: product-blob-drift-3 43s ease-in-out infinite; }
 .product-hero-blob--4 { animation: product-blob-drift-4 47s ease-in-out infinite; }
 
+/* HERO BROWSER FRAME ENTRANCE
+   After the hero text has staggered in (micro 100, name 250, tagline
+   450, oneliner 600, CTA 800), the browser frame slides up into
+   position with a soft scale-from-below. Reads as "the product
+   window arriving onto the canvas" once the words are in place.
+   1000ms delay = ~200ms after the CTA settles. */
+.product-hero-frame-col {
+  animation: product-hero-frame-entrance 1000ms var(--product-ease) 1000ms both;
+  /* transform-origin: bottom centre - feels like the frame lands
+     onto the canvas rather than floating from above. */
+  transform-origin: 50% 100%;
+}
+@keyframes product-hero-frame-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-hero-frame-col {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* =========================================================================
    BROWSER FRAME  (used inside hero)
    ========================================================================= */
@@ -461,8 +491,8 @@
   border-radius: 1.5px;
 }
 .browser-frame-progress-segment.is-active .browser-frame-progress-fill {
-  /* Fills over the 4.5s hold. Set inline via animation when active. */
-  animation: browser-frame-progress-fill 4500ms linear forwards;
+  /* Fills over the 2.25s hold (matches BrowserFrame.tsx HOLD_MS). */
+  animation: browser-frame-progress-fill 2250ms linear forwards;
 }
 .browser-frame-progress-segment.is-paused .browser-frame-progress-fill {
   animation-play-state: paused;

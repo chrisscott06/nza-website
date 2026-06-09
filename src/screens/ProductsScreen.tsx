@@ -56,7 +56,11 @@ const PRODUCTS: Product[] = [
     id: 'nzai',
     name: 'NZ:AI',
     href: '/nz-ai',
-    logoSrc: '/assets/logos/nzai-logo.svg',
+    /* Dark variant of the NZ:AI wordmark - text in navy, teal colon
+       outlines - because the homepage products section sits on cream.
+       The white-text variant (nzai-logo.svg) is used on the actual
+       /nz-ai product page where the canvas is dark navy. */
+    logoSrc: '/assets/logos/nzai-logo-dark.svg',
     alt: 'NZ:AI',
     question: 'Want to make sense of complex carbon data?',
     promise:
