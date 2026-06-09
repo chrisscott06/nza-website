@@ -128,8 +128,9 @@
   .product-hero-name-img { max-width: 240px; }
 }
 .product-hero-tagline {
+  /* Same family (DM Serif Display) as before, rendered upright —
+     no italic. Per Chris: 'keep the same font type, just no italic'. */
   font-family: var(--font-italic);
-  font-style: italic;
   font-weight: 400;
   font-size: 26px;
   line-height: 1.25;

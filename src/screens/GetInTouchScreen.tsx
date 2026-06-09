@@ -18,6 +18,18 @@ export function GetInTouchScreen() {
       id="get-in-touch"
       data-screen-label="Get in touch"
     >
+      {/* Ambient blob field - same technique as the landing-page hero
+          but MIRRORED. Visual weight on the LEFT, mask gradient fades
+          to clean navy on the RIGHT, so the closer reads as the
+          flipped book-end to the opening hero on the homepage. */}
+      <div className="landing-blobs landing-blobs--git" aria-hidden="true">
+        <span className="landing-blob landing-blob--git-navy-1" />
+        <span className="landing-blob landing-blob--git-navy-2" />
+        <span className="landing-blob landing-blob--git-navy-3" />
+        <span className="landing-blob landing-blob--git-coral" />
+        <span className="landing-blob landing-blob--git-cream" />
+      </div>
+
       <div className="frame">
         <div className="get-in-touch-inner">
           <MaskReveal as="h2" className="get-in-touch-headline" delay={0}>

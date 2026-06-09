@@ -379,6 +379,70 @@
   animation: landing-blob-drift-1 41s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 }
 
+/* ===== GET IN TOUCH closing screen - MIRROR of the landing hero
+   blob field. Visual weight on the LEFT (where the hero's was on the
+   right), mask fades to clean navy on the RIGHT. The two pages
+   book-end: the homepage opens with atmosphere RIGHT, closes with
+   atmosphere LEFT. Same five colours, same animations, same blur
+   - just mirrored. */
+.landing-blobs--git {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  /* Right-to-left fade: visible LEFT, transparent RIGHT (mirror of
+     --hero). */
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent 0%,
+    transparent 18%,
+    rgba(0, 0, 0, 0.4) 38%,
+    rgba(0, 0, 0, 0.85) 58%,
+    black 75%
+  );
+  mask-image: linear-gradient(
+    to left,
+    transparent 0%,
+    transparent 18%,
+    rgba(0, 0, 0, 0.4) 38%,
+    rgba(0, 0, 0, 0.85) 58%,
+    black 75%
+  );
+}
+/* Same five blobs, swapped right -> left positions. Animations
+   (drift 1-4) are shared with the hero so the rhythm matches. */
+.landing-blob--git-navy-1 {
+  background: rgba(30, 38, 70, 0.62);
+  top: -10%;
+  left: -12%;
+  animation: landing-blob-drift-1 24s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--git-navy-2 {
+  background: rgba(55, 68, 110, 0.45);
+  top: 38%;
+  left: -8%;
+  animation: landing-blob-drift-2 31s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--git-navy-3 {
+  background: rgba(85, 100, 145, 0.28);
+  bottom: -14%;
+  left: 18%;
+  animation: landing-blob-drift-3 27s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--git-coral {
+  background: rgba(247, 90, 85, 0.22);
+  top: 14%;
+  left: 14%;
+  animation: landing-blob-drift-4 36s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--git-cream {
+  background: rgba(245, 241, 232, 0.16);
+  bottom: 12%;
+  left: 8%;
+  animation: landing-blob-drift-1 41s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+
 /* prefers-reduced-motion - hold the final state of the fill/wipe
    animations and freeze the blob drift so nothing moves. The
    wordmarks still display (just instantly) and the auto-transition
@@ -1425,6 +1489,15 @@
 .get-in-touch-screen {
   background: var(--ink-navy);
   color: var(--fg-on-navy-1);
+  /* Clip the heavy-blur blobs to the section bounds. */
+  overflow: hidden;
+  position: relative;
+}
+/* The .frame parent of .get-in-touch-inner needs to sit above the
+   blob field so the headline + CTA stay readable. */
+.get-in-touch-screen > .frame {
+  position: relative;
+  z-index: 1;
 }
 .get-in-touch-inner {
   max-width: 720px;
