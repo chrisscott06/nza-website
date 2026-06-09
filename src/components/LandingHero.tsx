@@ -46,25 +46,27 @@ export function LandingHero() {
 
       <div className="landing-hero-inner">
         <div className="landing-hero-text">
-          {/* Two-line centred headline per Chris:
-              Line 1: "We _decode_ [carousel]"
-              Line 2: "for your organisation."
-              The line-wrapper spans force the break so the slot
-              machine stays inline with "We decode" rather than
-              wrapping after.  */}
-          <MaskReveal as="h1" className="landing-hero-headline" delay={120}>
-            <span className="landing-hero-headline-line">
-              We <em>decode</em>{' '}
+          {/* Three-line centred headline. Each line is its own
+              MaskReveal so they rise into view one after another
+              ("the text appears a bit more slowly, maybe one line
+              at a time" per Chris). The SlotMachineWord lives on
+              its OWN line so the box's stretch/squash never nudges
+              "We decode" or "for your organisation." - all three
+              lines are independently centred to the page. */}
+          <h1 className="landing-hero-headline">
+            <MaskReveal as="span" className="landing-hero-headline-line" delay={200}>
+              We <em>decode</em>
+            </MaskReveal>
+            <MaskReveal as="span" className="landing-hero-headline-line" delay={700}>
               <SlotMachineWord />
-            </span>
-            <span className="landing-hero-headline-line">
+            </MaskReveal>
+            <MaskReveal as="span" className="landing-hero-headline-line" delay={1200}>
               for your organisation.
-            </span>
-          </MaskReveal>
-          {/* Sub-line - the mission statement. Hyphens not em-dashes
-              per Chris's standing site convention (brief copy used
-              em-dashes which I'm converting on the way in). */}
-          <MaskReveal as="p" className="landing-hero-sub" delay={320}>
+            </MaskReveal>
+          </h1>
+          {/* Sub-line - fades in after the headline lines have
+              landed. Hyphens not em-dashes per site convention. */}
+          <MaskReveal as="p" className="landing-hero-sub" delay={1700}>
             We are specialists in buildings, energy and climate. We cut through
             the complexity of decarbonisation - and build the tools your people
             need to act on it.

@@ -1,37 +1,43 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 /**
- * Slot-machine word swap. A dotted-outline frame contains a single
- * word that rotates through a locked sequence on a 2.5s cycle.
+ * Slot-machine word swap. A dashed-outline box sits behind a vertically-
+ * rotating word - per Chris's revised design, the TEXT and the BOX are
+ * fully decoupled so neither affects the other's layout:
+ *
+ *   - The TEXT lives inside an overflow-hidden wrapper and only ever
+ *     translates VERTICALLY (the slot-machine rotation). It never
+ *     shifts left or right - the visible word stays centred to its
+ *     own column, which is centred to the page.
+ *
+ *   - The BOX is a position-absolute overlay centred at left: 50%
+ *     translateX(-50%). Its width transitions independently to match
+ *     each word's measured natural width. The box grows and shrinks
+ *     symmetrically from the page centre, so it stretches and
+ *     squashes around the text without nudging the text or any
+ *     surrounding content.
  *
  * Sequence (per brief, locked):
- *   1. decarbonisation
+ *   1. decarbonisation  (always the first word on page load)
  *   2. climate complexity
  *   3. energy markets
  *   4. digital intelligence
  *
- * Each word holds for ~1.8s, then the next word slides up into
- * position over 700ms while the frame width simultaneously stretches
- * or squashes to fit. The width pre-transitions during the rotation
- * (not after) so by the time the new word lands the frame is already
- * the right size - per Chris: "by the time the text lands, the box
- * is already the right width".
- *
  * Two-tick architecture:
- *   - rotIndex   advances every 2500ms (drives the rotation animation
- *                 and which word pair is rendered)
- *   - widthIndex advances 1800ms after each rotIndex tick (drives
- *                 the frame width). Width tick is offset so it fires
- *                 just before the rotation animation begins, meaning
- *                 width and rotation animate simultaneously rather
- *                 than width-after-rotation.
+ *   - rotIndex   advances every CYCLE_MS - drives the rotation
+ *                 animation and which word pair is rendered
+ *   - widthIndex advances WIDTH_OFFSET_MS after each rotIndex tick -
+ *                 drives the box width (fires as the rotation begins
+ *                 so width and rotation animate simultaneously, not
+ *                 width-after-rotation)
  *
- * Width is measured from a hidden span that inherits the frame's
- * box layout exactly (same padding + transparent 1px border to
- * mirror the visible frame's dashed border). offsetWidth gives the
- * exact width the frame needs to be to hold each word.
+ * INITIAL_HOLD_MS: on first mount the slot displays decarbonisation
+ * and holds with no motion until this delay elapses - lets the user
+ * read the first word during the opening reveal before the rotation
+ * cycle begins.
  *
- * Reduced motion: animation disabled; first word stays permanently.
+ * Reduced motion: animation class never applied; first word stays
+ * permanently and the box width measures naturally.
  */
 
 const WORDS = [
@@ -42,28 +48,33 @@ const WORDS = [
 ] as const
 
 const CYCLE_MS = 2500
-// Width tick fires WIDTH_OFFSET_MS into each cycle - timed to coincide
-// with the slot-rotate animation delay so width and rotation animate
-// together (not width-after-rotation).
 const WIDTH_OFFSET_MS = 1800
+const INITIAL_HOLD_MS = 2500
 
 export function SlotMachineWord() {
   const measureRef = useRef<HTMLSpanElement>(null)
   const [rotIndex, setRotIndex] = useState(0)
   const [widthIndex, setWidthIndex] = useState(0)
   const [widths, setWidths] = useState<number[]>([])
+  const [rotationStarted, setRotationStarted] = useState(false)
 
-  // Rotation tick - drives the rendered word pair + the CSS animation key.
+  // Start gate - holds the first word visible for INITIAL_HOLD_MS
+  // with no motion, then unlocks the rotation interval.
   useEffect(() => {
+    const t = window.setTimeout(() => setRotationStarted(true), INITIAL_HOLD_MS)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    if (!rotationStarted) return
     const id = window.setInterval(() => {
       setRotIndex((i) => i + 1)
     }, CYCLE_MS)
     return () => window.clearInterval(id)
-  }, [])
+  }, [rotationStarted])
 
-  // Width tick - offset WIDTH_OFFSET_MS after each rotation tick so the
-  // width transition starts as the rotation begins (not after it).
   useEffect(() => {
+    if (!rotationStarted) return
     let intervalId: number | null = null
     const firstTickId = window.setTimeout(() => {
       setWidthIndex((i) => i + 1)
@@ -76,11 +87,8 @@ export function SlotMachineWord() {
       window.clearTimeout(firstTickId)
       if (intervalId !== null) window.clearInterval(intervalId)
     }
-  }, [])
+  }, [rotationStarted])
 
-  // Measure each word's natural rendered width. Re-runs on mount,
-  // when fonts finish loading (Stolzl may load async), and on
-  // window resize (font-size scales with viewport via clamp).
   useLayoutEffect(() => {
     const measureEl = measureRef.current
     if (!measureEl) return
@@ -107,34 +115,40 @@ export function SlotMachineWord() {
 
   const currentWord = WORDS[rotIndex % WORDS.length]
   const nextWord = WORDS[(rotIndex + 1) % WORDS.length]
-  // Width pre-targets the NEXT word (the one about to roll in) so the
-  // frame stretches/squashes to fit the new word as the rotation
-  // happens, settling at the correct size by the moment the new word
-  // is in place.
   const targetWidth = widths[widthIndex % WORDS.length]
 
   return (
-    <span
-      className="slot-frame"
-      style={targetWidth ? { width: `${targetWidth}px` } : undefined}
-    >
-      {/* Hidden width measurer - absolute-positioned out of the
-          frame's flow so it doesn't affect the frame's natural
-          size. Matches the frame's box (padding + transparent 1px
-          border, box-sizing border-box) so offsetWidth gives the
-          exact natural rendered width including the frame's chrome. */}
+    <span className="slot-line">
+      {/* Hidden width measurer - matches the slot-box's box layout
+          exactly so offsetWidth gives the natural rendered width
+          including its padding + transparent 1px border. */}
       <span
         ref={measureRef}
         className="slot-measurer"
         aria-hidden="true"
       />
-      {/* key on the stack forces a fresh DOM each rotation cycle,
-          restarting the CSS animation from translateY(0) without any
-          reverse-rotation glitch when wrapping from the last word
-          back to the first. */}
-      <span key={rotIndex} className="slot-stack">
-        <span className="slot-word">{currentWord}</span>
-        <span className="slot-word">{nextWord}</span>
+      {/* The bounding box - absolute, centred, transitions width
+          independently of the text. Stretches and squashes around
+          the text without nudging the text or the surrounding
+          content. */}
+      <span
+        className="slot-box"
+        style={targetWidth ? { width: `${targetWidth}px` } : undefined}
+        aria-hidden="true"
+      />
+      {/* The text - vertical slot-machine rotation only. The
+          wrapper clips and the stack translates upward by one row
+          each cycle. Stack is align-items: centre so each word
+          centres within the stack and within the page-centred
+          slot-line wrapper. */}
+      <span className="slot-text-wrapper">
+        <span
+          key={rotIndex}
+          className={'slot-stack' + (rotationStarted ? ' is-animating' : '')}
+        >
+          <span className="slot-word">{currentWord}</span>
+          <span className="slot-word">{nextWord}</span>
+        </span>
       </span>
     </span>
   )

@@ -480,80 +480,70 @@
 }
 
 /* =========================================================================
-   SLOT-MACHINE WORD SWAP
-   Dotted-outline frame containing the rotating word in the hero
-   headline. Frame is static; the inner stack rotates upward every
-   2.5s, swapping the visible word in slot-machine style.
+   SLOT-MACHINE WORD SWAP - decoupled text + box architecture
+   Per Chris's revision: the TEXT and the BOX are fully independent.
+     - .slot-text-wrapper clips a vertical stack; the stack ONLY ever
+       translates UPWARD. Text never shifts horizontally - the visible
+       word sits page-centred via align-items: center within the
+       wrapper that itself sits on a centred line.
+     - .slot-box is a position-absolute overlay centred at
+       left: 50% translateX(-50%). Its width transitions independently
+       to fit each word, with a springy ease-out-back curve. The box
+       grows and shrinks symmetrically from the page centre, so it
+       stretches and squashes around the text without nudging the
+       text or any surrounding content.
    ========================================================================= */
-.slot-frame {
+
+.slot-line {
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+  /* Coral - both the box border and the inner text inherit. */
+  color: var(--coral);
+}
+
+/* THE BOX - absolute overlay, centred, width transitions
+   independently of the text. */
+.slot-box {
+  position: absolute;
+  top: -0.08em;
+  bottom: -0.08em;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px dashed rgba(247, 90, 85, 0.55);
+  border-radius: 8px;
+  box-sizing: border-box;
+  pointer-events: none;
+  /* cubic-bezier(0.34, 1.56, 0.64, 1) = ease-out-back, overshoots
+     slightly past the target before settling = the springy feel. */
+  transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* THE TEXT - clipped wrapper, rotates vertically. */
+.slot-text-wrapper {
   display: inline-block;
   position: relative;
   overflow: hidden;
-  border: 1px dashed rgba(247, 90, 85, 0.5);
-  border-radius: 8px;
-  /* Padding tuned so the frame hugs the word without choking it. */
-  padding: 0.05em 0.32em 0.12em;
-  vertical-align: baseline;
-  /* Height bumped from 1em to 1.2em so lowercase descenders (g, y,
-     p in "energy markets" / "complexity") aren't clipped by the
-     overflow:hidden bottom edge. line-height matches so the visible
-     word fills the frame and the rotation slot below sits cleanly
-     outside the visible area. */
   height: 1.2em;
   line-height: 1.2;
-  /* Width set dynamically via inline style by the component from the
-     measured natural width of the current word. CSS transition makes
-     the resize feel like a stretch/squash as the frame morphs between
-     words. cubic-bezier(0.34, 1.56, 0.64, 1) is "ease-out-back" - the
-     curve overshoots slightly past its target before settling, giving
-     a "nice little springy feel" per Chris. 800ms duration so the
-     spring is perceptible without dragging.
-     Box-sizing: border-box so the measured width includes border +
-     padding (matches what offsetWidth returns from the measurer). */
-  box-sizing: border-box;
-  transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  /* Coral text for the rotating word - the dotted-outline frame and
-     the word inside it both pick up the brand coral so the slot
-     machine reads as its own coloured moment in the otherwise
-     cream headline. */
-  color: var(--coral);
-  /* Subtle baseline correction - the dashed border + padding pushes
-     the rendered text up slightly off the inline baseline. translateY
-     puts the visible word back in line with the rest of the headline. */
-  transform: translateY(0.1em);
-}
-/* Hidden width measurer - matches the frame's box layout exactly so
-   offsetWidth returns the natural width including the same padding +
-   border-box accounting as the frame. Positioned absolute out of
-   the frame's flow. */
-.slot-measurer {
-  position: absolute;
-  top: -9999px;
-  left: 0;
-  visibility: hidden;
-  white-space: nowrap;
-  pointer-events: none;
-  font: inherit;
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: inherit;
-  letter-spacing: inherit;
-  /* Match the frame's horizontal padding + a 1px transparent border
-     on each side to mirror the frame's 1px dashed border. With
-     box-sizing border-box, this means offsetWidth from the measurer
-     equals exactly what the frame's outer box width needs to be to
-     hold the same text - was previously 2px short, so the word was
-     getting clipped at the right edge. */
+  /* Padding so the visible word has breathing room within the
+     wrapper; matches the slot-measurer padding so widths line up. */
   padding: 0 0.32em;
-  border: 1px solid transparent;
-  box-sizing: border-box;
 }
+
 .slot-stack {
   display: flex;
   flex-direction: column;
-  /* 1800ms delay = visible hold; 700ms duration = the slide. Total
-     2500ms matches the JS interval cycle that re-keys the stack so
-     the rotation looks like a single continuous loop. */
+  /* Centre each word horizontally within the stack so the visible
+     word stays at the wrapper's centre regardless of word length. */
+  align-items: center;
+  /* Default state: no animation - the first word holds visibly during
+     the opening sequence until the component's start-hold gate trips
+     and adds the .is-animating class. */
+}
+.slot-stack.is-animating {
+  /* 1800ms delay coincides with the component's widthIndex tick so
+     box width and text rotation animate together. 700ms duration. */
   animation: slot-machine-rotate 700ms cubic-bezier(0.7, 0, 0.3, 1) 1800ms forwards;
 }
 .slot-word {
@@ -566,9 +556,31 @@
   from { transform: translateY(0); }
   to   { transform: translateY(-1.2em); }
 }
+
+/* Hidden width measurer - matches the slot-box's layout exactly so
+   offsetWidth gives the exact width the box needs to hold each word
+   (text + the same 0.32em padding the wrapper has + a transparent
+   1px border to mirror the dashed border). */
+.slot-measurer {
+  position: absolute;
+  top: -9999px;
+  left: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  font: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  padding: 0 0.32em;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  /* No rotation - the first word stays visible permanently. */
-  .slot-stack { animation: none; }
+  .slot-stack.is-animating { animation: none; }
+  .slot-box { transition: none; }
 }
 
 /* Selector qualified with .canvas-navy to beat the global
@@ -859,14 +871,16 @@
   .clients-slider-screen { padding: 64px 0; }
 }
 
-/* THIN strip variant - used inside the landing hero. Cream band
-   pinned to the bottom of the landing-screen flex column, much
-   shorter than the standalone variant ("really thin and run along
-   the bottom of the page" per Chris). */
+/* THIN strip variant - used inside the landing hero. Background
+   transparent so it sits directly on the navy ground per Chris's
+   "actually looks quite good without the white background". Logos
+   filtered to a light grey (brightness 0 + invert 1 turns any
+   logo into a pure-white silhouette; opacity dials it back to a
+   medium grey on navy). Hover restores full opacity. */
 .clients-slider--thin {
-  background: var(--paper);
-  color: var(--ink);
-  padding: 14px 0;
+  background: transparent;
+  color: inherit;
+  padding: 16px 0;
   position: relative;
   z-index: 2; /* above the navy blob field */
 }
@@ -876,15 +890,23 @@
   padding: 0 16px;
 }
 .clients-slider--thin .clients-slider-logo-img {
-  /* Slightly less aggressive greyscale so the logos still read at
-     the smaller size. */
-  filter: grayscale(1) opacity(0.65);
+  /* Turn the logo into a pure white silhouette, then opacity-dial
+     to a medium grey on navy. Hover restores. */
+  filter: brightness(0) invert(1) opacity(0.55);
+  transition: filter 220ms ease-out;
 }
 .clients-slider--thin .clients-slider-cell:hover .clients-slider-logo-img {
-  filter: grayscale(0) opacity(1);
+  filter: brightness(0) invert(1) opacity(1);
+}
+.clients-slider--thin .clients-slider-logo-initials {
+  /* Same medium-grey treatment for initial-only logos. */
+  color: rgba(245, 241, 232, 0.55);
+}
+.clients-slider--thin .clients-slider-cell:hover .clients-slider-logo-initials {
+  color: rgba(245, 241, 232, 1);
 }
 @media (max-width: 599px) {
-  .clients-slider--thin { padding: 10px 0; }
+  .clients-slider--thin { padding: 12px 0; }
   .clients-slider--thin .clients-slider-cell {
     width: 100px;
     height: 40px;
