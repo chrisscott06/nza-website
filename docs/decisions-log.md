@@ -95,8 +95,37 @@ one-line rationale per decision. Reviewable in the morning.
 
 ## What I deferred
 
-- **Real product screenshots** — Chris's responsibility.
-- **Real step illustrations** — placeholders shipped per brief allowance.
-- **Demo capture form / contact flow** — out of scope per brief.
-- **Animation values cross-checked against live Impilo** — see investigation
-  limitation above.
+- **Real product screenshots** — partially shipped:
+    - PABLO: all 4 PNGs found in `/public/images/products/pablo/` and
+      wired up (home / flow / financial / optimise).
+    - NZ:AI: 2 of 3 wired (map + data-quality); strategy view still
+      pending and renders the placeholder.
+    - decodED: all 3 pending; placeholders render.
+- **Real step illustrations** — 12 placeholder line-art SVGs shipped
+  in `ProductIllustrations.tsx` per brief allowance. Real artwork
+  slots in by replacing the inline paths.
+- **Demo capture form / contact flow** — out of scope per brief. The
+  `/contact?product=...` stub uses mailto + a copy-email button as
+  the bridge.
+- **Site footer** — brief says inherit from existing component but
+  no such component exists. Page ends after the closer section.
+  Flag for follow-up.
+- **Live Lighthouse run** — can't execute without a browser.
+
+## Refactor history
+
+- Per-element `MaskReveal`s in the four-step section gave bad
+  arrival timing (each element's IntersectionObserver fired on its
+  own viewport entry, dependent on scroll speed rather than the
+  brief's intent). Refactored to a single observer per step row in
+  `ProductStep.tsx` — when the row crosses 25% in viewport, the
+  whole row's `.is-revealed` class fires all child arrival
+  transitions with their own staggered transition-delays. Matches
+  the brief's "icon at 0ms → headline at 120ms → body at 200ms →
+  illustration at 400ms" intent precisely.
+
+- BrowserFrame initially rendered placeholders only when `src` was
+  missing in config. Added an `onError` handler that flags broken
+  screens at runtime so the placeholder takes over the slot even if
+  the PNG path is set but the file doesn't exist. Means the moment
+  a PNG drops at the expected path it just works without code change.
