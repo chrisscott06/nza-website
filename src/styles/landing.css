@@ -1185,11 +1185,15 @@
   .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
 .product-card.is-active {
-  background: rgba(255, 252, 246, 0.55);
+  /* OPAQUE on activation so the ::before offset-clone shadow behind
+     it cannot leak through the card body. Previously this was
+     rgba(... 0.55) translucent, which let you see the dark gradient
+     of the shadow pseudo through the card itself (Chris flagged the
+     "shadow within the box"). Solid bg = shadow only renders in the
+     10px down-left strip that pokes out from beneath the card. */
+  background: #FCF8EF;
   /* No box-shadow here - the offset clone shape on ::before below
-     is the actual shadow. box-shadow renders as a soft blur ring
-     around the box-radius which always reads as a line at one edge,
-     never as a confident drop shadow. */
+     is the actual shadow. */
 }
 
 /* THE OFFSET SHADOW CLONE
@@ -1256,7 +1260,13 @@
 .product-card-box-half {
   position: absolute;
   inset: 0;
-  border: 2px solid transparent;
+  /* 3px (was 2px) so the gradient border reads as a confident edge.
+     At 2px the gradient's lighter end (e.g. PABLO's orange at the
+     top-left vs purple at the bottom-right of the 135deg gradient)
+     perceptually looked thinner on the lighter edges than the
+     darker ones. 3px gives it enough weight that the contrast issue
+     stops mattering. */
+  border: 3px solid transparent;
   border-radius: 16px;
   pointer-events: none;
   background: linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
@@ -1392,11 +1402,15 @@
 
 .product-card-question {
   margin: 0;
-  font-family: var(--font-italic);
-  font-style: italic;
-  font-weight: 400;
+  /* Stolzl Light (not italic) per Chris - "please remove the italic
+     font from the catch line, just make it normal". Sized + weighted
+     so it still reads as the hero phrase of the reveal panel, just
+     without the serif italic styling. */
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
   font-size: clamp(18px, 1.8vw, 22px);
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--accent-text);
 }
 .product-card-promise {
