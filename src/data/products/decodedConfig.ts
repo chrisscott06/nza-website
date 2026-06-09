@@ -34,7 +34,8 @@ export const decodedConfig: ProductPageConfig = {
         alt: 'decodED with site loaded after postcode entry, showing map and site info',
       },
       {
-        /* PNG pending - falls back to placeholder. */
+        /* Real decodED 3D buildings detail screen. */
+        src: '/images/products/decoded/decoded-map-2.png',
         shortLabel: '3D buildings',
         alt: 'decodED 3D buildings detail view',
       },
