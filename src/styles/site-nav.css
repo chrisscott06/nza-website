@@ -269,6 +269,67 @@ body.context-decoded .site-nav-trigger:focus-visible {
 }
 
 /* =========================================================================
+   CTA PER-CONTEXT VARIANTS (Section 4 of the brief)
+   The principle: outlined on dark, solid-filled on light. On dark
+   backgrounds the coloured outline pops against the dark canvas; on
+   light backgrounds the outline loses presence and the button needs
+   to be solid-filled to claim space.
+   ========================================================================= */
+
+/* PABLO context - outlined light-violet, hover fills primary violet */
+body.context-pablo .site-nav-cta {
+  color: #B79CFF;
+  border-color: #B79CFF;
+}
+body.context-pablo .site-nav-cta:hover,
+body.context-pablo .site-nav-cta:focus-visible {
+  background: #7A74FF;
+  border-color: #7A74FF;
+  color: #FFFFFF;
+}
+
+/* NZ:AI context - outlined light-teal, hover fills primary teal */
+body.context-nzai .site-nav-cta {
+  color: #2EC4A8;
+  border-color: #2EC4A8;
+}
+body.context-nzai .site-nav-cta:hover,
+body.context-nzai .site-nav-cta:focus-visible {
+  background: #0F9888;
+  border-color: #0F9888;
+  color: #FFFFFF;
+}
+
+/* CREAM context - solid-filled coral. On a light surface the outlined
+   coral loses presence, so we go solid. */
+body.context-cream .site-nav-cta {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #FFFFFF;
+  padding: 10px 23px;
+}
+body.context-cream .site-nav-cta:hover,
+body.context-cream .site-nav-cta:focus-visible {
+  background: #DC4844;
+  border-color: #DC4844;
+  color: #FFFFFF;
+}
+
+/* decodED context - solid-filled orange */
+body.context-decoded .site-nav-cta {
+  background: #E8743C;
+  border-color: #E8743C;
+  color: #FFFFFF;
+  padding: 10px 23px;
+}
+body.context-decoded .site-nav-cta:hover,
+body.context-decoded .site-nav-cta:focus-visible {
+  background: #C95E2C;
+  border-color: #C95E2C;
+  color: #FFFFFF;
+}
+
+/* =========================================================================
    DROPDOWN PANELS - "Our products" + "About us"
    Glassmorphic floating panel that drops below the nav bar on hover
    or click. Stays in DOM only while open; close-grace timing handled
