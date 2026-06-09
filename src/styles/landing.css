@@ -498,48 +498,61 @@
   display: inline-block;
   position: relative;
   vertical-align: baseline;
-  /* Coral - both the box border and the inner text inherit. */
   color: var(--coral);
 }
 
-/* THE BOX - absolute overlay, centred, width transitions
-   independently of the text. */
-.slot-box {
+/* THE BRACES - { and } flank the rotating word and accordion in/out
+   as the slot-braces container's width transitions with the springy
+   curve. flex justify-content: space-between pins the braces to the
+   left and right edges of the container so they ride the edges as
+   the width changes. */
+.slot-braces {
   position: absolute;
-  top: -0.08em;
-  bottom: -0.08em;
+  top: -0.1em;
+  bottom: -0.1em;
   left: 50%;
   transform: translateX(-50%);
-  border: 1px dashed rgba(247, 90, 85, 0.55);
-  border-radius: 8px;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   pointer-events: none;
-  /* cubic-bezier(0.34, 1.56, 0.64, 1) = ease-out-back, overshoots
-     slightly past the target before settling = the springy feel. */
+  box-sizing: border-box;
+  /* ease-out-back overshoots past the target before settling - the
+     springy feel Chris wants on the accordion movement. */
   transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.slot-brace {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1;
+  color: var(--coral);
+  /* Light typographic adjustment so the braces sit visually centred
+     against the rotating text below them - braces have a tall ascender
+     so a small lift evens the optical balance. */
+  display: inline-block;
+  transform: translateY(-0.02em);
+}
 
-/* THE TEXT - clipped wrapper, rotates vertically. */
+/* THE TEXT - clipped wrapper, rotates vertically.
+   `contain: paint` + `overflow: hidden` + explicit height in em give
+   belt-and-braces clipping so only one word ever shows regardless of
+   how the flex/inline-block layout cascades from the parent headline. */
 .slot-text-wrapper {
   display: inline-block;
   position: relative;
   overflow: hidden;
+  vertical-align: top;
   height: 1.2em;
-  line-height: 1.2;
-  /* Padding so the visible word has breathing room within the
-     wrapper; matches the slot-measurer padding so widths line up. */
+  line-height: 1;
   padding: 0 0.32em;
+  contain: paint;
 }
 
+/* Simple block stack - words sit one above the other; the stack
+   translates upward by exactly 1.2em (one word height) per cycle. */
 .slot-stack {
-  display: flex;
-  flex-direction: column;
-  /* Centre each word horizontally within the stack so the visible
-     word stays at the wrapper's centre regardless of word length. */
-  align-items: center;
-  /* Default state: no animation - the first word holds visibly during
-     the opening sequence until the component's start-hold gate trips
-     and adds the .is-animating class. */
+  display: block;
 }
 .slot-stack.is-animating {
   /* 1800ms delay coincides with the component's widthIndex tick so
@@ -550,7 +563,16 @@
   display: block;
   height: 1.2em;
   line-height: 1.2;
+  /* Centre the word horizontally within its row so the visible word
+     sits at the wrapper's centre = at the page centre. */
+  text-align: center;
   white-space: nowrap;
+  /* Explicit coral on the word as well as on .slot-line - belt-and-
+     braces against any inherited color override from the headline
+     (the parent .landing-hero-headline sets color: cream). */
+  color: var(--coral);
+  /* Font family + weight inherited from the headline so the rotating
+     word matches "We decode" / "for your organisation" exactly. */
 }
 @keyframes slot-machine-rotate {
   from { transform: translateY(0); }

@@ -1,43 +1,35 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 /**
- * Slot-machine word swap. A dashed-outline box sits behind a vertically-
- * rotating word - per Chris's revised design, the TEXT and the BOX are
- * fully decoupled so neither affects the other's layout:
+ * Slot-machine word swap. Two curly braces { } flank a vertically-
+ * rotating word - per Chris's "accordion" call. The braces move
+ * outward and inward with the springy box-width transition, while
+ * the text inside only ever translates UPWARD (slot-machine rotation
+ * with no horizontal motion).
  *
- *   - The TEXT lives inside an overflow-hidden wrapper and only ever
- *     translates VERTICALLY (the slot-machine rotation). It never
- *     shifts left or right - the visible word stays centred to its
- *     own column, which is centred to the page.
+ * Layout:
+ *   .slot-line               position: relative wrapper
+ *   .slot-braces             position: absolute, centred, flex
+ *                            justify-content: space-between. Width
+ *                            transitions springy. Contains the two
+ *                            { } braces which sit at its left + right
+ *                            edges so they accordion in/out as the
+ *                            container width changes.
+ *   .slot-text-wrapper       overflow-hidden wrapper, height 1.2em.
+ *                            The slot-stack inside translates upward
+ *                            on each cycle.
  *
- *   - The BOX is a position-absolute overlay centred at left: 50%
- *     translateX(-50%). Its width transitions independently to match
- *     each word's measured natural width. The box grows and shrinks
- *     symmetrically from the page centre, so it stretches and
- *     squashes around the text without nudging the text or any
- *     surrounding content.
+ * The text and the braces are fully decoupled - text rotates
+ * vertically, braces stretch horizontally, neither nudges the other.
+ * Both centred to the page so nothing shifts left or right of any
+ * surrounding content.
  *
- * Sequence (per brief, locked):
- *   1. decarbonisation  (always the first word on page load)
+ * Sequence (locked):
+ *   1. decarbonisation  (initial - holds INITIAL_HOLD_MS before
+ *                         cycling begins)
  *   2. climate complexity
  *   3. energy markets
  *   4. digital intelligence
- *
- * Two-tick architecture:
- *   - rotIndex   advances every CYCLE_MS - drives the rotation
- *                 animation and which word pair is rendered
- *   - widthIndex advances WIDTH_OFFSET_MS after each rotIndex tick -
- *                 drives the box width (fires as the rotation begins
- *                 so width and rotation animate simultaneously, not
- *                 width-after-rotation)
- *
- * INITIAL_HOLD_MS: on first mount the slot displays decarbonisation
- * and holds with no motion until this delay elapses - lets the user
- * read the first word during the opening reveal before the rotation
- * cycle begins.
- *
- * Reduced motion: animation class never applied; first word stays
- * permanently and the box width measures naturally.
  */
 
 const WORDS = [
@@ -59,7 +51,7 @@ export function SlotMachineWord() {
   const [rotationStarted, setRotationStarted] = useState(false)
 
   // Start gate - holds the first word visible for INITIAL_HOLD_MS
-  // with no motion, then unlocks the rotation interval.
+  // with no motion at all before the rotation cycle unlocks.
   useEffect(() => {
     const t = window.setTimeout(() => setRotationStarted(true), INITIAL_HOLD_MS)
     return () => window.clearTimeout(t)
@@ -119,28 +111,25 @@ export function SlotMachineWord() {
 
   return (
     <span className="slot-line">
-      {/* Hidden width measurer - matches the slot-box's box layout
-          exactly so offsetWidth gives the natural rendered width
-          including its padding + transparent 1px border. */}
       <span
         ref={measureRef}
         className="slot-measurer"
         aria-hidden="true"
       />
-      {/* The bounding box - absolute, centred, transitions width
-          independently of the text. Stretches and squashes around
-          the text without nudging the text or the surrounding
-          content. */}
+      {/* The curly braces wrap. Width transitions springy; the two
+          { } braces sit at the left + right edges via flex
+          justify-content: space-between so they accordion in/out as
+          the container width changes. */}
       <span
-        className="slot-box"
+        className="slot-braces"
         style={targetWidth ? { width: `${targetWidth}px` } : undefined}
         aria-hidden="true"
-      />
-      {/* The text - vertical slot-machine rotation only. The
-          wrapper clips and the stack translates upward by one row
-          each cycle. Stack is align-items: centre so each word
-          centres within the stack and within the page-centred
-          slot-line wrapper. */}
+      >
+        <span className="slot-brace slot-brace--left">{'{'}</span>
+        <span className="slot-brace slot-brace--right">{'}'}</span>
+      </span>
+      {/* Text wrapper - overflow hidden, height 1.2em. Stack inside
+          translates upward on each cycle. */}
       <span className="slot-text-wrapper">
         <span
           key={rotIndex}
