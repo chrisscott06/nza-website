@@ -412,16 +412,20 @@
   margin: 0 auto;
   padding: 96px 64px;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  /* Centred single-column layout per Chris's revised landing -
+     headline + sub-line stack vertically, both centred horizontally.
+     The old two-column grid (text left, empty visual right) is gone -
+     the right column was an aria-hidden div anyway since the
+     three-beat infographic moved off the landing. */
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   box-sizing: border-box;
 }
 @media (max-width: 899px) {
   .landing-hero-inner {
-    grid-template-columns: 1fr;
-    gap: 56px;
     padding: 96px 32px;
   }
 }
@@ -431,7 +435,17 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  align-items: center;
+  gap: 32px;
+  max-width: 960px;
+}
+
+/* Headline line wrappers - the first line is "We decode [carousel]"
+   on one row, the second line "for your organisation." on the next.
+   Display: block forces each <span> to own its own line so the slot
+   frame sits inline with "We decode" rather than wrapping after. */
+.landing-hero-headline-line {
+  display: block;
 }
 
 .landing-hero-headline {
@@ -483,9 +497,17 @@
      outside the visible area. */
   height: 1.2em;
   line-height: 1.2;
-  /* Min-width sized to "climate complexity" (the longest of the four
-     rotating words) so the frame never resizes mid-rotation. */
-  min-width: 9.5em;
+  /* Width set dynamically via inline style by the component from the
+     measured natural width of the current word. CSS transition makes
+     the resize feel like a stretch/squash as the frame morphs between
+     words. cubic-bezier(0.34, 1.56, 0.64, 1) is "ease-out-back" - the
+     curve overshoots slightly past its target before settling, giving
+     a "nice little springy feel" per Chris. 800ms duration so the
+     spring is perceptible without dragging.
+     Box-sizing: border-box so the measured width includes border +
+     padding (matches what offsetWidth returns from the measurer). */
+  box-sizing: border-box;
+  transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
   /* Coral text for the rotating word - the dotted-outline frame and
      the word inside it both pick up the brand coral so the slot
      machine reads as its own coloured moment in the otherwise
@@ -495,6 +517,32 @@
      the rendered text up slightly off the inline baseline. translateY
      puts the visible word back in line with the rest of the headline. */
   transform: translateY(0.1em);
+}
+/* Hidden width measurer - matches the frame's box layout exactly so
+   offsetWidth returns the natural width including the same padding +
+   border-box accounting as the frame. Positioned absolute out of
+   the frame's flow. */
+.slot-measurer {
+  position: absolute;
+  top: -9999px;
+  left: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  font: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  /* Match the frame's horizontal padding + a 1px transparent border
+     on each side to mirror the frame's 1px dashed border. With
+     box-sizing border-box, this means offsetWidth from the measurer
+     equals exactly what the frame's outer box width needs to be to
+     hold the same text - was previously 2px short, so the word was
+     getting clipped at the right edge. */
+  padding: 0 0.32em;
+  border: 1px solid transparent;
+  box-sizing: border-box;
 }
 .slot-stack {
   display: flex;
@@ -538,8 +586,11 @@
   /* Pure white - cream variants render with a slight blue tint
      against navy when alpha'd. */
   color: #FFFFFF;
-  max-width: 520px;
-  margin: 0;
+  /* Centred under the headline - the line-break sits naturally
+     after "buildings, energy and climate." within the max-width. */
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .landing-hero-visual {
@@ -926,14 +977,20 @@
   color: var(--coral);
   font-size: 1.15em;
 }
+/* Selector qualified with .canvas-navy to beat the global
+   `.canvas-navy p { color: var(--fg-on-navy-2) }` rule - same
+   specificity fix as .landing-hero-sub. */
+.canvas-navy .get-in-touch-body,
 .get-in-touch-body {
-  font-family: var(--font-body);
-  font-weight: 400;
-  /* Sub-heading tier (24px) - sits just under the closing headline so
-     gets the larger sub tier for editorial pairing. */
+  /* Stolzl Light per Chris - matches the landing hero sub-line
+     treatment so the two navy-body moments on the homepage flow
+     read as one continuous editorial voice. */
+  font-family: var(--font-display);
+  font-weight: 300;
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.4;
-  color: rgba(245, 241, 232, 0.85);
+  letter-spacing: -0.005em;
+  color: #FFFFFF;
   max-width: 520px;
   margin: 0 auto 40px;
 }

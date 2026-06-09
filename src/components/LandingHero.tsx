@@ -46,28 +46,30 @@ export function LandingHero() {
 
       <div className="landing-hero-inner">
         <div className="landing-hero-text">
+          {/* Two-line centred headline per Chris:
+              Line 1: "We _decode_ [carousel]"
+              Line 2: "for your organisation."
+              The line-wrapper spans force the break so the slot
+              machine stays inline with "We decode" rather than
+              wrapping after.  */}
           <MaskReveal as="h1" className="landing-hero-headline" delay={120}>
-            We <em>decode</em>{' '}
-            <SlotMachineWord />{' '}
-            for your organisation.
+            <span className="landing-hero-headline-line">
+              We <em>decode</em>{' '}
+              <SlotMachineWord />
+            </span>
+            <span className="landing-hero-headline-line">
+              for your organisation.
+            </span>
           </MaskReveal>
           {/* Sub-line - the mission statement. Hyphens not em-dashes
               per Chris's standing site convention (brief copy used
-              em-dashes which I'm converting on the way in). The
-              max-width on .landing-hero-sub lets the line break
-              naturally after "buildings, energy and climate." */}
+              em-dashes which I'm converting on the way in). */}
           <MaskReveal as="p" className="landing-hero-sub" delay={320}>
             We are specialists in buildings, energy and climate. We cut through
             the complexity of decarbonisation - and build the tools your people
             need to act on it.
           </MaskReveal>
         </div>
-
-        {/* Right column intentionally empty per v2 brief - the blob
-            field and the slot-machine word swap carry the visual
-            interest. Removed: ThreeBeatInfographic (moves to the
-            Approach page in a follow-on brief). */}
-        <div className="landing-hero-visual" aria-hidden="true" />
       </div>
     </>
   )
