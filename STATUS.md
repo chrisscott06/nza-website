@@ -2,6 +2,20 @@
 
 ## Last completed chunk
 
+**Site-wide navigation system — 8 chunks landed.** New `SiteNav` mounted above every route. Sticky header, context-adaptive logo recolour, glassmorphic dropdowns, per-context CTA variants, mobile mark-as-trigger menu, three stub pages so all nav links resolve. Brief at `docs/briefs/nza-navigation-brief.md`.
+
+Commits on `origin/main`:
+- `fb9f256` — chunk 1: foundation (`NzaLogoWide` + `NzaLogoMark` SVG components, `useContextClass` hook, brief stored)
+- `3ed9bd5` — chunk 2: `SiteNav` shell mounted in App.tsx, sticky positioning + layout, context body class plumbing per page, old FloatingNav unwired from PABLO + NZ:AI
+- `ff50d6f` — chunk 3: logo per-group recolour (mark/net/zero + advisory separately) wired to `body.context-*` classes — the "signature move"
+- `61466f5` — chunk 4: dropdowns (Our products + About us), glassmorphic panels with hairline coral border, hover-open + 150ms grace close, Escape dismiss, gradient/teal/green swatches per product
+- `aaf1f7a` — chunk 5: CTA per-context variants (outlined coral/violet/teal on dark, solid coral/orange on light)
+- `78434f4` — chunk 6: mobile menu — `NzaLogoMark` swapped in as the trigger, full-screen overlay slides down, flat layout with section labels + product swatches, body-scroll-locked while open, route-change auto-closes
+- `8da9e95` — chunk 7: stub pages (`/decoded` context-decoded, `/about` + `/clients` context-cream), old `FloatingNav.tsx` + `MobileNavMenu.tsx` deleted
+- (this) — chunk 8: a11y + verification — visible focus rings on every interactive element (previously suppressed by `outline: none`), 36px min nav touch targets, 44px min mobile menu items, `prefers-reduced-motion` swept across base, dropdowns, mobile menu, logo recolour transitions
+
+## Previously completed
+
 **NZ:AI product page — 8 chunks landed.** New `/nz-ai` product page mirroring `/pablo` structurally. Eight sections per the brief at `docs/briefs/nz-ai-page-brief.md`, copy from v8 at `docs/briefs/nz-ai-copy-v8.md`.
 
 Commits on `origin/main`:

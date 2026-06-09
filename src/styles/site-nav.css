@@ -121,7 +121,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 4px;
+  /* Padding hits the brief's 36px minimum click target: 8px top + 8px
+     bottom + ~14px font line-height. */
+  padding: 10px 6px;
+  min-height: 36px;
+  box-sizing: border-box;
   font-family: var(--font-display);
   font-weight: 500;
   font-size: 14px;
@@ -138,11 +142,15 @@
   .site-nav-trigger { font-size: 13px; }
 }
 .site-nav-link:hover,
-.site-nav-trigger:hover,
+.site-nav-trigger:hover {
+  color: var(--coral);
+}
 .site-nav-link:focus-visible,
 .site-nav-trigger:focus-visible {
   color: var(--coral);
-  outline: none;
+  outline: 2px solid var(--coral);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 /* Chevron on the dropdown triggers. Drawn as two CSS borders so it
    scales cleanly. Rotates 180deg when the dropdown is open (added
@@ -182,12 +190,17 @@
               color 220ms cubic-bezier(0.16, 1, 0.3, 1),
               transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.site-nav-cta:hover,
+.site-nav-cta:hover {
+  background: var(--coral);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
 .site-nav-cta:focus-visible {
   background: var(--coral);
   color: #FFFFFF;
   transform: translateY(-1px);
-  outline: none;
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
 }
 @media (max-width: 767px) {
   .site-nav-cta {
@@ -380,11 +393,15 @@ body.context-decoded .site-nav-cta:focus-visible {
   transition: background 220ms cubic-bezier(0.16, 1, 0.3, 1),
               color 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.site-nav-dropdown-item:hover,
+.site-nav-dropdown-item:hover {
+  background: rgba(247, 90, 85, 0.1);
+  color: var(--coral);
+}
 .site-nav-dropdown-item:focus-visible {
   background: rgba(247, 90, 85, 0.1);
   color: var(--coral);
-  outline: none;
+  outline: 2px solid var(--coral);
+  outline-offset: -1px;
 }
 
 /* Product swatches - circle to the left of each product name. PABLO
@@ -514,11 +531,15 @@ body.context-decoded .nza-logo-mark-only-svg #nza-logo-mark-mobile {
   transition: background 220ms cubic-bezier(0.16, 1, 0.3, 1),
               color 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.site-nav-mobile-link:active,
+.site-nav-mobile-link:active {
+  background: rgba(247, 90, 85, 0.12);
+  color: var(--coral);
+}
 .site-nav-mobile-link:focus-visible {
   background: rgba(247, 90, 85, 0.12);
   color: var(--coral);
-  outline: none;
+  outline: 2px solid var(--coral);
+  outline-offset: -2px;
 }
 /* CTA at the bottom of the overlay - full width */
 .site-nav-mobile-cta {
