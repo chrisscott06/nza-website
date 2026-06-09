@@ -1174,29 +1174,19 @@
   --accent-start: var(--coral);
   --accent-end: var(--coral);
   /* Interior tint at rest is transparent; on activation fades to
-     opaque cream just behind the border-drawing animation.
-     Shadow is filter: drop-shadow which follows the card's actual
-     rounded-corner shape (no hard angles, no inside leak). A no-op
-     drop-shadow is set at rest so the compositing layer is allocated
-     up-front - activating then JUST changes the filter parameters,
-     not the layer, so no re-rasterisation jitter. */
+     opaque cream just behind the border-drawing animation. No
+     shadow at all per Chris - every attempt at one (box-shadow,
+     pseudo-element, drop-shadow) produced something he didn't
+     like, so the card just sits flat on the cream ground without
+     a depth lift. */
   background: transparent;
-  filter: drop-shadow(0 0 0 transparent);
-  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
-              filter 400ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
+  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
 }
 @media (max-width: 599px) {
   .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
 .product-card.is-active {
   background: #FCF8EF;
-  /* filter: drop-shadow follows the card's actual alpha mask,
-     including the rounded corners - so the shadow is literally the
-     card's shape, offset down-left, with the same bevelled corners.
-     No L-strip clipping = no hard angles where strips terminate.
-     No pseudo behind = no inside-the-box bleed.
-     The blur value gives it the gradient fade per Chris's request. */
-  filter: drop-shadow(-8px 10px 12px rgba(31, 51, 71, 0.22));
 }
 
 /* Per-product accent palettes (Chris's brief):
