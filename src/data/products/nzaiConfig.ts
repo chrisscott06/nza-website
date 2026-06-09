@@ -43,6 +43,12 @@ export const nzaiConfig: ProductPageConfig = {
         shortLabel: 'Data quality',
         alt: 'NZ:AI data quality explainer with journey chart',
       },
+      {
+        /* Real NZ:AI trajectory screen - bonus 4th panel. */
+        src: '/images/products/nzai/nzai-trajectory.png',
+        shortLabel: 'Trajectory',
+        alt: 'NZ:AI trajectory chart with milestones',
+      },
     ],
   },
 
