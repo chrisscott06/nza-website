@@ -451,12 +451,18 @@
   max-width: 960px;
 }
 
-/* Headline line wrappers - the first line is "We decode [carousel]"
-   on one row, the second line "for your organisation." on the next.
-   Display: block forces each <span> to own its own line so the slot
-   frame sits inline with "We decode" rather than wrapping after. */
+/* Headline line wrappers - one row per line so the MaskReveal can
+   stagger the three lines independently. Display: block forces each
+   <span> to own its own line. The padding-bottom gives descenders
+   (g, y, p) room within the MaskReveal's overflow-hidden clip - the
+   default 1.06 line-height sits flush against the bottom of the
+   visible area, cropping the bottom of "organisation"'s g. 0.18em
+   padding-bottom + content-box keeps the layout slot the same height
+   but pushes the clip line down past the descender. */
 .landing-hero-headline-line {
   display: block;
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
 }
 
 .landing-hero-headline {
@@ -517,37 +523,15 @@
   color: var(--coral);
 }
 
-/* THE BRACES - { and } flank the rotating word and accordion in/out
-   as the slot-braces container's width transitions with the springy
-   curve. flex justify-content: space-between pins the braces to the
-   left and right edges of the container so they ride the edges as
-   the width changes. */
+/* THE BRACES - hidden for now per Chris ("let's get rid of the
+   { } curly brackets... we can come back to them later"). The
+   element stays in the JSX + the slot-measurer keeps measuring,
+   so re-enabling later is a one-line CSS revert. */
 .slot-braces {
-  position: absolute;
-  top: -0.1em;
-  bottom: -0.1em;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  pointer-events: none;
-  box-sizing: border-box;
-  /* ease-out-back overshoots past the target before settling - the
-     springy feel Chris wants on the accordion movement. */
-  transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: none;
 }
 .slot-brace {
-  font-family: var(--font-display);
-  font-weight: 300;
-  font-size: 1em;
-  line-height: 1;
-  color: var(--coral);
-  /* Light typographic adjustment so the braces sit visually centred
-     against the rotating text below them - braces have a tall ascender
-     so a small lift evens the optical balance. */
-  display: inline-block;
-  transform: translateY(-0.02em);
+  display: none;
 }
 
 /* THE TEXT - clipped wrapper, rotates vertically.
