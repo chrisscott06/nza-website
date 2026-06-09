@@ -1157,7 +1157,7 @@
    halves, logo, and reveal content. Fixed minimum height so the
    section doesn't grow when a card activates - reveal content
    takes layout space at rest too, just opacity:0. Per-product
-   accent colours via CSS variables on the card. */
+   accent colours + gradient stops via CSS variables on the card. */
 .product-card {
   position: relative;
   display: flex;
@@ -1168,74 +1168,90 @@
   width: 100%;
   box-sizing: border-box;
   min-height: 420px;
-  /* Default accents - overridden per data-id below. */
-  --accent: var(--coral);
+  border-radius: 16px;
+  /* Default accent vars - overridden per data-id below. */
   --accent-text: var(--coral);
+  --accent-start: var(--coral);
+  --accent-end: var(--coral);
+  /* Interior tint + offset bottom-left shadow live on the card so
+     they paint once. At rest both are transparent; on activation
+     they fade in just behind the border-drawing animation. */
+  background: transparent;
+  box-shadow: none;
+  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
+              box-shadow 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
 }
 @media (max-width: 599px) {
   .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
+.product-card.is-active {
+  background: rgba(255, 252, 246, 0.55);
+  /* Wider, softer, more offset shadow per Chris - "really light, bigger,
+     more subtle, offset down-left". Three layers stacked for a soft
+     cloud feel without any visible dark line at any edge. */
+  box-shadow:
+    -18px 26px 52px -20px rgba(31, 51, 71, 0.16),
+    -8px 14px 32px -16px rgba(31, 51, 71, 0.10);
+}
 
 /* Per-product accent palettes (Chris's brief):
-     PABLO    box border: orange-pink, text: coral
-     NZ:AI    box border: teal,        text: teal
-     decodED  box border: deep green,  text: orange */
+     PABLO    box border gradient: orange -> purple,    text: coral
+     NZ:AI    box border gradient: teal   -> navy,      text: teal
+     decodED  box border gradient: green  -> orange,    text: orange */
 .product-card[data-id="pablo"] {
-  --accent: #F37A38;
   --accent-text: var(--coral);
+  --accent-start: #F37A38;
+  --accent-end:   #AF5FA0;
 }
 .product-card[data-id="nzai"] {
-  --accent: #5ABBB3;
   --accent-text: #2EC4A8;
+  --accent-start: #5ABBB3;
+  --accent-end:   #1A2A47;
 }
 .product-card[data-id="decoded"] {
-  --accent: #214E40;
   --accent-text: #E28F2C;
+  --accent-start: #214E40;
+  --accent-end:   #E28F2C;
 }
 
-/* THE BOUNDING BOX - two halves drawn as pseudo-borders via clip-path.
-   Each half is a full-perimeter border element, but clip-path masks
-   it to half the box. The clip-path animates from a single point at
-   the top centre out to its respective half - left half traces
-   anticlockwise (top centre -> top-left -> bottom-left -> bottom
-   centre), right half traces clockwise (top centre -> top-right ->
-   bottom-right -> bottom centre). They meet at the bottom.
+/* THE BOUNDING BOX - two halves, each clipped to its side of the box
+   via clip-path. The gradient is the BACKGROUND of each half; a mask
+   removes the interior padding-box area so only the border-width
+   ring is visible. This gives a smooth gradient border that follows
+   border-radius - which border-image-source can't do.
 
-   The left half's bg fill on .is-active provides the soft tinted
-   interior + the offset bottom-left shadow Chris asked for. */
+   The polygons overlap by 1% at the top + bottom centre seams
+   (calc(50% +/- 0.5%)) so anti-aliasing doesn't leave a visible gap
+   where the two halves meet. */
 .product-card-box-half {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--accent);
+  border: 2px solid transparent;
   border-radius: 16px;
   pointer-events: none;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
+  /* Two-layer mask that exposes ONLY the border ring (border-box
+     minus padding-box). Chrome + Firefox both honour this. */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+          mask-composite: exclude;
   clip-path: polygon(50% 0%, 50% 0%, 50% 0%, 50% 0%);
   transition: clip-path 620ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 0;
 }
-/* Active states - each half expands to cover its side of the box. */
+/* Active states - each half expands to cover its side of the box.
+   The 1% overlap at top + bottom centre closes the anti-alias gap
+   where the two halves meet. */
 .product-card.is-active .product-card-box-half--left {
-  clip-path: polygon(50% 0%, 0% 0%, 0% 100%, 50% 100%);
+  clip-path: polygon(51% 0%, 0% 0%, 0% 100%, 51% 100%);
 }
 .product-card.is-active .product-card-box-half--right {
-  clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%);
-}
-/* The interior fill + offset shadow live on the LEFT half so they
-   only paint once. fill + shadow have their own opacity transition
-   that lags slightly behind the clip animation so they feather in
-   as the border completes. */
-.product-card-box-half--left {
-  background: transparent;
-  box-shadow: none;
-  transition: clip-path 620ms cubic-bezier(0.16, 1, 0.3, 1),
-              background 320ms cubic-bezier(0.16, 1, 0.3, 1) 200ms,
-              box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
-}
-.product-card.is-active .product-card-box-half--left {
-  background: rgba(255, 252, 246, 0.62);
-  /* Subtle offset shadow to the bottom-LEFT per Chris's
-     "shadow of the overall shape to the bottom left of it". */
-  box-shadow: -10px 14px 28px -10px rgba(31, 51, 71, 0.16);
+  clip-path: polygon(49% 0%, 100% 0%, 100% 100%, 49% 100%);
 }
 
 /* LOGO BUTTON - clicking toggles activation. Doesn't navigate. */
@@ -1272,7 +1288,12 @@
 .product-card-logo-silhouette {
   position: absolute;
   inset: 0;
-  background-color: var(--ink-navy);
+  /* Slightly lifted navy so the mask reads as DARK BLUE rather than
+     black at large scale (per Chris). The base --ink-navy (#0E1120)
+     is so dark that as a flat mask fill it loses its blue cast and
+     reads as black. #1A2A47 still feels confidently navy but holds
+     enough blue to match the site's other navy moments visibly. */
+  background-color: #1A2A47;
   -webkit-mask-size: contain;
           mask-size: contain;
   -webkit-mask-position: center;
