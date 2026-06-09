@@ -1173,32 +1173,51 @@
   --accent-text: var(--coral);
   --accent-start: var(--coral);
   --accent-end: var(--coral);
-  /* Interior tint + offset bottom-left shadow live on the card so
-     they paint once. At rest both are transparent; on activation
-     they fade in just behind the border-drawing animation. */
+  /* Interior tint at rest is transparent; on activation fades to
+     opaque cream just behind the border-drawing animation. The
+     SHADOW is the ::after pseudo (see below), not box-shadow - so
+     no box-shadow transition needed here. */
   background: transparent;
-  box-shadow: none;
-  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
-              box-shadow 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
+  transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
 }
 @media (max-width: 599px) {
   .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
 .product-card.is-active {
   background: #FCF8EF;
-  /* SINGLE soft box-shadow, no spread, no stacked layers.
-     - Earlier the shadow was two stacked layers with negative
-       spread - which caused TWO problems:
-         a) Negative spread shrinks the shadow box, creating a
-            denser "core" in the bottom-left corner area that
-            reads as a hard block.
-         b) Two layers overlap, summing alphas in the visible
-            corner (0.18 + 0.10 layered = ~0.26 in the overlap)
-            so the dense area was even darker.
-     - One layer, large blur, no spread, low alpha = a soft
-       gradient fade with no visible hard edge or core. Just a
-       gentle depth lift to the bottom-left. */
-  box-shadow: -10px 12px 28px rgba(31, 51, 71, 0.14);
+  /* Shadow lives on .product-card::after below - simple duplicate
+     of the card shape sitting behind it, offset, rounded corners
+     matching the card. NO box-shadow here. */
+}
+
+/* THE SHADOW
+   A pseudo-element that's literally a clone of the card's shape:
+   same border-radius, same dimensions (via inset: 0), solid colour,
+   translated down + left to sit offset behind the card. The card's
+   opaque bg covers the part of the pseudo that's under the card,
+   leaving visible only the L-strip that pokes out down-left.
+   - Same border-radius means the visible corner of the shadow IS
+     rounded, matching the card's bevelled corner (was the angle
+     mismatch Chris flagged with the box-shadow attempts).
+   - No filter, no blur = no new compositing layer = no sub-pixel
+     hover jitter and no awkward "block of dark grey" at the corner.
+   - Opacity transition: opacity is a paint-only property, the
+     compositing layer (if any) is allocated once and just alpha-
+     blended, so no re-rasterisation jitter. */
+.product-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: rgba(31, 51, 71, 0.12);
+  transform: translate(-8px, 8px);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
+}
+.product-card.is-active::after {
+  opacity: 1;
 }
 
 /* Per-product accent palettes (Chris's brief):
