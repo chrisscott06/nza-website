@@ -259,7 +259,9 @@
 .browser-frame {
   position: relative;
   width: 100%;
-  max-width: 640px;
+  /* 760px max gives the 21:10 frame room to breathe at ~360px tall.
+     Was 640px when frame was 16:10. */
+  max-width: 760px;
   margin: 0 auto;
   border-radius: 10px;
   /* Slightly elevated against the canvas (~5% lighter) per brief. */
@@ -309,8 +311,9 @@
 .browser-frame-screen {
   position: relative;
   width: 100%;
-  /* 16:10 aspect ratio for the inner screen area. */
-  aspect-ratio: 16 / 10;
+  /* 21:10 aspect ratio matches Chris's actual screenshots
+     (~1910x900 source, ratio 2.12). Was 16:10, too narrow for them. */
+  aspect-ratio: 21 / 10;
   overflow: hidden;
 }
 .browser-frame-img {
@@ -560,30 +563,152 @@
 }
 @media (max-width: 599px) { .product-steps-inner { padding: 0 20px; } }
 
-.product-step {
+/* SHARED-FRAME SCROLLYTELLING LAYOUT (the Impilo big-frame pattern)
+   Outer grid: text col left, sticky frame col right.
+   Each text block in the left column is min-height 100vh so the
+   shared frame on the right has plenty of scroll range to stay pinned
+   while the user reads through all four steps. */
+.product-steps-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
   gap: 80px;
   align-items: start;
-  padding: 80px 0;
-  /* min-height 100vh per row so the sticky illustration has scroll
-     range to pin against - feels like Impilo's scrollytelling step
-     mechanic without needing scroll-driven JS. */
-  min-height: 100vh;
 }
 @media (max-width: 1023px) {
-  .product-step {
+  .product-steps-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
-    padding: 56px 0;
-    /* When the row stacks, the desktop scrollytelling 100vh lock is
-       just empty space below the content. Let content drive the
-       height. */
-    min-height: auto;
+    gap: 0;
   }
 }
-@media (max-width: 599px) { .product-step { padding: 40px 0; } }
 
+.product-steps-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* One step's text block - viewport-tall on desktop so the sticky
+   frame has scroll range; content-driven on mobile. */
+.product-step-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 460px;
+  padding: 80px 0;
+  min-height: 100vh;
+  justify-content: center;
+  /* Inactive blocks dim slightly so the active one carries focus.
+     The is-active class is added by ProductStepsSection. */
+  opacity: 0.5;
+  transition: opacity 500ms var(--product-ease);
+}
+.product-step-text-block.is-active { opacity: 1; }
+@media (max-width: 1023px) {
+  .product-step-text-block {
+    min-height: auto;
+    padding: 56px 0;
+    opacity: 1; /* no dimming when stacked */
+    max-width: none;
+    gap: 24px;
+  }
+}
+
+/* The right column is the sticky frame. Sticky inside grid needs
+   align-self: start so the frame doesn't get vertically stretched. */
+.product-steps-frame-col {
+  position: sticky;
+  top: 12vh;
+  height: 76vh;
+  align-self: start;
+}
+@media (max-width: 1023px) {
+  /* On mobile the shared frame is irrelevant - each step uses the
+     inline-illustration block below its text instead. */
+  .product-steps-frame-col { display: none; }
+}
+
+/* THE BIG FRAME - persistent across all four steps. Subtle elevated
+   cream background, hairline accent border, large rounded corners.
+   Holds four illustration panels absolutely stacked; one cross-fades
+   in based on the active step. */
+.product-steps-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #FCF8EE;
+  border: 0.5px solid color-mix(in oklab, var(--product-accent) 45%, transparent);
+  border-radius: 18px;
+  padding: 60px;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgba(31, 51, 71, 0.10);
+}
+@media (max-width: 1279px) {
+  .product-steps-frame { padding: 48px; }
+}
+.product-steps-frame-illustration {
+  position: absolute;
+  inset: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 520ms var(--product-ease),
+              transform 520ms var(--product-ease);
+}
+@media (max-width: 1279px) {
+  .product-steps-frame-illustration { inset: 48px; }
+}
+.product-steps-frame-illustration.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+.product-steps-frame-illustration svg {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  stroke: var(--product-accent);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+/* INLINE ILLUSTRATION - mobile only (shared frame is hidden).
+   Sits beneath each step's body paragraph so the user sees the
+   illustration alongside its text in the stacked layout. */
+.product-step-inline-illustration {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .product-step-inline-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin-top: 16px;
+    padding: 40px;
+    box-sizing: border-box;
+    background: #FCF8EE;
+    border: 0.5px solid color-mix(in oklab, var(--product-accent) 45%, transparent);
+    border-radius: 14px;
+  }
+  .product-step-inline-illustration svg {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    stroke: var(--product-accent);
+    stroke-width: 1.5;
+    fill: none;
+  }
+}
+
+/* === Legacy single-step layout, no longer used but kept defs
+   minimal so anything still referencing them doesn't blow up. ===
+   .product-step                   - now lives as .product-steps-grid
+   .product-step-text              - now lives as .product-step-text-block
+   .product-step-illustration-col  - replaced by .product-steps-frame-col
+   .product-step-illustration      - replaced by .product-steps-frame
+   The actual rules above replace these. */
 .product-step-text {
   display: flex;
   flex-direction: column;

@@ -2,7 +2,7 @@ import { useEffect, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
-import { ProductStep } from './ProductStep'
+import { ProductStepsSection } from './ProductStepsSection'
 import { useContextClass } from '../../hooks/useContextClass'
 
 /**
@@ -249,9 +249,7 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           ========================================================= */}
       <section className="product-steps">
         <div className="product-steps-inner">
-          {config.steps.map((step, i) => (
-            <ProductStep key={i} {...step} />
-          ))}
+          <ProductStepsSection steps={config.steps} />
         </div>
       </section>
 
