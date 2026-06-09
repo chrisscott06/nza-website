@@ -1186,12 +1186,42 @@
 }
 .product-card.is-active {
   background: rgba(255, 252, 246, 0.55);
-  /* Wider, softer, more offset shadow per Chris - "really light, bigger,
-     more subtle, offset down-left". Three layers stacked for a soft
-     cloud feel without any visible dark line at any edge. */
-  box-shadow:
-    -18px 26px 52px -20px rgba(31, 51, 71, 0.16),
-    -8px 14px 32px -16px rgba(31, 51, 71, 0.10);
+  /* No box-shadow here - the offset clone shape on ::before below
+     is the actual shadow. box-shadow renders as a soft blur ring
+     around the box-radius which always reads as a line at one edge,
+     never as a confident drop shadow. */
+}
+
+/* THE OFFSET SHADOW CLONE
+   A pseudo-element behind the card that's literally a copy of the
+   card's shape (matching border-radius), offset 10px left + 10px
+   down, with a linear gradient fading from solid (top-right corner -
+   nearest the card) to transparent (bottom-left - furthest away).
+   This is what Chris described - "the same bevelled edge shape,
+   offset, with a faded gradient on it" - rather than a box-shadow
+   blur ring. */
+.product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  transform: translate(-10px, 10px);
+  background: linear-gradient(
+    225deg,
+    rgba(31, 51, 71, 0.18) 0%,
+    rgba(31, 51, 71, 0.08) 50%,
+    rgba(31, 51, 71, 0) 100%
+  );
+  /* A small blur takes the hard edge off the gradient stops without
+     turning the shape into a fuzzy cloud. */
+  filter: blur(4px);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 380ms cubic-bezier(0.16, 1, 0.3, 1) 260ms;
+}
+.product-card.is-active::before {
+  opacity: 1;
 }
 
 /* Per-product accent palettes (Chris's brief):
@@ -1254,10 +1284,12 @@
 }
 /* Active states - each half expands to cover its side of the box,
    starting from the random --draw-origin-x at top and meeting at
-   51% / 49% at the bottom (1% overlap to close the anti-alias seam). */
+   51% / 49% at the bottom. Both meeting points (origin% top + 50%
+   bottom) get a 1% overlap via calc() so anti-aliasing doesn't
+   leave a sub-pixel seam where the two halves meet. */
 .product-card.is-active .product-card-box-half--left {
   clip-path: polygon(
-    var(--draw-origin-x, 50%) 0%,
+    calc(var(--draw-origin-x, 50%) + 1%) 0%,
     0% 0%,
     0% 100%,
     51% 100%
@@ -1265,7 +1297,7 @@
 }
 .product-card.is-active .product-card-box-half--right {
   clip-path: polygon(
-    var(--draw-origin-x, 50%) 0%,
+    calc(var(--draw-origin-x, 50%) - 1%) 0%,
     100% 0%,
     100% 100%,
     49% 100%
