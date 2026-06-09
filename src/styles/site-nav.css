@@ -406,7 +406,131 @@ body.context-decoded .site-nav-cta:focus-visible {
   background: #0F5D43;
 }
 
-/* Reduced motion - transitions become instant. */
+/* =========================================================================
+   MOBILE - mark-only logo as menu trigger, full-screen overlay
+   (Brief Section 6)
+   The desktop logo Link is swapped for a button containing just the
+   mark on viewports below 768px (handled in SiteNav via useMediaQuery).
+   The button has the same visual padding as the desktop logo so the
+   nav bar height stays consistent.
+   ========================================================================= */
+.site-nav-mobile-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+.site-nav-mobile-trigger:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+.nza-logo-mark-only-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.nza-logo-mark-only-svg #nza-logo-mark-mobile {
+  fill: var(--fg-on-navy-1);
+  transition: fill 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* When menu open: mark turns coral per brief */
+.site-nav-mobile-trigger.is-open .nza-logo-mark-only-svg #nza-logo-mark-mobile {
+  fill: var(--coral);
+}
+/* Mark colour by context */
+body.context-cream .nza-logo-mark-only-svg #nza-logo-mark-mobile {
+  fill: var(--ink-navy);
+}
+body.context-decoded .nza-logo-mark-only-svg #nza-logo-mark-mobile {
+  fill: #0F5D43;
+}
+
+/* OVERLAY */
+.site-nav-mobile-menu {
+  position: fixed;
+  top: 56px; /* matches the mobile nav height */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 24, 40, 0.97);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+          backdrop-filter: blur(20px) saturate(140%);
+  z-index: 99; /* below the nav (100) so the trigger stays clickable */
+  overflow-y: auto;
+  animation: site-nav-mobile-menu-open 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes site-nav-mobile-menu-open {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.site-nav-mobile-menu-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 24px 20px 32px;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+.site-nav-mobile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.site-nav-mobile-label {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(247, 90, 85, 0.85);
+  margin: 0 0 10px;
+  padding: 0 8px;
+}
+.site-nav-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--fg-on-navy-1);
+  text-decoration: none;
+  border-radius: 6px;
+  min-height: 44px; /* touch target per brief */
+  box-sizing: border-box;
+  transition: background 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-mobile-link:active,
+.site-nav-mobile-link:focus-visible {
+  background: rgba(247, 90, 85, 0.12);
+  color: var(--coral);
+  outline: none;
+}
+/* CTA at the bottom of the overlay - full width */
+.site-nav-mobile-cta {
+  width: 100%;
+  justify-content: center;
+  margin-top: auto;
+  padding: 14px 22px;
+  font-size: 12px;
+}
+
+/* Reduced motion - transitions become instant, mobile menu slide
+   shortens dramatically. */
 @media (prefers-reduced-motion: reduce) {
   .site-nav,
   #nza-logo-mark,
@@ -417,10 +541,13 @@ body.context-decoded .site-nav-cta:focus-visible {
   .site-nav-trigger,
   .site-nav-cta,
   .site-nav-chevron,
-  .site-nav-dropdown-item {
+  .site-nav-dropdown-item,
+  .site-nav-mobile-link,
+  .nza-logo-mark-only-svg #nza-logo-mark-mobile {
     transition: none;
   }
-  .site-nav-dropdown {
-    animation: none;
+  .site-nav-dropdown { animation: none; }
+  .site-nav-mobile-menu {
+    animation-duration: 50ms;
   }
 }
