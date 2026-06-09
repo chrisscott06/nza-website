@@ -1191,26 +1191,31 @@
 }
 
 /* THE SHADOW
-   A pseudo-element that's literally a clone of the card's shape:
-   same border-radius, same dimensions (via inset: 0), solid colour,
-   translated down + left to sit offset behind the card. The card's
-   opaque bg covers the part of the pseudo that's under the card,
-   leaving visible only the L-strip that pokes out down-left.
-   - Same border-radius means the visible corner of the shadow IS
-     rounded, matching the card's bevelled corner (was the angle
-     mismatch Chris flagged with the box-shadow attempts).
-   - No filter, no blur = no new compositing layer = no sub-pixel
-     hover jitter and no awkward "block of dark grey" at the corner.
-   - Opacity transition: opacity is a paint-only property, the
-     compositing layer (if any) is allocated once and just alpha-
-     blended, so no re-rasterisation jitter. */
+   A pseudo behind the card, offset down-left, with a RADIAL
+   GRADIENT instead of a solid fill. The right angles Chris kept
+   seeing weren't a CSS bug - they were the geometric consequence
+   of the L-shape getting clipped at the card's edges. Where the
+   left strip meets the card's top, and where the bottom strip
+   meets the card's right, the visible shape has to terminate
+   somewhere - and a solid fill creates a hard cutoff there.
+   The fix: center a radial gradient near the corner of the card
+   that's CLOSEST to where the shadow pokes out (card's bottom-
+   left in pseudo's local coords ~3%, 97%). The gradient is most
+   opaque at that point and fades outward radially - by the time
+   the alpha reaches the cutoff edges (top of left strip, right
+   of bottom strip), it's transparent. No visible hard edges. */
 .product-card::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  background: rgba(31, 51, 71, 0.12);
-  transform: translate(-8px, 8px);
+  background: radial-gradient(
+    circle at 3% 97%,
+    rgba(31, 51, 71, 0.24) 0%,
+    rgba(31, 51, 71, 0.10) 30%,
+    transparent 65%
+  );
+  transform: translate(-10px, 10px);
   z-index: -1;
   pointer-events: none;
   opacity: 0;
