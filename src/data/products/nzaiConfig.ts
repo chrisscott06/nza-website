@@ -32,7 +32,8 @@ export const nzaiConfig: ProductPageConfig = {
         alt: 'NZ:AI global emissions inventory with world map',
       },
       {
-        /* Strategy view - PNG pending, falls back to placeholder. */
+        /* Real NZ:AI strategy interventions waterfall. */
+        src: '/images/products/nzai/nzai-waterfall.png',
         shortLabel: 'Strategy view',
         alt: 'NZ:AI strategy interventions waterfall chart',
       },
