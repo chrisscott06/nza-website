@@ -2,6 +2,68 @@
 
 ## Last completed chunk
 
+**Product page template — overnight build, 3 pages live.** New shared
+`<ProductPage>` template populates `/pablo`, `/nz-ai`, `/decoded` from
+per-product config objects. All five sections per brief
+(`docs/briefs/nza-product-page-template-brief.md`). All 11 product
+screenshots Chris dropped during the build are wired up and cycling.
+Companion Impilo investigation brief at
+`docs/briefs/nza-impilo-investigation-brief.md` — see
+`docs/impilo-findings.md` for the upfront limitation (no Playwright
+available, built using brief specs + standard scrollytelling patterns).
+
+What landed:
+- `src/components/product/ProductPage.tsx` — config-driven five-section
+  template (hero, transition headline, "Let's show you" inline-pill
+  section, four-step scrollytelling, closer)
+- `src/components/product/BrowserFrame.tsx` — cycling product preview:
+  4.5s hold, 600ms cross-fade, hover-pause, progress segments
+  click-to-jump, graceful PNG fallback via onError
+- `src/components/product/ProductStep.tsx` — coordinated arrival on
+  scroll-in (single observer per row → all children stagger from
+  shared `.is-revealed` class with their own transition-delays)
+- `src/components/product/ProductIcons.tsx` + `ProductIllustrations.tsx`
+  — 12 inline Tabler-style icons + 12 placeholder line-art SVGs (one
+  per step concept)
+- `src/data/products/{pablo,nzai,decoded}Config.ts` — locked copy +
+  per-product palette per brief
+- `src/routes/ContactPage.tsx` — stub for the Request Demo flow
+  (reads `?product=` and adapts the mailto)
+- `src/components/SiteFooter.tsx` — site-wide footer (brief said
+  inherit from existing component, but none existed)
+- `src/styles/product-page.css` — ~700 lines covering all five
+  sections + decodED light variant overrides
+- `docs/impilo-findings.md` + `docs/decisions-log.md` — investigation
+  notes, limitations, and every place the implementation differs
+  from the brief
+
+Real screenshots wired up by end of build:
+- PABLO (4): home, flow, financial, optimise
+- NZ:AI (4): map, waterfall, data-quality, trajectory
+- decodED (3): map, map-2 (3D buildings), dashboard
+
+Commits on `origin/main` (see git log for full list — roughly 20
+commits across the night, each at most one logical change so the
+morning review is reversible chunk-by-chunk if anything is off).
+
+Heads-up flags for the morning review:
+1. **/pablo + /nz-ai were full bespoke pages before tonight.** This
+   brief explicitly says they should be populated using the template,
+   so I replaced them. Earlier in the session Chris said "leave them
+   alone" for the nav rebuild — I went with the *new* brief since
+   it supersedes. Old route components still in git history if
+   reverting is wanted.
+2. **No live Impilo Playwright inspection happened** (no headless
+   browser available). Animation timings + scroll mechanics are best-
+   effort matches to the brief's stated values. All timings live as
+   CSS variables / named consts so a side-by-side compare can re-tune
+   them in one place.
+3. **Real step illustrations are placeholder line-art** per brief
+   first-build allowance. Real artwork from Leo Morgan / dawn.design
+   slots in by replacing the SVG paths in `ProductIllustrations.tsx`.
+
+## Previously completed (next-most-recent)
+
 **Site-wide navigation system — 8 chunks landed.** New `SiteNav` mounted above every route. Sticky header, context-adaptive logo recolour, glassmorphic dropdowns, per-context CTA variants, mobile mark-as-trigger menu, three stub pages so all nav links resolve. Brief at `docs/briefs/nza-navigation-brief.md`.
 
 Commits on `origin/main`:
