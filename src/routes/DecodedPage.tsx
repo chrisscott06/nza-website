@@ -1,26 +1,18 @@
-import { useContextClass } from '../hooks/useContextClass'
+import { ProductPage } from '../components/product/ProductPage'
+import { decodedConfig } from '../data/products/decodedConfig'
 
 /**
- * /decoded - decodED product page stub. Cream-warm ground, deep
- * green headline + orange micro-label per brief Section 5. Full
- * product page template (separate brief) replaces this stub later;
- * for now its purpose is to demonstrate the site nav adapting to
- * context-decoded (green logo recolour + orange advisory + solid-
- * orange CTA + cream nav bg tint).
+ * /decoded - decodED product page. Renders the shared product page
+ * template with the decodED config. Previously a stub; now populated
+ * per the product page template brief.
  *
- * Brief: docs/briefs/nza-navigation-brief.md Section 5
+ * decodED uses the light-canvas variant of the template (cream-warm
+ * throughout, no blob fields, solid-filled CTAs) - Section 7 of the
+ * brief.
+ *
+ * Brief: docs/briefs/nza-product-page-template-brief.md
+ * Config: src/data/products/decodedConfig.ts
  */
 export function DecodedPage() {
-  useContextClass('context-decoded')
-
-  return (
-    <main className="stub-page stub-page--decoded">
-      <div className="stub-page-inner">
-        <p className="stub-page-micro">/DECODED</p>
-        <h1 className="stub-page-headline">
-          decodED — coming soon.
-        </h1>
-      </div>
-    </main>
-  )
+  return <ProductPage config={decodedConfig} />
 }

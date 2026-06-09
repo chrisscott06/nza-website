@@ -1,0 +1,340 @@
+import { useEffect, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
+import { MaskReveal } from '../MaskReveal'
+import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
+import { ProductIcon } from './ProductIcons'
+import { ProductIllustration } from './ProductIllustrations'
+import { useContextClass } from '../../hooks/useContextClass'
+
+/**
+ * The shared product page template. Renders five sections in order:
+ *   1. Hero - micro label + name + tagline + one-liner + CTA + browser
+ *      frame with cycling screens
+ *   2. Centred transition headline with hard colour cut beneath
+ *   3. "Let's show you [Request Demo] how we do it" inline-pill section
+ *   4. Four numbered steps with sticky illustration column
+ *   5. Closer - section label + headline + subhead + client logos (or
+ *      pilot CTA) + Get-in-touch pill
+ *
+ * Per-product content + palette comes in via the config prop. Three
+ * products use this: PABLO, NZ:AI, decodED. configs at
+ * src/data/products/.
+ *
+ * Brief: docs/briefs/nza-product-page-template-brief.md
+ */
+
+export type ProductPageConfig = {
+  slug: 'pablo' | 'nzai' | 'decoded'
+  /** Body class for context-aware nav recolour. */
+  contextClass: 'context-pablo' | 'context-nzai' | 'context-decoded'
+  /** true for decodED (cream-warm canvas, no blob field, solid CTAs). */
+  isLight: boolean
+  /** Colour palette tokens. Inlined as CSS variables on the page root. */
+  palette: {
+    canvas: string
+    cream: string
+    accent: string
+    accentLight: string
+    canvasElevated: string
+    /** Sets `--step-verb-colour`. For decodED this is ORANGE not green. */
+    stepVerbColour: string
+  }
+  /** SECTION 1 - Hero */
+  hero: {
+    microLabel: string
+    name: string
+    tagline: string
+    oneLiner: string
+    ctaLabel: string
+    ctaHref: string
+    screens: BrowserFrameScreen[]
+  }
+  /** SECTION 2 - Centred transition headline */
+  transition: {
+    microLabel: string
+    headline: string
+  }
+  /** SECTION 3 - "Let's show you" inline-pill section */
+  letsShow: {
+    leadingText: string
+    pillLabel: string
+    pillHref: string
+    trailingText: string
+  }
+  /** SECTION 4 - Four numbered steps */
+  steps: Array<{
+    number: string
+    iconName: string
+    /** Full headline. The highlighted verb is wrapped via highlightedVerb. */
+    headlinePrefix: string
+    highlightedVerb: string
+    headlineSuffix: string
+    body: string
+    illustrationConcept: string
+  }>
+  /** SECTION 5 - Closer */
+  closer: {
+    microLabel: string
+    headline: string
+    subhead: string
+    /** Optional - omit for decodED which has no logo row. */
+    clientLogos?: Array<{ src: string; alt: string }>
+    ctaLabel: string
+    ctaHref: string
+  }
+}
+
+export function ProductPage({ config }: { config: ProductPageConfig }) {
+  useContextClass(config.contextClass)
+
+  // Scroll to top on mount so navigating between products doesn't keep
+  // the scroll position from the previous page.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [config.slug])
+
+  const rootStyle: CSSProperties = {
+    // CSS variables that the product-page.css rules read.
+    '--product-canvas': config.palette.canvas,
+    '--product-accent': config.palette.accent,
+    '--product-accent-light': config.palette.accentLight,
+    '--product-cream': config.palette.cream,
+    '--product-canvas-elevated': config.palette.canvasElevated,
+    '--step-verb-colour': config.palette.stepVerbColour,
+  } as CSSProperties
+
+  return (
+    <div
+      className={'product-page' + (config.isLight ? ' is-light' : '')}
+      style={rootStyle}
+      data-product={config.slug}
+    >
+      {/* =========================================================
+          SECTION 1 - HERO
+          ========================================================= */}
+      <section className="product-hero">
+        {!config.isLight && (
+          <div className="product-hero-blobs" aria-hidden="true">
+            <span
+              className="product-hero-blob product-hero-blob--1"
+              style={{
+                background: config.palette.canvas,
+                left: '-10%',
+                top: '20%',
+                width: '40vw',
+                height: '40vw',
+                opacity: 0.6,
+              }}
+            />
+            <span
+              className="product-hero-blob product-hero-blob--2"
+              style={{
+                background: config.palette.accent,
+                right: '-5%',
+                top: '10%',
+                width: '36vw',
+                height: '36vw',
+                opacity: 0.18,
+              }}
+            />
+            <span
+              className="product-hero-blob product-hero-blob--3"
+              style={{
+                background: config.palette.accentLight,
+                left: '40%',
+                bottom: '-10%',
+                width: '30vw',
+                height: '30vw',
+                opacity: 0.12,
+              }}
+            />
+            <span
+              className="product-hero-blob product-hero-blob--4"
+              style={{
+                background: '#FFC775',
+                right: '20%',
+                top: '50%',
+                width: '24vw',
+                height: '24vw',
+                opacity: 0.08,
+              }}
+            />
+          </div>
+        )}
+
+        <div className="product-hero-inner">
+          <div className="product-hero-text">
+            <MaskReveal as="p" className="product-hero-micro" delay={100}>
+              {config.hero.microLabel}
+            </MaskReveal>
+            <MaskReveal as="h1" className="product-hero-name" delay={250}>
+              {config.hero.name}
+            </MaskReveal>
+            <MaskReveal as="p" className="product-hero-tagline" delay={450}>
+              {config.hero.tagline}
+            </MaskReveal>
+            <MaskReveal as="p" className="product-hero-oneliner" delay={600}>
+              {config.hero.oneLiner}
+            </MaskReveal>
+            <MaskReveal as="div" className="" delay={800}>
+              <a className="product-hero-cta" href={config.hero.ctaHref}>
+                {config.hero.ctaLabel}
+              </a>
+            </MaskReveal>
+          </div>
+
+          <div className="product-hero-frame-col">
+            <BrowserFrame screens={config.hero.screens} />
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          SECTION 2 - CENTRED TRANSITION HEADLINE
+          ========================================================= */}
+      <section className="product-transition">
+        <div className="product-transition-inner">
+          <MaskReveal as="p" className="product-transition-micro" delay={0}>
+            {config.transition.microLabel}
+          </MaskReveal>
+          <MaskReveal as="h2" className="product-transition-headline" delay={200}>
+            {config.transition.headline}
+          </MaskReveal>
+        </div>
+      </section>
+
+      {/* =========================================================
+          SECTION 3 - LET'S SHOW YOU
+          ========================================================= */}
+      <section className="product-lets-show">
+        <div className="product-lets-show-inner">
+          <h2 className="product-lets-show-headline">
+            <span>{config.letsShow.leadingText}</span>
+            <Link
+              to={config.letsShow.pillHref}
+              className="product-lets-show-pill"
+            >
+              {config.letsShow.pillLabel}
+            </Link>
+            <span>{config.letsShow.trailingText}</span>
+          </h2>
+        </div>
+      </section>
+
+      {/* =========================================================
+          SECTION 4 - FOUR STEPS
+          ========================================================= */}
+      <section className="product-steps">
+        <div className="product-steps-inner">
+          {config.steps.map((step, i) => {
+            return (
+              <div key={i} className="product-step">
+                <div className="product-step-text">
+                  <MaskReveal as="div" className="product-step-meta" delay={0}>
+                    <span className="product-step-icon" aria-hidden="true">
+                      <ProductIcon name={step.iconName} />
+                    </span>
+                    <span className="product-step-number">{step.number}.</span>
+                  </MaskReveal>
+                  <MaskReveal
+                    as="h3"
+                    className="product-step-headline"
+                    delay={120}
+                  >
+                    <>
+                      {step.headlinePrefix}
+                      <span className="step-verb">{step.highlightedVerb}</span>
+                      {step.headlineSuffix}
+                    </>
+                  </MaskReveal>
+                  <MaskReveal
+                    as="p"
+                    className="product-step-body"
+                    delay={200}
+                  >
+                    {step.body}
+                  </MaskReveal>
+                </div>
+
+                <div className="product-step-illustration-col">
+                  <MaskReveal
+                    as="div"
+                    className="product-step-illustration"
+                    delay={400}
+                    threshold={0.2}
+                  >
+                    <ProductIllustration concept={step.illustrationConcept} />
+                  </MaskReveal>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* =========================================================
+          SECTION 5 - CLOSER / CREDIBILITY
+          ========================================================= */}
+      <section className="product-closer">
+        {!config.isLight && (
+          <div className="product-hero-blobs" aria-hidden="true">
+            <span
+              className="product-hero-blob product-hero-blob--1"
+              style={{
+                background: config.palette.canvas,
+                left: '-10%',
+                top: '20%',
+                width: '40vw',
+                height: '40vw',
+                opacity: 0.6,
+              }}
+            />
+            <span
+              className="product-hero-blob product-hero-blob--2"
+              style={{
+                background: config.palette.accent,
+                right: '-10%',
+                top: '30%',
+                width: '34vw',
+                height: '34vw',
+                opacity: 0.16,
+              }}
+            />
+          </div>
+        )}
+        <div className="product-closer-inner">
+          <MaskReveal as="p" className="product-closer-micro" delay={0}>
+            {config.closer.microLabel}
+          </MaskReveal>
+          <MaskReveal as="h2" className="product-closer-headline" delay={150}>
+            {config.closer.headline}
+          </MaskReveal>
+          <MaskReveal as="p" className="product-closer-subhead" delay={300}>
+            {config.closer.subhead}
+          </MaskReveal>
+          {config.closer.clientLogos && config.closer.clientLogos.length > 0 && (
+            <MaskReveal
+              as="div"
+              className="product-closer-clients"
+              delay={500}
+            >
+              {config.closer.clientLogos.map((logo, i) => (
+                <img
+                  key={i}
+                  src={logo.src}
+                  alt={logo.alt}
+                  className="product-closer-client-logo"
+                />
+              ))}
+            </MaskReveal>
+          )}
+          <MaskReveal as="div" delay={650}>
+            <a className="product-closer-cta" href={config.closer.ctaHref}>
+              {config.closer.ctaLabel}
+            </a>
+          </MaskReveal>
+        </div>
+      </section>
+    </div>
+  )
+}

@@ -11,6 +11,7 @@ import './styles/pablo.css'
 import './styles/nz-ai.css'
 import './styles/landing.css'
 import './styles/site-nav.css'
+import './styles/product-page.css'
 
 import App from './App.tsx'
 
