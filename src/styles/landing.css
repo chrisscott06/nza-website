@@ -478,6 +478,114 @@
 }
 
 /* =========================================================================
+   CLIENTS SLIDER - cream ground, fast continuous logo marquee
+   Replaces the old carousel-with-arrows + popover pattern. Just the
+   logos sliding past at pace; hover pauses for readability without
+   breaking the loop.
+   ========================================================================= */
+.clients-slider-screen {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 96px 0;
+  min-height: auto;
+  overflow: hidden;
+}
+@media (max-width: 599px) {
+  .clients-slider-screen { padding: 64px 0; }
+}
+
+.clients-slider {
+  width: 100%;
+  overflow: hidden;
+  /* Fade the marquee edges so logos drift in and out rather than
+     suddenly appearing at the viewport edge. */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+}
+.clients-slider-track {
+  display: flex;
+  width: max-content;
+  /* The track is the doubled client list; slide left by 50% means
+     one full set has passed and the second (identical) set takes its
+     place - seamless loop. 25s feels brisk per Chris's "move quite
+     quickly". */
+  animation: clients-slider-marquee 25s linear infinite;
+}
+.clients-slider:hover .clients-slider-track {
+  /* Pause on hover so a viewer can fix their eye on a logo. */
+  animation-play-state: paused;
+}
+@keyframes clients-slider-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.clients-slider-cell {
+  flex: 0 0 auto;
+  width: 180px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+@media (max-width: 599px) {
+  .clients-slider-cell {
+    width: 140px;
+    height: 72px;
+    padding: 0 16px;
+  }
+}
+.clients-slider-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.clients-slider-logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  /* Greyscale by default so the row reads as a unified ribbon rather
+     than a clash of brand palettes - colour returns on hover. */
+  filter: grayscale(1) opacity(0.55);
+  transition: filter 220ms ease-out;
+}
+.clients-slider-cell:hover .clients-slider-logo-img {
+  filter: grayscale(0) opacity(1);
+}
+.clients-slider-logo-initials {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+}
+
+/* Respect reduced motion - stop the marquee, show a static row. */
+@media (prefers-reduced-motion: reduce) {
+  .clients-slider-track {
+    animation: none;
+  }
+}
+
+/* =========================================================================
    GET IN TOUCH closing screen - scaffold (proper styling in chunk B)
    ========================================================================= */
 .get-in-touch-screen {
