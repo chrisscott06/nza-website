@@ -576,6 +576,10 @@
     grid-template-columns: 1fr;
     gap: 40px;
     padding: 56px 0;
+    /* When the row stacks, the desktop scrollytelling 100vh lock is
+       just empty space below the content. Let content drive the
+       height. */
+    min-height: auto;
   }
 }
 @media (max-width: 599px) { .product-step { padding: 40px 0; } }
