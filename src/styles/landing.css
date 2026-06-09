@@ -437,11 +437,12 @@
 .landing-hero-headline {
   font-family: var(--font-display);
   font-weight: 300;
-  /* Landing hero - the loudest moment on the site. 96px max per the
-     June 2026 type-scale recalibration. Phone floor at 44px so it
-     stays a display headline even on a small viewport. */
-  font-size: clamp(44px, 8vw, 96px);
-  line-height: 1.04;
+  /* Landing hero size - dialled back per Chris from the brief's
+     96px-max to a tier closer to the page-hero scale. 72px max at
+     wide viewports, 36px floor on phones - still confident but not
+     overpowering against the slot-machine moving piece next to it. */
+  font-size: clamp(36px, 6vw, 72px);
+  line-height: 1.06;
   letter-spacing: -0.025em;
   color: var(--fg-on-navy-1);
   margin: 0;
@@ -470,26 +471,30 @@
   display: inline-block;
   position: relative;
   overflow: hidden;
-  border: 1px dashed rgba(245, 241, 232, 0.32);
+  border: 1px dashed rgba(247, 90, 85, 0.5);
   border-radius: 8px;
   /* Padding tuned so the frame hugs the word without choking it. */
-  padding: 0.04em 0.32em;
+  padding: 0.05em 0.32em 0.12em;
   vertical-align: baseline;
-  /* Height held to one line so the second stacked word sits below
-     the visible area until the rotation pulls it in. line-height:1
-     pins the height to exactly the cap-height of the font at the
-     current size. */
-  height: 1em;
-  line-height: 1;
+  /* Height bumped from 1em to 1.2em so lowercase descenders (g, y,
+     p in "energy markets" / "complexity") aren't clipped by the
+     overflow:hidden bottom edge. line-height matches so the visible
+     word fills the frame and the rotation slot below sits cleanly
+     outside the visible area. */
+  height: 1.2em;
+  line-height: 1.2;
   /* Min-width sized to "climate complexity" (the longest of the four
-     rotating words) so the frame never resizes mid-rotation. Falls
-     back to the inline content if the user's font renders wider. */
+     rotating words) so the frame never resizes mid-rotation. */
   min-width: 9.5em;
-  /* Subtle vertical baseline correction - the dashed border + padding
-     pushes the rendered text up slightly off the inline baseline of
-     the surrounding headline. translateY puts the visible word back
-     in line with the rest of the headline. */
-  transform: translateY(0.08em);
+  /* Coral text for the rotating word - the dotted-outline frame and
+     the word inside it both pick up the brand coral so the slot
+     machine reads as its own coloured moment in the otherwise
+     cream headline. */
+  color: var(--coral);
+  /* Subtle baseline correction - the dashed border + padding pushes
+     the rendered text up slightly off the inline baseline. translateY
+     puts the visible word back in line with the rest of the headline. */
+  transform: translateY(0.1em);
 }
 .slot-stack {
   display: flex;
@@ -501,28 +506,38 @@
 }
 .slot-word {
   display: block;
-  height: 1em;
-  line-height: 1;
+  height: 1.2em;
+  line-height: 1.2;
   white-space: nowrap;
 }
 @keyframes slot-machine-rotate {
   from { transform: translateY(0); }
-  to   { transform: translateY(-1em); }
+  to   { transform: translateY(-1.2em); }
 }
 @media (prefers-reduced-motion: reduce) {
   /* No rotation - the first word stays visible permanently. */
   .slot-stack { animation: none; }
 }
 
+/* Selector qualified with .canvas-navy to beat the global
+   `.canvas-navy p { color: var(--fg-on-navy-2) }` rule in
+   colors_and_type.css (specificity 0,1,1) - otherwise the <p>
+   inside MaskReveal would pick up #C8D3E4 cream-on-navy-2 which
+   reads as a "funny light blue" against the dark navy. White wins. */
+.canvas-navy .landing-hero-sub,
 .landing-hero-sub {
-  font-family: var(--font-body);
-  font-weight: 400;
-  /* Sub-heading tier (24px max) per the June 2026 recalibration.
-     Pairs with the 96px hero so the rhythm reads as a true display
-     pairing rather than headline + body. */
+  /* Stolzl per Chris (was Inter) - display weight reads more
+     editorial alongside the headline above. Stolzl Light (300) so
+     the sub-line sits as a quieter beat to the headline's Light
+     weight, not competing. */
+  font-family: var(--font-display);
+  font-weight: 300;
   font-size: clamp(18px, 1.8vw, 24px);
-  line-height: 1.4;
-  color: rgba(245, 241, 232, 0.85);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  /* Pure white - cream variants render with a slight blue tint
+     against navy when alpha'd. */
+  color: #FFFFFF;
   max-width: 520px;
   margin: 0;
 }
