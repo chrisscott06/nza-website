@@ -28,14 +28,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
  *   1. decarbonisation  (initial - holds INITIAL_HOLD_MS before
  *                         cycling begins)
  *   2. climate complexity
- *   3. energy markets
+ *   3. the energy transition
  *   4. digital intelligence
  */
 
 const WORDS = [
   'decarbonisation',
   'climate complexity',
-  'energy markets',
+  'the energy transition',
   'digital intelligence',
 ] as const
 
