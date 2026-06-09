@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import { ApproachScreen } from '../screens/ApproachScreen'
+import { useContextClass } from '../hooks/useContextClass'
 
 /**
  * Standalone Approach page at /approach.
@@ -17,10 +17,7 @@ import { ApproachScreen } from '../screens/ApproachScreen'
  * Users reach this page via direct URL until that work lands.
  */
 export function ApproachPage() {
-  useEffect(() => {
-    document.body.classList.add('approach-page')
-    return () => document.body.classList.remove('approach-page')
-  }, [])
+  useContextClass(['approach-page', 'context-cream'])
 
   return (
     <main>

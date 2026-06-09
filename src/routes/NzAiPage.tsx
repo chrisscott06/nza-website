@@ -1,53 +1,25 @@
-import { useEffect } from 'react'
-import { FloatingNav, type NavLink } from '../components/FloatingNav'
-
-// NZ:AI links back to the website's anchors. "Products" stays active.
-const NZ_AI_NAV_LINKS: NavLink[] = [
-  { id: 'home', label: 'Home' },
-  { id: 'capabilities', label: 'Expertise' },
-  { id: 'approach', label: 'Approach' },
-  { id: 'products', label: 'Products' },
-  { id: 'clients', label: 'Clients' },
-]
+import { useContextClass } from '../hooks/useContextClass'
 
 /**
  * NZ:AI product page - bespoke carbon intelligence platform.
  *
- * Architectural sibling of /pablo: same shell, same FloatingNav with
- * anchor-routing back to the website, same body class scoping pattern
- * (here: `nz-ai-page` + `on-navy`), same responsive boundary
- * (--bp-phone at 600px).
+ * Body classes:
+ *   nz-ai-page    bespoke nz-ai.css scoping
+ *   on-navy       site-wide on-navy fg colours
+ *   context-nzai  SiteNav reads this to adapt its bg + logo recolour
  *
- * Voice: third-person throughout; v8 "we" instances rewritten per
- * CLAUDE.md and the brief's no-first-person rule.
- *
- * AI mention budget: exactly three across the page - Discovery card,
- * Stewardship card, brand name itself. No more.
- *
- * Visual assets are scaffolds for launch - navy cards with thin coral
- * rule + monospace label, sized at the final asset's aspect ratio so
- * the layout doesn't shift on visual delivery.
+ * The old per-page FloatingNav has been replaced by the site-wide
+ * <SiteNav> mounted in App.tsx, which adapts to the page via
+ * context-nzai (chunk 3 onwards).
  *
  * Source: docs/briefs/nz-ai-page-brief.md
  * Copy:   docs/briefs/nz-ai-copy-v8.md
  */
 export function NzAiPage() {
-  useEffect(() => {
-    document.body.classList.add('nz-ai-page', 'on-navy')
-    return () => {
-      document.body.classList.remove('nz-ai-page', 'on-navy')
-    }
-  }, [])
+  useContextClass(['nz-ai-page', 'on-navy', 'context-nzai'])
 
   return (
     <>
-      <FloatingNav
-        activeId="products"
-        homeHref="/#home"
-        hrefFor={(link) => `/#${link.id}`}
-        links={NZ_AI_NAV_LINKS}
-      />
-
       <main className="nz-ai-shell">
         {/* ============================================================
             SECTION 1 - HERO

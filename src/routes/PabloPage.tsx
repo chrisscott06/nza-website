@@ -1,15 +1,6 @@
 import { useEffect } from 'react'
-import { FloatingNav, type NavLink } from '../components/FloatingNav'
 import { PabloLogo } from '../components/svg/PabloLogo'
-
-// PABLO links back to the website's anchors. "Products" stays active.
-const PABLO_NAV_LINKS: NavLink[] = [
-  { id: 'home', label: 'Home' },
-  { id: 'capabilities', label: 'Expertise' },
-  { id: 'approach', label: 'Approach' },
-  { id: 'products', label: 'Products' },
-  { id: 'clients', label: 'Clients' },
-]
+import { useContextClass } from '../hooks/useContextClass'
 
 /**
  * PABLO product page - 8 sections of editorial + interactive charts.
@@ -20,36 +11,31 @@ const PABLO_NAV_LINKS: NavLink[] = [
  * It's loaded via a script tag injected after first paint so the
  * targets exist when the IIFE runs.
  *
- * `pablo-page` and `on-navy` are toggled on body so the bespoke
- * pablo.css scoping works (e.g. `.pablo-page .nav-shell`).
+ * Body classes:
+ *   pablo-page    bespoke pablo.css ground colour + chrome scoping
+ *   on-navy       site-wide on-navy fg colours
+ *   context-pablo SiteNav reads this to adapt its bg + logo recolour
+ *
+ * The old per-page FloatingNav has been replaced by the site-wide
+ * <SiteNav> mounted in App.tsx, which adapts to the page via
+ * context-pablo (chunk 3 onwards).
  */
 export function PabloPage() {
-  useEffect(() => {
-    document.body.classList.add('pablo-page', 'on-navy')
+  useContextClass(['pablo-page', 'on-navy', 'context-pablo'])
 
+  useEffect(() => {
     const script = document.createElement('script')
     script.src = '/pablo-charts.js'
     script.async = false
     document.body.appendChild(script)
 
     return () => {
-      document.body.classList.remove('pablo-page', 'on-navy')
-      // Remove the script tag and any inline styles the IIFE may have
-      // attached to body. The IIFE's IntersectionObservers and event
-      // listeners will be GC'd as soon as their target elements unmount.
       if (script.parentNode) script.parentNode.removeChild(script)
     }
   }, [])
 
   return (
     <>
-      <FloatingNav
-        activeId="products"
-        homeHref="/#home"
-        hrefFor={(link) => `/#${link.id}`}
-        links={PABLO_NAV_LINKS}
-      />
-
       {/* ========== HERO - bill explosion animation ========== */}
       <header className="p-section" id="hero" data-screen-label="00 PABLO Hero">
         <div className="pablo-frame">

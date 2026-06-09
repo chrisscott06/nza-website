@@ -1,0 +1,231 @@
+/* =========================================================================
+   SITE NAV - sticky header on every page
+   Reads body.context-* classes (added by useContextClass per page) to
+   adapt its background tint + colour. Chunk 2 of the nav rebuild lays
+   the shell + base navy treatment; chunk 3 wires up the logo recolour
+   per context, chunk 4 adds dropdowns, chunk 5 the CTA variants,
+   chunk 6 the mobile menu.
+
+   Brief: docs/briefs/nza-navigation-brief.md
+   ========================================================================= */
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  /* Backdrop blur lets the nav inherit the colour of the section
+     beneath it. The semi-transparent background tint mixes with that
+     blur per the brief's Section 3. */
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+          backdrop-filter: blur(12px) saturate(140%);
+  background: rgba(15, 24, 40, 0.62);
+  border-bottom: 0.5px solid rgba(237, 229, 216, 0.08);
+  transition: background 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (max-width: 767px) {
+  .site-nav { height: 56px; }
+}
+
+.site-nav-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  box-sizing: border-box;
+}
+@media (max-width: 767px) {
+  .site-nav-inner { padding: 0 20px; }
+}
+
+/* =========================================================================
+   LOGO
+   ========================================================================= */
+.site-nav-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.nza-logo-wide {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 38px;
+}
+.nza-logo-wide-mark-svg {
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+.nza-logo-wide-wordmark-svg {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+@media (max-width: 767px) {
+  .nza-logo-wide { height: 32px; gap: 10px; }
+  /* Mobile shows the mark only - wordmark hidden. Chunk 6 swaps
+     this to NzaLogoMark and makes the mark the menu trigger. */
+  .nza-logo-wide-wordmark-svg { display: none; }
+}
+
+/* DEFAULT LOGO COLOURS - cream on dark (navy / pablo / nzai contexts).
+   Chunk 3 wires the per-context recolour from body.context-* classes. */
+#nza-logo-mark,
+#nza-logo-net,
+#nza-logo-zero {
+  fill: var(--fg-on-navy-1);
+  transition: fill 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+#nza-logo-advisory {
+  fill: var(--fg-on-navy-1);
+  transition: fill 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================================
+   RIGHT SIDE - nav items + CTA
+   ========================================================================= */
+.site-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.site-nav-items {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+@media (max-width: 767px) {
+  /* Chunk 6 reveals these inside the mobile menu overlay; hidden in
+     the inline nav on small viewports. */
+  .site-nav-items { display: none; }
+}
+.site-nav-item {
+  position: relative;
+}
+.site-nav-link,
+.site-nav-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  color: var(--fg-on-navy-1);
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (max-width: 1023px) {
+  .site-nav-link,
+  .site-nav-trigger { font-size: 13px; }
+}
+.site-nav-link:hover,
+.site-nav-trigger:hover,
+.site-nav-link:focus-visible,
+.site-nav-trigger:focus-visible {
+  color: var(--coral);
+  outline: none;
+}
+/* Chevron on the dropdown triggers. Drawn as two CSS borders so it
+   scales cleanly. Rotates 180deg when the dropdown is open (added
+   in chunk 4 via aria-expanded="true"). */
+.site-nav-chevron {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-trigger[aria-expanded="true"] .site-nav-chevron {
+  transform: translateY(0) rotate(-135deg);
+}
+
+/* CTA BUTTON - default outlined treatment for dark contexts. Per-
+   context colour variants land in chunk 5. */
+.site-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 22px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--coral);
+  background: transparent;
+  border: 0.5px solid var(--coral);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-cta:hover,
+.site-nav-cta:focus-visible {
+  background: var(--coral);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  outline: none;
+}
+@media (max-width: 767px) {
+  .site-nav-cta {
+    padding: 7px 14px;
+    font-size: 10px;
+  }
+}
+
+/* =========================================================================
+   CONTEXT BACKGROUND VARIANTS (Section 3 of the brief)
+   The logo recolour (per-group) lands in chunk 3.
+   ========================================================================= */
+body.context-cream .site-nav {
+  background: rgba(250, 245, 235, 0.78);
+  border-bottom-color: rgba(39, 51, 77, 0.1);
+}
+body.context-pablo .site-nav {
+  background: rgba(31, 15, 46, 0.62);
+}
+body.context-nzai .site-nav {
+  background: rgba(10, 22, 40, 0.7);
+}
+body.context-decoded .site-nav {
+  background: rgba(243, 239, 227, 0.82);
+  border-bottom-color: rgba(15, 93, 67, 0.12);
+}
+
+/* Reduced motion - transitions become instant. */
+@media (prefers-reduced-motion: reduce) {
+  .site-nav,
+  #nza-logo-mark,
+  #nza-logo-net,
+  #nza-logo-zero,
+  #nza-logo-advisory,
+  .site-nav-link,
+  .site-nav-trigger,
+  .site-nav-cta,
+  .site-nav-chevron {
+    transition: none;
+  }
+}

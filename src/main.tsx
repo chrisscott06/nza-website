@@ -10,6 +10,7 @@ import './styles/nza-website.css'
 import './styles/pablo.css'
 import './styles/nz-ai.css'
 import './styles/landing.css'
+import './styles/site-nav.css'
 
 import App from './App.tsx'
 

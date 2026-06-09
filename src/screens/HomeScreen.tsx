@@ -1,6 +1,7 @@
 import { LandingPreloader } from '../components/LandingPreloader'
 import { LandingHero } from '../components/LandingHero'
 import { ClientsStrip } from '../components/ClientsStrip'
+import { useContextClass } from '../hooks/useContextClass'
 
 /**
  * Landing/home screen.
@@ -22,6 +23,11 @@ import { ClientsStrip } from '../components/ClientsStrip'
  * Brief: docs/briefs/nza-landing-page-brief-v2.md
  */
 export function HomeScreen() {
+  // Default landing context - navy ground. Chunk 8 wires up the
+  // scroll-based context switch into context-cream over the client
+  // strip area.
+  useContextClass('context-navy')
+
   return (
     <section
       className="screen canvas-navy in-view landing-screen"

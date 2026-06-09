@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import { ExpertiseScreen } from '../screens/ExpertiseScreen'
+import { useContextClass } from '../hooks/useContextClass'
 
 /**
  * Standalone Expertise page at /expertise.
@@ -17,10 +17,7 @@ import { ExpertiseScreen } from '../screens/ExpertiseScreen'
  * Users reach this page via direct URL until that work lands.
  */
 export function ExpertisePage() {
-  useEffect(() => {
-    document.body.classList.add('expertise-page')
-    return () => document.body.classList.remove('expertise-page')
-  }, [])
+  useContextClass(['expertise-page', 'context-cream'])
 
   return (
     <main>
