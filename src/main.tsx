@@ -9,6 +9,7 @@ import './styles/colors_and_type.css'
 import './styles/nza-website.css'
 import './styles/pablo.css'
 import './styles/nz-ai.css'
+import './styles/landing.css'
 
 import App from './App.tsx'
 

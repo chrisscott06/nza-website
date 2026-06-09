@@ -1,0 +1,140 @@
+/* =========================================================================
+   LANDING - cream preloader + navy hero
+   Per docs/briefs/landing-page-brief.md (May 2026).
+
+   Architecture: the preloader is a fixed-position overlay covering the
+   viewport on initial paint. The navy hero sits underneath it (as the
+   .screen #home content), so when the preloader slides out the hero is
+   already laid out and ready - no awkward repaint between the two.
+
+   Sequence + visual layers land across chunks:
+     · Chunk 1 (this) - foundation positioning, overlay scaffold
+     · Chunk 2       - cream preloader static layout (mark + counter + wordmark)
+     · Chunk 3       - mark fill-up animation + percentage counter
+     · Chunk 4       - typewriter wordmark reveal (NET ZERO + ADVISORY)
+     · Chunk 5       - auto-transition + scroll cancel
+     · Chunk 6       - cream blob field
+     · Chunk 7       - navy hero static layout
+     · Chunk 8       - three-beat infographic animation
+     · Chunk 9       - navy blob field + reduced-motion + mobile pass
+   ========================================================================= */
+
+/* The landing screen takes the snap rules off (no min-height: 100dvh
+   lock) so the section sizes itself to its content - the preloader
+   handles its own full-viewport coverage above. */
+.landing-screen {
+  position: relative;
+  background: var(--ink-navy);
+  color: var(--fg-on-navy-1);
+}
+
+/* =========================================================================
+   PRELOADER OVERLAY
+   Fixed full-viewport. Slides upward when .is-dismissed lands (via the
+   ~4s auto-timer in LandingPreloader, OR when the user scrolls
+   manually - the wheel/touch/keydown handlers in the component flip
+   the state). Uses the design system's settled-arrival ease.
+   ========================================================================= */
+.landing-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9000; /* over the floating nav (which sits around 9990 - so the
+                    nav still floats over the preloader as it slides out). */
+  background: var(--paper); /* canonical NZA cream */
+  color: var(--ink-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The slide-up uses the brand's "settled arrival" curve (per brief) -
+     same easing token the rest of the site already uses. */
+  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.landing-preloader.is-dismissed {
+  transform: translateY(-100%);
+  /* Pointer events disabled mid-transition so the navy hero underneath
+     is interactive the moment dismissal starts. */
+  pointer-events: none;
+}
+
+.landing-preloader-inner {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  text-align: center;
+}
+
+/* =========================================================================
+   NAVY HERO
+   Sits as the .screen #home content. Layout filled in chunk 7.
+   ========================================================================= */
+.landing-hero-inner {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 96px 64px;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  box-sizing: border-box;
+}
+@media (max-width: 899px) {
+  .landing-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 56px;
+    padding: 96px 32px;
+  }
+}
+
+.landing-hero-text { display: flex; flex-direction: column; gap: 28px; }
+
+.landing-hero-headline {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(34px, 4.4vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--fg-on-navy-1);
+  margin: 0;
+  text-wrap: pretty;
+}
+.landing-hero-headline em {
+  /* "decode" - DM Serif Display italic in coral per brief.
+     Site convention uses Times New Roman italic for the same effect
+     (Chris's preference, set earlier on .headline em). Keeping the
+     Times treatment here for consistency with the rest of the site. */
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+}
+
+.landing-hero-sub {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(245, 241, 232, 0.78);
+  max-width: 460px;
+  margin: 0;
+}
+
+.landing-hero-visual {
+  /* Three-beat infographic SVG lands here in chunk 8 */
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
