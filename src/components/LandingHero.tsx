@@ -18,7 +18,17 @@
 export function LandingHero() {
   return (
     <div className="landing-hero-inner">
-      {/* Background blob field - chunk 9 */}
+      {/* Background blob field - navy-tuned (3 navy shades + coral
+          + cream accents) at heavy blur with co-prime durations.
+          Same motion family as the preloader's cream blobs so the
+          two screens read as one continuous brand atmosphere. */}
+      <div className="landing-blobs landing-blobs--hero" aria-hidden="true">
+        <span className="landing-blob landing-blob--hero-navy-1" />
+        <span className="landing-blob landing-blob--hero-navy-2" />
+        <span className="landing-blob landing-blob--hero-navy-3" />
+        <span className="landing-blob landing-blob--hero-coral" />
+        <span className="landing-blob landing-blob--hero-cream" />
+      </div>
 
       {/* Left column - pinned headline + sub-line - chunk 7 */}
       <div className="landing-hero-text">

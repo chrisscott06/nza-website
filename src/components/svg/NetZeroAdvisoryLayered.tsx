@@ -16,15 +16,22 @@
 type Props = {
   className?: string
   /** Which word group to render. Default is all three. */
-  show?: 'all' | 'net-zero' | 'advisory'
+  show?: 'all' | 'net-zero' | 'net' | 'zero' | 'advisory'
 }
 
 export function NetZeroAdvisoryLayered({ className, show = 'all' }: Props) {
   // viewBox cropped per word so each instance sizes correctly within
-  // its container - "NET ZERO" paths sit at y=0-66, "ADVISORY" paths
-  // sit at y=89-154 in the source SVG.
+  // its container. Source SVG layout (single 472.7 x 154.91 canvas):
+  //   "NET"        paths at x=0-180,   y=0-66
+  //   "ZERO"       paths at x=222-472, y=0-66
+  //   "ADVISORY"   paths at x=0-462,   y=87-154
+  // Cropping tightens to the visible glyph area so each rendered
+  // instance is just the width of its word - critical for the
+  // individual NET / ZERO rise-up animations on the preloader.
   const viewBox =
-    show === 'net-zero' ? '0 0 472.7 66'
+    show === 'net' ? '0 0 180 66'
+      : show === 'zero' ? '222 0 250 66'
+      : show === 'net-zero' ? '0 0 472.7 66'
       : show === 'advisory' ? '0 87 462 67'
       : '0 0 472.7 154.91'
 
@@ -36,20 +43,20 @@ export function NetZeroAdvisoryLayered({ className, show = 'all' }: Props) {
       fill="currentColor"
       aria-hidden="true"
     >
-      {(show === 'all' || show === 'net-zero') && (
-        <>
-          <g id="net">
-            <path d="M44.6,65.79L13.77,22.36v43.43H0V1.13h14.17l29.97,41.88V1.13h13.78v64.7h-13.29l-.04-.04s0,0,0,0Z" />
-            <path d="M73.07,65.8V1.14h45.78v11.84h-32v14.08h31.33v11.84h-31.33v15.02h32v11.9h-45.78v-.02h0Z" />
-            <path d="M146.96,65.8V13.24h-18.92V1.14h51.6v12.1h-18.81v52.56h-13.87Z" />
-          </g>
-          <g id="zero">
-            <path d="M222.33,65.8v-11.16l30.56-41.4h-30.56V1.14h48.6v11.05l-30.56,41.51h31.24v12.1h-49.28Z" />
-            <path d="M284.47,65.82V1.12h45.78v11.84h-32v14.08h31.33v11.84h-31.33v15.02h32v11.9h-45.78v.04-.02Z" />
-            <path d="M379.99,65.82l-12.68-23.19h-10.1v23.19h-13.78V1.12h30.28c13.46,0,21.7,8.82,21.7,20.85s-7.16,17.53-14.17,19.19l14.54,24.66h-15.81.02ZM371.62,12.98h-14.45v17.84h14.45c5.52,0,9.7-3.49,9.7-8.92s-4.17-8.92-9.7-8.92h0Z" />
-            <path d="M438.86,0c19.6,0,33.84,13.97,33.84,33.47s-14.24,33.47-33.84,33.47-33.74-13.97-33.74-33.47S419.36,0,438.86,0ZM438.86,12.22c-11.94,0-19.6,9.12-19.6,21.23s7.66,21.25,19.6,21.25,19.7-9.23,19.7-21.25-7.76-21.23-19.7-21.23Z" />
-          </g>
-        </>
+      {(show === 'all' || show === 'net-zero' || show === 'net') && (
+        <g id="net">
+          <path d="M44.6,65.79L13.77,22.36v43.43H0V1.13h14.17l29.97,41.88V1.13h13.78v64.7h-13.29l-.04-.04s0,0,0,0Z" />
+          <path d="M73.07,65.8V1.14h45.78v11.84h-32v14.08h31.33v11.84h-31.33v15.02h32v11.9h-45.78v-.02h0Z" />
+          <path d="M146.96,65.8V13.24h-18.92V1.14h51.6v12.1h-18.81v52.56h-13.87Z" />
+        </g>
+      )}
+      {(show === 'all' || show === 'net-zero' || show === 'zero') && (
+        <g id="zero">
+          <path d="M222.33,65.8v-11.16l30.56-41.4h-30.56V1.14h48.6v11.05l-30.56,41.51h31.24v12.1h-49.28Z" />
+          <path d="M284.47,65.82V1.12h45.78v11.84h-32v14.08h31.33v11.84h-31.33v15.02h32v11.9h-45.78v.04-.02Z" />
+          <path d="M379.99,65.82l-12.68-23.19h-10.1v23.19h-13.78V1.12h30.28c13.46,0,21.7,8.82,21.7,20.85s-7.16,17.53-14.17,19.19l14.54,24.66h-15.81.02ZM371.62,12.98h-14.45v17.84h14.45c5.52,0,9.7-3.49,9.7-8.92s-4.17-8.92-9.7-8.92h0Z" />
+          <path d="M438.86,0c19.6,0,33.84,13.97,33.84,33.47s-14.24,33.47-33.84,33.47-33.74-13.97-33.74-33.47S419.36,0,438.86,0ZM438.86,12.22c-11.94,0-19.6,9.12-19.6,21.23s7.66,21.25,19.6,21.25,19.7-9.23,19.7-21.25-7.76-21.23-19.7-21.23Z" />
+        </g>
       )}
       {(show === 'all' || show === 'advisory') && (
         <g id="advisory">

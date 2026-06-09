@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { NzaMarkLayered } from './svg/NzaMarkLayered'
-import { CharacterMorph } from './CharacterMorph'
+import { NetZeroAdvisoryLayered } from './svg/NetZeroAdvisoryLayered'
 
 /**
  * Cream preloader screen. Full-viewport overlay that sits on top of the
@@ -9,20 +9,22 @@ import { CharacterMorph } from './CharacterMorph'
  *   - the user scrolls manually (auto-transition cancelled, overlay
  *     pinned for the rest of the session)
  *
- * Timing budget (slowed from 3s -> 4.5s per Chris's "less rushed" call):
+ * Timing budget:
  *   0.0s - 2.0s   Mark fills with navy from the bottom upward, percentage
  *                 counter ticks 0 -> 100%
- *   2.0s - 2.8s   "NET ZERO" typewriter wipes in (Stolzl Medium, navy)
- *   2.9s - 4.0s   "ADVISORY" character-morphs in (Stolzl Light, coral)
- *                 - letters scramble through random glyphs and resolve
- *                   position-by-position left-to-right
- *   4.0s - 4.5s   Hold
+ *   2.0s - 3.0s   "NET ZERO" mask-reveal in navy (slab wipes across,
+ *                 revealing the SVG wordmark as it passes)
+ *   3.1s - 4.1s   "ADVISORY" mask-reveal in coral (same pattern, coral slab)
+ *   4.1s - 4.5s   Hold
  *   4.5s          Cream zooms out curving toward the bottom-right of
  *                 the mark, revealing the navy hero
  *
- * The "NET ZERO" half uses a CSS clip-path wipe of text rendered in
- * Stolzl Medium directly (not the SVG wordmark) - cleaner per Chris's
- * latest. The "ADVISORY" half uses CharacterMorph in Stolzl Light, coral.
+ * The wordmark is the layered SVG (NetZeroAdvisoryLayered) at a
+ * confident scale per Chris. Mask reveal: a coloured slab grows from
+ * the left, covers the wordmark, then shrinks from the left as the
+ * SVG behind it becomes visible - "the slab leaves the text behind".
+ * Both wordmarks use the same pattern with their respective colours
+ * (navy for NET ZERO, coral for ADVISORY).
  *
  * Background carries a 4-blob field at heavy blur with co-prime
  * durations so the visible pattern never loops.
@@ -31,11 +33,6 @@ import { CharacterMorph } from './CharacterMorph'
  */
 const AUTO_DISMISS_MS = 4500
 const FILL_DURATION_MS = 2000
-// NET ZERO clip-path wipe timing is held in landing.css (animation
-// delay 2000ms, duration 800ms) - the wipe is CSS-driven so React
-// doesn't need to know the exact frame.
-const ADVISORY_START_MS = 2900
-const ADVISORY_DURATION_MS = 1100
 
 export function LandingPreloader() {
   const [dismissed, setDismissed] = useState(false)
@@ -122,19 +119,25 @@ export function LandingPreloader() {
           {percent < 100 ? `${percent.toString().padStart(3, '0')}%` : ''}
         </div>
 
-        {/* WORDMARK - two reveals back-to-back.
-            "NET ZERO"  Stolzl Medium navy, clip-path wipe at 2.0s (0.8s)
-            "ADVISORY"  Stolzl Light coral, character-morph at 2.9s (1.1s)
-            Text-based (not SVG) so the typographic weight comes from
-            the font, not the path geometry. */}
+        {/* WORDMARK - three reveals back-to-back, all from the layered SVG.
+            "NET"       rises up from below at 2.0s
+            "ZERO"      rises up from below at 2.4s
+            "ADVISORY"  mask-revealed left-to-right at 3.0s
+                        (coral slab sweeps across, leaving the SVG
+                        wordmark visible in its wake)
+            All sized off the same SVG so weights and proportions
+            stay canonical. The slot containers have overflow:hidden
+            so the rise-up SVGs are clipped to their final positions. */}
         <div className="landing-wordmark">
-          <span className="landing-wordmark-net-zero">NET ZERO</span>
-          <CharacterMorph
-            target="ADVISORY"
-            durationMs={ADVISORY_DURATION_MS}
-            startDelayMs={ADVISORY_START_MS}
-            className="landing-wordmark-advisory"
-          />
+          <span className="landing-wordmark-rise landing-wordmark-net">
+            <NetZeroAdvisoryLayered show="net" />
+          </span>
+          <span className="landing-wordmark-rise landing-wordmark-zero">
+            <NetZeroAdvisoryLayered show="zero" />
+          </span>
+          <span className="landing-wordmark-mask landing-wordmark-advisory">
+            <NetZeroAdvisoryLayered show="advisory" />
+          </span>
         </div>
       </div>
     </div>
