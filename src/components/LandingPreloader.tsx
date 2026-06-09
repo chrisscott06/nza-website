@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { NzaMarkLayered } from './svg/NzaMarkLayered'
 import { NetZeroAdvisoryLayered } from './svg/NetZeroAdvisoryLayered'
-import { preloaderState, PRELOADER_DISMISSED_EVENT } from '../lib/preloaderState'
+import {
+  preloaderState,
+  PRELOADER_DISMISSED_EVENT,
+  hasPreloaderRunThisLoad,
+  markPreloaderHasRunThisLoad,
+} from '../lib/preloaderState'
 
 /**
  * Cream preloader screen. Full-viewport overlay that sits on top of the
@@ -36,11 +41,34 @@ const AUTO_DISMISS_MS = 4500
 const FILL_DURATION_MS = 2000
 
 export function LandingPreloader() {
-  const [dismissed, setDismissed] = useState(false)
-  const [percent, setPercent] = useState(0)
-  const dismissedRef = useRef(false)
+  // Once-per-load skip. If the preloader has already run since the
+  // page bundle loaded (e.g. user went /pablo -> back to /), short-
+  // circuit: synchronously flip preloaderState.dismissed so the hero
+  // MaskReveals see "already dismissed" on their first effect run,
+  // and render nothing. Hard or soft refresh reloads the JS bundle
+  // and resets this flag.
+  const skip = hasPreloaderRunThisLoad()
+  if (skip) {
+    preloaderState.dismissed = true
+  }
+
+  const [dismissed, setDismissed] = useState(skip)
+  const [percent, setPercent] = useState(skip ? 100 : 0)
+  const dismissedRef = useRef(skip)
 
   useEffect(() => {
+    if (skip) {
+      // Belt-and-braces - emit the event on the next microtask so any
+      // listener that subscribed before the synchronous flag set still
+      // receives the trigger. (preloaderState.dismissed was set during
+      // render above; this is just for waitForPreloader instances that
+      // weren't checking the flag synchronously.)
+      Promise.resolve().then(() => {
+        window.dispatchEvent(new CustomEvent(PRELOADER_DISMISSED_EVENT))
+      })
+      return
+    }
+
     // Reset the singleton flag on mount so a fresh visit to / makes
     // hero MaskReveals wait again (they observe this via
     // waitForPreloader). Without the reset, navigating to /pablo and
@@ -55,6 +83,9 @@ export function LandingPreloader() {
       // Flip the singleton + emit the event so any MaskReveal that
       // opted into waitForPreloader can fire its reveal sequence now.
       preloaderState.dismissed = true
+      // Mark this load as "preloader already shown" so future remounts
+      // (e.g. user nav to /pablo and back) skip it.
+      markPreloaderHasRunThisLoad()
       window.dispatchEvent(new CustomEvent(PRELOADER_DISMISSED_EVENT))
     }
 
@@ -92,7 +123,12 @@ export function LandingPreloader() {
       window.clearTimeout(autoTimer)
       cancelAnimationFrame(rafId)
     }
-  }, [])
+  }, [skip])
+
+  // Skip = nothing rendered. The hero MaskReveals will see the
+  // synchronously-set preloaderState.dismissed = true and reveal on
+  // their first effect run.
+  if (skip) return null
 
   return (
     <div

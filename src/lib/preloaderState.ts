@@ -24,3 +24,30 @@ export const preloaderState = {
 }
 
 export const PRELOADER_DISMISSED_EVENT = 'nza:preloader-dismissed'
+
+/**
+ * Module-level "has the preloader already shown this page-load" flag.
+ *
+ * Lives in JS memory, so:
+ *   - On first land at /, value is false -> preloader runs
+ *   - Navigate to /pablo and back to /, value is true -> preloader
+ *     skips and the hero appears immediately
+ *   - Any browser refresh (soft F5 or hard Ctrl+F5) reloads the JS
+ *     bundle, resets value to false -> preloader runs again
+ *
+ * This matches Chris's intent: "we don't want to see it again when
+ * navigating around; hard refresh is the only thing that should
+ * cause that." (Either flavour of refresh works, since both reload
+ * the JS bundle.)
+ *
+ * The preloader writes via markPreloaderHasRunThisLoad() at dismiss
+ * time; LandingPreloader reads via hasPreloaderRunThisLoad() during
+ * render to decide whether to render or short-circuit.
+ */
+let preloaderHasRunThisLoad = false
+export function hasPreloaderRunThisLoad(): boolean {
+  return preloaderHasRunThisLoad
+}
+export function markPreloaderHasRunThisLoad(): void {
+  preloaderHasRunThisLoad = true
+}

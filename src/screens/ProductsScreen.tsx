@@ -1,32 +1,30 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PabloLogo } from '../components/svg/PabloLogo'
+import { MaskReveal } from '../components/MaskReveal'
 
 /**
- * Products section per landing brief v2 Section 4 - "Our products".
+ * Products section - cream slot in the homepage flow that breaks the
+ * navy of the hero + Get in touch above and below.
  *
- * Layout: 40/60 split. Left column has the section heading + intro +
- * mono hint. Right column floats three product marks (PABLO / NZ:AI /
- * decodED, left to right by maturity) on the navy canvas with no card
- * chrome at rest.
+ * Layout (per Chris's revision):
+ *   - Centred heading "Our products" at the hero-headline size in
+ *     Stolzl Book coral (treats this as the chapter title)
+ *   - Short body intro below in Stolzl Thin
+ *   - Three product logos as a triptych using the full frame width
+ *   - At rest: just the three logos, no chrome
  *
- * Interaction: hover any mark and:
- *   - The mark scales to 108%
- *   - A soft tinted bounding container materialises around it
- *   - A reveal panel grows downward with question + promise + Explore link
- *   - The other two marks recede to 40% opacity and 94% scale
- * Hover off and everything returns to the at-rest state.
+ * Interaction (per Chris):
+ *   - Hover or click any logo to activate. Clicking the LOGO itself
+ *     does NOT navigate - it's only the Explore link inside the
+ *     revealed panel that routes through to the product page.
+ *   - When active: a coral bounding box animates in (grows from the
+ *     centre horizontally outward, "from both left and right"), then
+ *     the question + promise float in beneath the logo, then the
+ *     Explore link appears.
+ *   - Click again (or move the cursor away) to deactivate.
  *
- * Clicking the active mark (or its Explore link) navigates to the
- * corresponding product page via React Router. Routes are wired:
- *   /pablo  -> existing full PABLO page
- *   /nz-ai  -> existing full NZ:AI page
- *   /decoded -> stub
- *
- * Idle motion: each mark has a 6s breathing cycle (~2% scale) staggered
- * via animation-delay so they don't pulse in sync.
- *
- * Brief: docs/briefs/nza-landing-page-brief-v2.md
+ * Staggered MaskReveal on initial scroll-into-view so the three
+ * logos appear one after another.
  */
 
 type ProductId = 'pablo' | 'nzai' | 'decoded'
@@ -35,9 +33,10 @@ type Product = {
   id: ProductId
   name: string
   href: string
+  logoSrc: string
+  alt: string
   question: string
   promise: string
-  exploreLabel: string
 }
 
 const PRODUCTS: Product[] = [
@@ -45,113 +44,140 @@ const PRODUCTS: Product[] = [
     id: 'pablo',
     name: 'PABLO',
     href: '/pablo',
+    logoSrc: '/assets/logos/pablo-logo.svg',
+    alt: 'PABLO',
     question: 'Want to cut your electricity costs?',
     promise:
       'PV, battery and load optimisation modelling for sites that want to spend less on energy.',
-    exploreLabel: 'Explore PABLO',
   },
   {
     id: 'nzai',
     name: 'NZ:AI',
     href: '/nz-ai',
+    logoSrc: '/assets/logos/nzai-logo.svg',
+    alt: 'NZ:AI',
     question: 'Want to make sense of complex carbon data?',
     promise:
       'An AI advisory partnership for teams who have client relationships but need net zero depth.',
-    exploreLabel: 'Explore NZ:AI',
   },
   {
     id: 'decoded',
     name: 'decodED',
     href: '/decoded',
+    logoSrc: '/assets/logos/decoded-logo.svg',
+    alt: 'decodED',
     question: 'Running climate action in education?',
     promise:
       'A hosted platform helping schools, universities and trusts move from carbon data to climate strategy.',
-    exploreLabel: 'Explore decodED',
   },
 ]
 
-function ProductMarkVisual({ id }: { id: ProductId }) {
-  // Placeholder marks - the brief flags real marks are pending from
-  // Chris. Each is a styled wordmark in the product's brand colour
-  // so the colour identity reads even without bespoke iconography.
-  if (id === 'pablo') {
-    return <PabloLogo className="product-mark-logo product-mark-logo--pablo" />
-  }
-  if (id === 'nzai') {
-    return (
-      <span className="product-mark-wordmark product-mark-wordmark--nzai">
-        NZ<span className="product-mark-nzai-colon">:</span>AI
-      </span>
-    )
-  }
-  // decoded
-  return (
-    <span className="product-mark-wordmark product-mark-wordmark--decoded">
-      decod<span className="product-mark-decoded-ed">ED</span>
-    </span>
-  )
-}
+// Grace period before mouse-leave deactivates - lets the user move the
+// cursor down from the logo onto the reveal panel without losing it.
+const LEAVE_GRACE_MS = 150
 
 export function ProductsScreen() {
-  const [hovered, setHovered] = useState<ProductId | null>(null)
+  const [active, setActive] = useState<ProductId | null>(null)
+  const leaveTimerRef = useRef<number | null>(null)
+
+  function cancelLeaveTimer() {
+    if (leaveTimerRef.current !== null) {
+      window.clearTimeout(leaveTimerRef.current)
+      leaveTimerRef.current = null
+    }
+  }
+  function activate(id: ProductId) {
+    cancelLeaveTimer()
+    setActive(id)
+  }
+  function scheduleDeactivate() {
+    cancelLeaveTimer()
+    leaveTimerRef.current = window.setTimeout(() => {
+      setActive(null)
+      leaveTimerRef.current = null
+    }, LEAVE_GRACE_MS)
+  }
+  function toggle(id: ProductId) {
+    cancelLeaveTimer()
+    setActive((curr) => (curr === id ? null : id))
+  }
 
   return (
     <section
-      className="screen canvas-navy products-section in-view"
+      className="screen canvas-paper products-section in-view"
       id="products"
       data-screen-label="Products"
     >
       <div className="frame">
-        <div className="products-layout">
-          {/* LEFT - section heading + intro + mono hint */}
-          <div className="products-text">
-            <h2 className="section-heading products-heading">Our products</h2>
-            <p className="subhead products-intro">
-              Three tools we've built to help organisations move on net zero -
-              each one solving a different piece of the puzzle.
-            </p>
-            <p className="products-hint">
-              Hover to see what each does. Click to dive in.
-            </p>
-          </div>
+        <div className="products-intro-block">
+          <MaskReveal as="h2" className="products-heading" delay={100}>
+            Our products
+          </MaskReveal>
+          <MaskReveal as="p" className="products-intro" delay={300}>
+            Three tools to help organisations move from climate ambition into
+            climate action - each one solving a different piece of the puzzle.
+          </MaskReveal>
+        </div>
 
-          {/* RIGHT - three floating marks */}
-          <div className="products-marks">
-            {PRODUCTS.map((p) => {
-              const isActive = hovered === p.id
-              const isReceded = hovered !== null && hovered !== p.id
-              return (
-                <Link
-                  key={p.id}
-                  to={p.href}
+        <div className="products-triptych">
+          {PRODUCTS.map((p, i) => {
+            const isActive = active === p.id
+            return (
+              <MaskReveal
+                as="div"
+                key={p.id}
+                className="products-triptych-cell"
+                delay={500 + i * 300}
+              >
+                <div
                   className={
-                    'product-mark' +
-                    (isActive ? ' is-active' : '') +
-                    (isReceded ? ' is-receded' : '')
+                    'product-card' + (isActive ? ' is-active' : '')
                   }
-                  data-mark={p.id}
-                  onMouseEnter={() => setHovered(p.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  onFocus={() => setHovered(p.id)}
-                  onBlur={() => setHovered(null)}
-                  aria-label={`${p.exploreLabel} - ${p.question}`}
+                  onMouseEnter={() => activate(p.id)}
+                  onMouseLeave={scheduleDeactivate}
                 >
-                  <span className="product-mark-visual">
-                    <ProductMarkVisual id={p.id} />
-                  </span>
-                  <span className="product-mark-name">{p.name}</span>
-                  <span className="product-mark-reveal" aria-hidden={!isActive}>
-                    <span className="product-mark-question">{p.question}</span>
-                    <span className="product-mark-promise">{p.promise}</span>
-                    <span className="product-mark-explore">
-                      {p.exploreLabel}
-                      <span aria-hidden="true">→</span>
-                    </span>
-                  </span>
-                </Link>
-              )
-            })}
-          </div>
+                  {/* Bounding box - hidden at rest, animates in via
+                      scaleX from centre when .is-active. */}
+                  <span className="product-card-box" aria-hidden="true" />
+
+                  {/* The logo itself - clicking it toggles the reveal
+                      without navigating. Acts as a button. */}
+                  <button
+                    type="button"
+                    className="product-card-logo-button"
+                    onClick={() => toggle(p.id)}
+                    aria-expanded={isActive}
+                    aria-label={
+                      isActive
+                        ? `Hide ${p.name} details`
+                        : `Show ${p.name} details`
+                    }
+                  >
+                    <img
+                      src={p.logoSrc}
+                      alt={p.alt}
+                      className="product-card-logo"
+                    />
+                  </button>
+
+                  {/* Reveal panel - hidden at rest, max-height + opacity
+                      grow when active. The Explore link inside is the
+                      ONLY navigation; click logo doesn't route. */}
+                  <div
+                    className="product-card-reveal"
+                    aria-hidden={!isActive}
+                  >
+                    <p className="product-card-question">{p.question}</p>
+                    <p className="product-card-promise">{p.promise}</p>
+                    <Link to={p.href} className="product-card-explore">
+                      Explore {p.name}
+                      <span aria-hidden="true"> →</span>
+                    </Link>
+                  </div>
+                </div>
+              </MaskReveal>
+            )
+          })}
         </div>
       </div>
     </section>
