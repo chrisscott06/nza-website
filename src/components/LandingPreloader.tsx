@@ -1,31 +1,41 @@
 import { useEffect, useRef, useState } from 'react'
 import { NzaMarkLayered } from './svg/NzaMarkLayered'
-import { NetZeroAdvisoryLayered } from './svg/NetZeroAdvisoryLayered'
+import { CharacterMorph } from './CharacterMorph'
 
 /**
  * Cream preloader screen. Full-viewport overlay that sits on top of the
  * navy hero until either:
- *   - the 3-second sequence completes and auto-transitions out, OR
+ *   - the 4.5-second sequence completes and auto-transitions out, OR
  *   - the user scrolls manually (auto-transition cancelled, overlay
  *     pinned for the rest of the session)
  *
- * Timing budget (compressed from brief's 4s to 3s per Chris):
- *   0.0s - 1.5s   Mark fills with navy from the bottom upward, percentage
+ * Timing budget (slowed from 3s -> 4.5s per Chris's "less rushed" call):
+ *   0.0s - 2.0s   Mark fills with navy from the bottom upward, percentage
  *                 counter ticks 0 -> 100%
- *   1.5s - 2.1s   "NET ZERO" typewriter in navy (0.6s left-to-right wipe)
- *   2.2s - 2.7s   "ADVISORY" typewriter in coral (0.5s left-to-right wipe)
- *   2.7s - 3.0s   Hold
- *   3.0s          Cream screen slides up, navy hero takes over
+ *   2.0s - 2.8s   "NET ZERO" typewriter wipes in (Stolzl Medium, navy)
+ *   2.9s - 4.0s   "ADVISORY" character-morphs in (Stolzl Light, coral)
+ *                 - letters scramble through random glyphs and resolve
+ *                   position-by-position left-to-right
+ *   4.0s - 4.5s   Hold
+ *   4.5s          Cream zooms out curving toward the bottom-right of
+ *                 the mark, revealing the navy hero
+ *
+ * The "NET ZERO" half uses a CSS clip-path wipe of text rendered in
+ * Stolzl Medium directly (not the SVG wordmark) - cleaner per Chris's
+ * latest. The "ADVISORY" half uses CharacterMorph in Stolzl Light, coral.
  *
  * Background carries a 4-blob field at heavy blur with co-prime
- * durations so the visible pattern never loops. Two tonal cream blobs
- * carry the texture, a coral blob (~8% opacity) drifts through, and a
- * navy blob (~6% opacity) drifts through.
+ * durations so the visible pattern never loops.
  *
  * Brief: docs/briefs/landing-page-brief.md
  */
-const AUTO_DISMISS_MS = 3000
-const FILL_DURATION_MS = 1500
+const AUTO_DISMISS_MS = 4500
+const FILL_DURATION_MS = 2000
+// NET ZERO clip-path wipe timing is held in landing.css (animation
+// delay 2000ms, duration 800ms) - the wipe is CSS-driven so React
+// doesn't need to know the exact frame.
+const ADVISORY_START_MS = 2900
+const ADVISORY_DURATION_MS = 1100
 
 export function LandingPreloader() {
   const [dismissed, setDismissed] = useState(false)
@@ -112,18 +122,19 @@ export function LandingPreloader() {
           {percent < 100 ? `${percent.toString().padStart(3, '0')}%` : ''}
         </div>
 
-        {/* WORDMARK - two typewriter reveals back-to-back.
-            "NET ZERO" wipes left-to-right in navy at 1.5s
-            "ADVISORY" wipes left-to-right in coral at 2.2s
-            The wipes are CSS clip-path animations driven by class
-            modifiers that hold the final state. */}
+        {/* WORDMARK - two reveals back-to-back.
+            "NET ZERO"  Stolzl Medium navy, clip-path wipe at 2.0s (0.8s)
+            "ADVISORY"  Stolzl Light coral, character-morph at 2.9s (1.1s)
+            Text-based (not SVG) so the typographic weight comes from
+            the font, not the path geometry. */}
         <div className="landing-wordmark">
-          <span className="landing-wordmark-net-zero">
-            <NetZeroAdvisoryLayered show="net-zero" />
-          </span>
-          <span className="landing-wordmark-advisory">
-            <NetZeroAdvisoryLayered show="advisory" />
-          </span>
+          <span className="landing-wordmark-net-zero">NET ZERO</span>
+          <CharacterMorph
+            target="ADVISORY"
+            durationMs={ADVISORY_DURATION_MS}
+            startDelayMs={ADVISORY_START_MS}
+            className="landing-wordmark-advisory"
+          />
         </div>
       </div>
     </div>

@@ -45,23 +45,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* HOLE-PUNCH ZOOM-THROUGH transition (per Chris).
+  /* CURVED HOLE-PUNCH zoom-through transition (per Chris).
      The cream scales outward from a point in the lower-right of the
-     mark - feels like the camera diving into that corner and falling
-     through it. Combined with a slightly-delayed opacity decay, the
-     cream becomes translucent partway through the scale so the navy
-     hero is already breathing through before the cream fully clears.
-     Both properties end before the scale would push the mark "past"
-     the viewer, so the visible reveal is the zoom-and-fade phase.
-     transform-origin is approximately the bottom-right of the centred
-     mark - a touch right of centre, a touch below mid-height. */
+     mark AND rotates slightly as it goes, so the trajectory feels
+     like a curve into the corner rather than a straight dive. The
+     transform-origin is fixed at the punch point; the rotation
+     swings the rest of the surface around that anchor, producing
+     the "arcing around into the circle" feel Chris asked for.
+     Combined with a slightly-delayed opacity decay, the cream becomes
+     translucent partway through the scale so the navy hero is already
+     breathing through before the cream fully clears. */
   transform-origin: 58% 62%;
-  transition: transform 1100ms cubic-bezier(0.55, 0, 0.35, 1),
-              opacity 750ms cubic-bezier(0.55, 0, 0.35, 1) 250ms;
+  transition: transform 1400ms cubic-bezier(0.6, 0, 0.25, 1),
+              opacity 950ms cubic-bezier(0.6, 0, 0.25, 1) 320ms;
   will-change: transform, opacity;
 }
 .landing-preloader.is-dismissed {
-  transform: scale(8);
+  /* scale + rotate together = curved dive. The rotation is small
+     (~14deg) but enough to register as an arc when combined with the
+     scale-up. Negative angle so the curve sweeps clockwise from the
+     viewer's perspective. */
+  transform: scale(8) rotate(-14deg);
   opacity: 0;
   /* Pointer events disabled mid-transition so the navy hero underneath
      is interactive the moment dismissal starts. */
@@ -117,11 +121,12 @@
 }
 /* Fill state - full-opacity navy mark, clip-pathed from the bottom up
    over the fill duration. Starts fully clipped (nothing visible),
-   ends with the full mark visible. */
+   ends with the full mark visible. Duration slowed from 1.5s -> 2.0s
+   so the rise feels deliberate rather than rushed. */
 .landing-mark-fill {
   color: var(--ink-navy);
   clip-path: inset(100% 0 0 0);
-  animation: landing-mark-fill-rise 1500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: landing-mark-fill-rise 2000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 @keyframes landing-mark-fill-rise {
   to { clip-path: inset(0 0 0 0); }
@@ -138,50 +143,57 @@
   letter-spacing: 0.18em;
   color: rgba(14, 17, 32, 0.55);
   min-height: 1.2em;
-  animation: landing-counter-fade 1700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* Stays visible during the 2.0s fill, fades right after so the
+     NET ZERO reveal at 2.0s gets a clean visual entry without the
+     counter competing for attention. */
+  animation: landing-counter-fade 2300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 @keyframes landing-counter-fade {
-  0%, 88% { opacity: 1; }
+  0%, 87% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 /* =========================================================================
-   WORDMARK - typewriter reveals.
-   "NET ZERO" wipes navy at 1.5s
-   "ADVISORY" wipes coral at 2.2s
-   Implementation: clip-path inset from the right edge moving leftward
-   to zero. Same easing as the mark fill so the whole sequence feels
-   like one motion family.
+   WORDMARK - text-based per Chris (text typed in Stolzl, not the SVG
+   wordmark). Two reveals back-to-back:
+
+   NET ZERO     Stolzl Medium navy, 800ms clip-path wipe at 2.0s
+   ADVISORY     Stolzl Light coral, 1100ms character-morph at 2.9s
+                (handled by the CharacterMorph component; CSS here
+                only carries the typographic treatment)
    ========================================================================= */
 .landing-wordmark {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .landing-wordmark-net-zero,
 .landing-wordmark-advisory {
   display: inline-block;
-  overflow: hidden;
-  /* svg sizing inherits from this container */
-}
-.landing-wordmark-net-zero svg,
-.landing-wordmark-advisory svg {
-  display: block;
-  height: clamp(20px, 2.2vw, 28px);
-  width: auto;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 30px);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 .landing-wordmark-net-zero {
+  font-weight: 500; /* Stolzl Medium */
   color: var(--ink-navy);
+  /* Clip-path wipe left-to-right. Slowed from 600ms -> 800ms per
+     Chris's "a bit slower" note - matches the more deliberate mark
+     fill above. */
   clip-path: inset(0 100% 0 0);
-  animation: landing-wordmark-wipe 600ms cubic-bezier(0.16, 1, 0.3, 1) 1500ms forwards;
+  animation: landing-wordmark-wipe 800ms cubic-bezier(0.16, 1, 0.3, 1) 2000ms forwards;
 }
 .landing-wordmark-advisory {
+  font-weight: 300; /* Stolzl Light */
   color: var(--coral);
-  clip-path: inset(0 100% 0 0);
-  animation: landing-wordmark-wipe 500ms cubic-bezier(0.16, 1, 0.3, 1) 2200ms forwards;
+  /* Character-morph timing is handled inside the CharacterMorph
+     component (startDelayMs + durationMs props). No CSS animation
+     needed - the React state updates drive the per-character glyphs. */
 }
 @keyframes landing-wordmark-wipe {
   to { clip-path: inset(0 0 0 0); }
@@ -262,11 +274,16 @@
     clip-path: inset(0 0 0 0);
   }
   .landing-counter { animation: none; opacity: 0; }
-  .landing-wordmark-net-zero,
-  .landing-wordmark-advisory {
+  .landing-wordmark-net-zero {
     animation: none;
     clip-path: inset(0 0 0 0);
   }
+  /* CharacterMorph respects motion preferences via its internal logic
+     - the React component is the one to teach about
+     prefers-reduced-motion if we want to skip the scramble there. For
+     now the morph runs even with reduced motion since it's a value
+     change not a transform; revisit if a user reports it as
+     disorienting. */
   .landing-blob { animation: none; }
 }
 
