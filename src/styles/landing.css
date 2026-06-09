@@ -433,6 +433,13 @@
     padding: 96px 32px;
   }
 }
+@media (max-width: 599px) {
+  .landing-hero-inner {
+    /* Tighter phone padding so the longest slot phrase ("the energy
+       transition" with bracket breathing) fits within the viewport. */
+    padding: 72px 20px;
+  }
+}
 
 .landing-hero-text {
   position: relative;
@@ -455,16 +462,25 @@
 .landing-hero-headline {
   font-family: var(--font-display);
   font-weight: 300;
-  /* Landing hero size - dialled back per Chris from the brief's
-     96px-max to a tier closer to the page-hero scale. 72px max at
-     wide viewports, 36px floor on phones - still confident but not
-     overpowering against the slot-machine moving piece next to it. */
+  /* Landing hero size. Phone size handled separately below so the
+     slot brackets + longest word ("the energy transition" + braces +
+     1.2em breathing each side) fit a 393px viewport without
+     overflow. */
   font-size: clamp(36px, 6vw, 72px);
   line-height: 1.06;
   letter-spacing: -0.025em;
   color: var(--fg-on-navy-1);
   margin: 0;
   text-wrap: pretty;
+}
+/* Mobile headline override. At 600px-and-below the 36px floor was
+   too big for the slot machine's longest word + bracket breathing
+   to fit edge-to-edge in the viewport. Phone gets a 24px-28px range. */
+@media (max-width: 599px) {
+  .landing-hero-headline {
+    font-size: clamp(24px, 8vw, 32px);
+    line-height: 1.1;
+  }
 }
 .landing-hero-headline em {
   /* "decode" - DM Serif Display italic in coral per brief.
@@ -581,13 +597,10 @@
 
 /* Hidden width measurer. The measured offsetWidth becomes the slot-
    braces wrap's width inline-style, which the braces ride the edges
-   of. To give the braces more breathing room around the word (per
-   Chris's "a little more space either side"), the measurer's
-   horizontal padding is wider than the text-wrapper's - so the braces
-   sit further OUT than the text inside.
-     0.32em (text-wrapper) + 0.4em extra each side = 0.72em padding
-   on the measurer. ~0.4em (about a wide-character of space) between
-   each brace and the visible word at any size. */
+   of. The measurer's horizontal padding decides how far OUTSIDE
+   the visible word the braces sit - bumped to 1.2em per Chris
+   ("even further away from the text"). At headline size that's
+   roughly a full character of breathing room each side. */
 .slot-measurer {
   position: absolute;
   top: -9999px;
@@ -600,7 +613,7 @@
   font-weight: inherit;
   font-size: inherit;
   letter-spacing: inherit;
-  padding: 0 0.72em;
+  padding: 0 1.2em;
   border: 1px solid transparent;
   box-sizing: border-box;
 }
@@ -633,6 +646,14 @@
   max-width: 640px;
   margin: 0 auto;
   text-align: center;
+}
+@media (max-width: 599px) {
+  .canvas-navy .landing-hero-sub,
+  .landing-hero-sub {
+    font-size: 15px;
+    line-height: 1.4;
+    max-width: 340px;
+  }
 }
 
 .landing-hero-visual {
