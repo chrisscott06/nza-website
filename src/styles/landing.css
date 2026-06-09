@@ -579,10 +579,15 @@
   to   { transform: translateY(-1.2em); }
 }
 
-/* Hidden width measurer - matches the slot-box's layout exactly so
-   offsetWidth gives the exact width the box needs to hold each word
-   (text + the same 0.32em padding the wrapper has + a transparent
-   1px border to mirror the dashed border). */
+/* Hidden width measurer. The measured offsetWidth becomes the slot-
+   braces wrap's width inline-style, which the braces ride the edges
+   of. To give the braces more breathing room around the word (per
+   Chris's "a little more space either side"), the measurer's
+   horizontal padding is wider than the text-wrapper's - so the braces
+   sit further OUT than the text inside.
+     0.32em (text-wrapper) + 0.4em extra each side = 0.72em padding
+   on the measurer. ~0.4em (about a wide-character of space) between
+   each brace and the visible word at any size. */
 .slot-measurer {
   position: absolute;
   top: -9999px;
@@ -595,7 +600,7 @@
   font-weight: inherit;
   font-size: inherit;
   letter-spacing: inherit;
-  padding: 0 0.32em;
+  padding: 0 0.72em;
   border: 1px solid transparent;
   box-sizing: border-box;
 }
