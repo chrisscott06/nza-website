@@ -374,9 +374,9 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  /* Crossfade extended 600ms -> 900ms per Chris, smoother handoff
-     between screens. Matches CROSSFADE_MS in BrowserFrame.tsx. */
-  transition: opacity 900ms var(--product-ease);
+  /* Crossfade extended to 1500ms per Chris (was 900) for a more
+     languid dissolve. Matches CROSSFADE_MS in BrowserFrame.tsx. */
+  transition: opacity 1500ms var(--product-ease);
 }
 .browser-frame-img.is-active { opacity: 1; }
 

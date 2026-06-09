@@ -16,12 +16,13 @@ import { useEffect, useRef, useState } from 'react'
  */
 
 // Hold + crossfade times. Chris's notes:
-//   4500ms (original brief spec) -> too slow, user waits on a panel
-//   2250ms (half) -> too quick, doesn't give time to read each screen
-//   3300ms (this) -> middle of the two, reads as deliberate
-// Crossfade extended 600ms -> 900ms for the smoother fade he asked for.
+//   4500ms (original) too slow / 2250 too quick / 3300 settled
+//   Crossfade 600 -> 900 -> 1500 (Chris kept asking for slower).
+//   At 1500ms the fade is clearly languid - the two screens overlap
+//   for nearly half the hold duration so the handoff reads as a
+//   slow dissolve rather than a snap.
 const HOLD_MS = 3300
-const CROSSFADE_MS = 900
+const CROSSFADE_MS = 1500
 
 export type BrowserFrameScreen = {
   /** Path to the PNG. If absent or fails to load, placeholder renders. */
