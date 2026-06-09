@@ -272,28 +272,83 @@
 }
 .browser-frame-img.is-active { opacity: 1; }
 
-/* Placeholder shown when a screen PNG isn't available. */
+/* Placeholder shown when a screen PNG isn't available - rendered with
+   a subtle background gradient + centred mono label so it reads as
+   "intentional placeholder" rather than "broken image". */
 .browser-frame-placeholder {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--product-accent) 8%, transparent);
+  background:
+    radial-gradient(
+      ellipse at 30% 30%,
+      color-mix(in oklab, var(--product-accent) 12%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 70% 80%,
+      color-mix(in oklab, var(--product-accent-light) 10%, transparent) 0%,
+      transparent 55%
+    ),
+    color-mix(in oklab, var(--product-canvas) 60%, transparent);
   opacity: 0;
   transition: opacity 600ms var(--product-ease);
 }
+.is-light .browser-frame-placeholder {
+  background:
+    radial-gradient(
+      ellipse at 30% 30%,
+      color-mix(in oklab, var(--product-accent) 8%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 70% 80%,
+      color-mix(in oklab, var(--product-accent-light) 10%, transparent) 0%,
+      transparent 55%
+    ),
+    #FCF8EE;
+}
 .browser-frame-placeholder.is-active { opacity: 1; }
+.browser-frame-placeholder-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 28px;
+  border: 0.5px dashed color-mix(in oklab, var(--product-accent) 40%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--product-canvas) 30%, transparent);
+  max-width: 70%;
+  text-align: center;
+}
+.is-light .browser-frame-placeholder-inner {
+  background: rgba(255, 252, 246, 0.6);
+}
+.browser-frame-placeholder-num {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--product-accent-light);
+  font-variant-numeric: tabular-nums;
+}
+.is-light .browser-frame-placeholder-num { color: var(--product-accent); }
 .browser-frame-placeholder-label {
   font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--product-accent) 60%, var(--product-text-on-canvas));
-  padding: 8px 14px;
-  border: 0.5px dashed color-mix(in oklab, var(--product-accent) 40%, transparent);
-  border-radius: 4px;
+  color: var(--product-text-on-canvas);
+}
+.browser-frame-placeholder-hint {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--product-text-muted-on-canvas);
+  opacity: 0.75;
 }
 
 /* Progress indicator at the bottom of the screen viewport */

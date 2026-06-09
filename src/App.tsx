@@ -7,6 +7,7 @@ import { NzAiPage } from './routes/NzAiPage'
 import { DecodedPage } from './routes/DecodedPage'
 import { AboutPage } from './routes/AboutPage'
 import { ClientsPage } from './routes/ClientsPage'
+import { ContactPage } from './routes/ContactPage'
 import { SiteNav } from './components/SiteNav'
 import { DevicePreview } from './components/DevicePreview'
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/decoded" element={<DecodedPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/clients" element={<ClientsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
       {/* Dev-only floating preview launcher; auto-removed in `npm run build`. */}
       <DevicePreview />
