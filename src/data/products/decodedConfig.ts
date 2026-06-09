@@ -40,8 +40,10 @@ export const decodedConfig: ProductPageConfig = {
         alt: 'decodED 3D buildings detail view',
       },
       {
-        shortLabel: 'Future view',
-        alt: 'decodED future view showing climate risk, biodiversity and dashboard',
+        /* Real decodED dashboard / future view screen. */
+        src: '/images/products/decoded/decoded-dashboard.png',
+        shortLabel: 'Dashboard',
+        alt: 'decodED dashboard showing climate risk, biodiversity and key metrics',
       },
     ],
   },
