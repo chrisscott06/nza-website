@@ -88,7 +88,7 @@ export function LandingHero() {
             <MaskReveal
               as="p"
               className="landing-hero-sub landing-hero-sub-line"
-              delay={2300}
+              delay={1700}
               waitForPreloader
             >
               We are specialists in buildings, energy and climate.
@@ -96,7 +96,7 @@ export function LandingHero() {
             <MaskReveal
               as="p"
               className="landing-hero-sub landing-hero-sub-line"
-              delay={2800}
+              delay={2200}
               waitForPreloader
             >
               We cut through the complexity of decarbonisation - and build the

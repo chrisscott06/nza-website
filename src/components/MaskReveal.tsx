@@ -67,7 +67,7 @@ export function MaskReveal({
 
   useEffect(() => {
     if (waitForPreloader) {
-      // Preloader-gated reveal. Three cases:
+      // Preloader-gated reveal. Three normal cases:
       //   (a) Preloader already dismissed before this MaskReveal
       //       mounted (e.g., user navigated back from another page) -
       //       fire immediately.
@@ -77,13 +77,23 @@ export function MaskReveal({
       //       useEffect. Belt-and-braces: the synchronous flag check
       //       covers it because the flag is set before the event is
       //       dispatched.
+      // Plus a fourth safety net: a fallback timer that reveals after
+      // 6 seconds regardless. StrictMode double-mount + cleanup
+      // ordering can sometimes drop the event listener mid-cycle, and
+      // if anything else goes wrong (preloader unmounts, event never
+      // dispatches), we still want the user to see the content rather
+      // than stare at an empty space.
       if (preloaderState.dismissed) {
         setRevealed(true)
         return
       }
       const onDismiss = () => setRevealed(true)
       window.addEventListener(PRELOADER_DISMISSED_EVENT, onDismiss)
-      return () => window.removeEventListener(PRELOADER_DISMISSED_EVENT, onDismiss)
+      const fallbackTimer = window.setTimeout(() => setRevealed(true), 6000)
+      return () => {
+        window.removeEventListener(PRELOADER_DISMISSED_EVENT, onDismiss)
+        window.clearTimeout(fallbackTimer)
+      }
     }
 
     // Default behaviour - IntersectionObserver fires when the element

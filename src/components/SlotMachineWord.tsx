@@ -51,12 +51,18 @@ export function SlotMachineWord() {
 
   // Start gate - waits for the preloader to dismiss, THEN holds
   // decarbonisation visible for INITIAL_HOLD_MS, THEN unlocks the
-  // rotation cycle. If the preloader has already dismissed at mount
-  // (user came back from another page), the hold starts immediately.
+  // rotation cycle. Plus a fallback safety timer (matches the
+  // MaskReveal fallback) so if the event somehow doesn't fire the
+  // slot still starts cycling within reasonable time.
   useEffect(() => {
     let holdTimer: number | null = null
+    let fallbackTimer: number | null = null
+    let started = false
 
     function startHold() {
+      if (started) return
+      started = true
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
       holdTimer = window.setTimeout(() => setRotationStarted(true), INITIAL_HOLD_MS)
     }
 
@@ -69,9 +75,13 @@ export function SlotMachineWord() {
 
     const onPreloaderDismissed = () => startHold()
     window.addEventListener(PRELOADER_DISMISSED_EVENT, onPreloaderDismissed)
+    // Fallback - if the event doesn't fire within 6 seconds, kick the
+    // hold off anyway.
+    fallbackTimer = window.setTimeout(startHold, 6000)
     return () => {
       window.removeEventListener(PRELOADER_DISMISSED_EVENT, onPreloaderDismissed)
       if (holdTimer !== null) window.clearTimeout(holdTimer)
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
     }
   }, [])
 
