@@ -796,10 +796,13 @@
 .product-closer-cta {
   display: inline-flex;
   align-items: center;
-  padding: 14px 32px;
+  padding: 16px 36px;
+  margin-top: 8px;
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 12px;
+  /* Bigger than the hero CTA per brief - the closer is the final
+     conversion moment and should weigh visually heavier. */
+  font-size: 14px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--product-accent-light);
