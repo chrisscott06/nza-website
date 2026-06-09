@@ -703,6 +703,100 @@ body.context-decoded .nza-logo-mark-only-svg #nza-logo-mark-mobile {
   transform: translateY(-1px);
 }
 
+/* =========================================================================
+   SITE FOOTER - global, sits below every route's content
+   ========================================================================= */
+.site-footer {
+  /* Background flips per context (same body class system as the nav).
+     Default: cream. Dark contexts: navy. decodED: stays cream-warm. */
+  background: var(--paper);
+  color: var(--ink-navy);
+  padding: 56px 0 40px;
+  border-top: 0.5px solid rgba(31, 51, 71, 0.08);
+  margin-top: 0;
+}
+body.context-navy .site-footer,
+body.context-pablo .site-footer,
+body.context-nzai .site-footer {
+  background: #0A1020;
+  color: var(--fg-on-navy-1);
+  border-top-color: rgba(245, 241, 232, 0.06);
+}
+body.context-decoded .site-footer {
+  background: #F3EFE3;
+  color: #0F5D43;
+  border-top-color: rgba(15, 93, 67, 0.10);
+}
+.site-footer-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  box-sizing: border-box;
+}
+@media (max-width: 599px) {
+  .site-footer-inner { padding: 0 20px; gap: 24px; }
+}
+.site-footer-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+.site-footer-contact {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 6px;
+  transition: color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-footer-contact:hover {
+  color: var(--coral);
+  transform: translateY(-2px);
+}
+.site-footer-contact:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 4px;
+}
+.site-footer-contact svg {
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.site-footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+.site-footer-legal-sep { opacity: 0.5; }
+@media (max-width: 599px) {
+  .site-footer-legal { flex-wrap: wrap; justify-content: center; }
+}
+
 /* Reduced motion - transitions become instant, mobile menu slide
    shortens dramatically. */
 @media (prefers-reduced-motion: reduce) {

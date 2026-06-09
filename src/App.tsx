@@ -9,6 +9,7 @@ import { AboutPage } from './routes/AboutPage'
 import { ClientsPage } from './routes/ClientsPage'
 import { ContactPage } from './routes/ContactPage'
 import { SiteNav } from './components/SiteNav'
+import { SiteFooter } from './components/SiteFooter'
 import { DevicePreview } from './components/DevicePreview'
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="/contact" element={<ContactPage />} />
       </Routes>
+      <SiteFooter />
       {/* Dev-only floating preview launcher; auto-removed in `npm run build`. */}
       <DevicePreview />
     </>
