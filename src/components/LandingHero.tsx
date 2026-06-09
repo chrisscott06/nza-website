@@ -1,4 +1,5 @@
 import { ThreeBeatInfographic } from './ThreeBeatInfographic'
+import { MaskReveal } from './MaskReveal'
 
 /**
  * Navy hero - the landing payoff that sits underneath the cream preloader.
@@ -37,15 +38,18 @@ export function LandingHero() {
       </div>
 
       <div className="landing-hero-inner">
-      {/* Left column - pinned headline + sub-line - chunk 7 */}
+      {/* Left column - pinned headline + sub-line. Each text element
+          wrapped in <MaskReveal> for the site-wide upward-mask
+          arrival motion. Staggered delays so the headline lands
+          first, then the sub-line follows. */}
       <div className="landing-hero-text">
-        <h1 className="landing-hero-headline">
+        <MaskReveal as="h1" className="landing-hero-headline" delay={120}>
           We <em>decode</em> decarbonisation for your organisation.
-        </h1>
-        <p className="landing-hero-sub">
+        </MaskReveal>
+        <MaskReveal as="p" className="landing-hero-sub" delay={320}>
           We figure out the unknown, then build the tools for your people to
           act on it.
-        </p>
+        </MaskReveal>
       </div>
 
       {/* Right column - three-beat infographic. Plays once when the

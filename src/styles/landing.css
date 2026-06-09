@@ -677,6 +677,49 @@
 }
 
 /* =========================================================================
+   MASK REVEAL - site-wide upward-mask text motion
+   Used via the <MaskReveal> component. The outer element clips
+   (overflow: hidden) and the inner content starts translated below
+   the visible area, sliding up to its natural position on the
+   IntersectionObserver trigger.
+
+   Brand "settled arrival" easing + ~900ms duration so the landing
+   feels deliberate rather than rushed. Per-instance delay via the
+   --reveal-delay CSS var set inline by the component (used to
+   stagger sequential blocks within a section).
+
+   prefers-reduced-motion holds the final state (visible, no
+   transform) so screen-reader users + motion-sensitive viewers
+   still see the content arrive in document order, just instantly. */
+.mask-reveal {
+  overflow: hidden;
+  /* Tiny vertical padding inside the clip so descenders and ascenders
+     (italic g/y/f tops) aren't shaved by the mask edge at the rest
+     state. Compensated by negative margin on the inner so the layout
+     box stays correct. */
+}
+.mask-reveal-inner {
+  display: block;
+  transform: translateY(105%);
+  opacity: 0;
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: transform, opacity;
+}
+.mask-reveal.is-revealed .mask-reveal-inner {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mask-reveal-inner {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* =========================================================================
    CLIENTS SLIDER - cream ground, fast continuous logo marquee
    Replaces the old carousel-with-arrows + popover pattern. Just the
    logos sliding past at pace; hover pauses for readability without
