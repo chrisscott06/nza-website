@@ -1153,43 +1153,89 @@
   justify-content: center;
 }
 
-/* PRODUCT CARD - the interactive wrapper. Holds the bounding box,
-   logo button, and reveal panel. */
+/* PRODUCT CARD - the interactive wrapper. Holds the bounding box
+   halves, logo, and reveal content. Fixed minimum height so the
+   section doesn't grow when a card activates - reveal content
+   takes layout space at rest too, just opacity:0. Per-product
+   accent colours via CSS variables on the card. */
 .product-card {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 32px 28px;
+  gap: 18px;
+  padding: 40px 32px 36px;
   width: 100%;
   box-sizing: border-box;
+  min-height: 420px;
+  /* Default accents - overridden per data-id below. */
+  --accent: var(--coral);
+  --accent-text: var(--coral);
+}
+@media (max-width: 599px) {
+  .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
 
-/* THE BOUNDING BOX - hidden at rest. Animates in via scaleX from
-   centre when .is-active (gives the "from both left and right"
-   reveal Chris asked for). Hairline coral border, subtle paper-warm
-   tint inside, soft shadow to lift it off the cream ground. */
-.product-card-box {
+/* Per-product accent palettes (Chris's brief):
+     PABLO    box border: orange-pink, text: coral
+     NZ:AI    box border: teal,        text: teal
+     decodED  box border: deep green,  text: orange */
+.product-card[data-id="pablo"] {
+  --accent: #F37A38;
+  --accent-text: var(--coral);
+}
+.product-card[data-id="nzai"] {
+  --accent: #5ABBB3;
+  --accent-text: #2EC4A8;
+}
+.product-card[data-id="decoded"] {
+  --accent: #214E40;
+  --accent-text: #E28F2C;
+}
+
+/* THE BOUNDING BOX - two halves drawn as pseudo-borders via clip-path.
+   Each half is a full-perimeter border element, but clip-path masks
+   it to half the box. The clip-path animates from a single point at
+   the top centre out to its respective half - left half traces
+   anticlockwise (top centre -> top-left -> bottom-left -> bottom
+   centre), right half traces clockwise (top centre -> top-right ->
+   bottom-right -> bottom centre). They meet at the bottom.
+
+   The left half's bg fill on .is-active provides the soft tinted
+   interior + the offset bottom-left shadow Chris asked for. */
+.product-card-box-half {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
-  border: 1px solid rgba(247, 90, 85, 0.5);
-  background: rgba(255, 255, 255, 0.45);
-  box-shadow: 0 18px 36px -18px rgba(31, 51, 71, 0.18);
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: center;
-  /* Slightly longer + softer ease than the inner content reveal so
-     the box reads as the headline gesture, then the content lands. */
-  transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
   pointer-events: none;
+  clip-path: polygon(50% 0%, 50% 0%, 50% 0%, 50% 0%);
+  transition: clip-path 620ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 0;
 }
-.product-card.is-active .product-card-box {
-  opacity: 1;
-  transform: scaleX(1);
+/* Active states - each half expands to cover its side of the box. */
+.product-card.is-active .product-card-box-half--left {
+  clip-path: polygon(50% 0%, 0% 0%, 0% 100%, 50% 100%);
+}
+.product-card.is-active .product-card-box-half--right {
+  clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%);
+}
+/* The interior fill + offset shadow live on the LEFT half so they
+   only paint once. fill + shadow have their own opacity transition
+   that lags slightly behind the clip animation so they feather in
+   as the border completes. */
+.product-card-box-half--left {
+  background: transparent;
+  box-shadow: none;
+  transition: clip-path 620ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 320ms cubic-bezier(0.16, 1, 0.3, 1) 200ms,
+              box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+}
+.product-card.is-active .product-card-box-half--left {
+  background: rgba(255, 252, 246, 0.62);
+  /* Subtle offset shadow to the bottom-LEFT per Chris's
+     "shadow of the overall shape to the bottom left of it". */
+  box-shadow: -10px 14px 28px -10px rgba(31, 51, 71, 0.16);
 }
 
 /* LOGO BUTTON - clicking toggles activation. Doesn't navigate. */
@@ -1204,30 +1250,53 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.product-card.is-active .product-card-logo-button {
-  transform: scale(1.02);
 }
 .product-card-logo-button:focus-visible {
-  outline: 2px solid var(--coral);
+  outline: 2px solid var(--accent);
   outline-offset: 6px;
   border-radius: 8px;
 }
-.product-card-logo {
-  width: 100%;
-  height: auto;
-  max-height: 140px;
-  object-fit: contain;
+
+/* LOGO STACK - silhouette (navy at rest) + original colour image,
+   crossfaded by .is-active. Both layers sized identically by the
+   stack's fixed dimensions. */
+.product-card-logo-stack {
+  position: relative;
   display: block;
+  width: 100%;
+  height: 140px;
 }
 @media (max-width: 599px) {
-  .product-card-logo { max-height: 120px; }
+  .product-card-logo-stack { height: 120px; }
 }
+.product-card-logo-silhouette {
+  position: absolute;
+  inset: 0;
+  background-color: var(--ink-navy);
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  opacity: 1;
+  transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-card-logo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1) 80ms;
+}
+.product-card.is-active .product-card-logo-silhouette { opacity: 0; }
+.product-card.is-active .product-card-logo { opacity: 1; }
 
-/* REVEAL PANEL - hidden at rest, max-height + opacity grow when
-   active. Holds question (italic coral), promise (Stolzl Thin), and
-   the Explore link. */
+/* REVEAL PANEL - takes layout space at rest (so the card height is
+   fixed) but is opacity:0 + slightly translated until activation.
+   Per Chris: no height movement, just fade-in over reserved space. */
 .product-card-reveal {
   position: relative;
   z-index: 1;
@@ -1238,18 +1307,16 @@
   gap: 12px;
   width: 100%;
   max-width: 320px;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
   margin: 0 auto;
-  /* The content delays slightly behind the box scaling in so the
-     box is mostly there before the text starts arriving. */
-  transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1) 120ms,
-              opacity 320ms cubic-bezier(0.16, 1, 0.3, 1) 220ms;
+  opacity: 0;
+  transform: translateY(6px);
+  /* Delayed so it follows the box border drawing in. */
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
 }
 .product-card.is-active .product-card-reveal {
-  max-height: 320px;
   opacity: 1;
+  transform: translateY(0);
 }
 
 .product-card-question {
@@ -1259,7 +1326,7 @@
   font-weight: 400;
   font-size: clamp(18px, 1.8vw, 22px);
   line-height: 1.2;
-  color: var(--coral);
+  color: var(--accent-text);
 }
 .product-card-promise {
   margin: 0;
@@ -1280,25 +1347,23 @@
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--coral);
+  color: var(--accent-text);
   text-decoration: none;
-  border-bottom: 1px solid var(--coral);
+  border-bottom: 1px solid var(--accent-text);
   transition: gap 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.product-card-explore:hover {
-  gap: 12px;
-}
+.product-card-explore:hover { gap: 12px; }
 .product-card-explore:focus-visible {
-  outline: 2px solid var(--coral);
+  outline: 2px solid var(--accent-text);
   outline-offset: 4px;
   border-radius: 2px;
 }
 
-/* prefers-reduced-motion - kill the box scaleX + content transitions
-   so the content is just instantly visible when active. */
+/* prefers-reduced-motion - swap all hover transitions for instant. */
 @media (prefers-reduced-motion: reduce) {
-  .product-card-box,
-  .product-card-logo-button,
+  .product-card-box-half,
+  .product-card-logo-silhouette,
+  .product-card-logo,
   .product-card-reveal,
   .product-card-explore {
     transition: none;

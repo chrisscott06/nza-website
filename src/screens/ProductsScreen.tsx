@@ -6,25 +6,27 @@ import { MaskReveal } from '../components/MaskReveal'
  * Products section - cream slot in the homepage flow that breaks the
  * navy of the hero + Get in touch above and below.
  *
- * Layout (per Chris's revision):
+ * Layout (per Chris's revisions):
  *   - Centred heading "Our products" at the hero-headline size in
- *     Stolzl Book coral (treats this as the chapter title)
- *   - Short body intro below in Stolzl Thin
- *   - Three product logos as a triptych using the full frame width
- *   - At rest: just the three logos, no chrome
+ *     Stolzl Book coral. Body intro below in Stolzl Thin.
+ *   - Three product logos in a triptych using the full frame width.
+ *     At rest each logo renders as a NAVY SILHOUETTE so all three
+ *     read uniform (per Chris - the bright PABLO gradient otherwise
+ *     overpowers the muted teal + green of the other two).
+ *   - Each card has fixed height pre-reserved so the section DOESN'T
+ *     grow on hover; reveal content fades in over that reserved space.
  *
- * Interaction (per Chris):
- *   - Hover or click any logo to activate. Clicking the LOGO itself
- *     does NOT navigate - it's only the Explore link inside the
- *     revealed panel that routes through to the product page.
- *   - When active: a coral bounding box animates in (grows from the
- *     centre horizontally outward, "from both left and right"), then
- *     the question + promise float in beneath the logo, then the
- *     Explore link appears.
- *   - Click again (or move the cursor away) to deactivate.
- *
- * Staggered MaskReveal on initial scroll-into-view so the three
- * logos appear one after another.
+ * Interaction:
+ *   - Hover OR click a card to activate.
+ *   - The bounding box draws in via two halves - one clockwise from
+ *     top centre, one anticlockwise - meeting at the bottom centre.
+ *   - Border colour is product-specific (PABLO orange, NZ:AI teal,
+ *     decodED green) via the --accent CSS var.
+ *   - The logo silhouette fades to its original full-colour version.
+ *   - Reveal content fades in - question (italic in accent-text
+ *     colour), promise (Stolzl Thin), Explore link.
+ *   - Clicking the LOGO does NOT navigate. Only the Explore link
+ *     routes through.
  */
 
 type ProductId = 'pablo' | 'nzai' | 'decoded'
@@ -72,8 +74,6 @@ const PRODUCTS: Product[] = [
   },
 ]
 
-// Grace period before mouse-leave deactivates - lets the user move the
-// cursor down from the logo onto the reveal panel without losing it.
 const LEAVE_GRACE_MS = 150
 
 export function ProductsScreen() {
@@ -133,15 +133,27 @@ export function ProductsScreen() {
                   className={
                     'product-card' + (isActive ? ' is-active' : '')
                   }
+                  data-id={p.id}
                   onMouseEnter={() => activate(p.id)}
                   onMouseLeave={scheduleDeactivate}
                 >
-                  {/* Bounding box - hidden at rest, animates in via
-                      scaleX from centre when .is-active. */}
-                  <span className="product-card-box" aria-hidden="true" />
+                  {/* Bounding box - two halves, each drawing from top
+                      centre. .product-card-box-half--left animates
+                      anticlockwise; --right animates clockwise; they
+                      meet at the bottom centre. */}
+                  <span
+                    className="product-card-box-half product-card-box-half--left"
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="product-card-box-half product-card-box-half--right"
+                    aria-hidden="true"
+                  />
 
-                  {/* The logo itself - clicking it toggles the reveal
-                      without navigating. Acts as a button. */}
+                  {/* LOGO - silhouette at rest (navy via mask-image),
+                      original colours when active. Crossfade between
+                      the two layers. Button wrapper toggles activation
+                      without navigating. */}
                   <button
                     type="button"
                     className="product-card-logo-button"
@@ -153,23 +165,37 @@ export function ProductsScreen() {
                         : `Show ${p.name} details`
                     }
                   >
-                    <img
-                      src={p.logoSrc}
-                      alt={p.alt}
-                      className="product-card-logo"
-                    />
+                    <span className="product-card-logo-stack">
+                      <span
+                        className="product-card-logo-silhouette"
+                        style={{
+                          WebkitMaskImage: `url('${p.logoSrc}')`,
+                          maskImage: `url('${p.logoSrc}')`,
+                        }}
+                        aria-hidden="true"
+                      />
+                      <img
+                        src={p.logoSrc}
+                        alt={p.alt}
+                        className="product-card-logo"
+                      />
+                    </span>
                   </button>
 
-                  {/* Reveal panel - hidden at rest, max-height + opacity
-                      grow when active. The Explore link inside is the
-                      ONLY navigation; click logo doesn't route. */}
+                  {/* Reveal panel - takes layout space always (so the
+                      card height is fixed), but opacity:0 at rest so
+                      it's invisible until activation. */}
                   <div
                     className="product-card-reveal"
                     aria-hidden={!isActive}
                   >
                     <p className="product-card-question">{p.question}</p>
                     <p className="product-card-promise">{p.promise}</p>
-                    <Link to={p.href} className="product-card-explore">
+                    <Link
+                      to={p.href}
+                      className="product-card-explore"
+                      tabIndex={isActive ? 0 : -1}
+                    >
                       Explore {p.name}
                       <span aria-hidden="true"> →</span>
                     </Link>
