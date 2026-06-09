@@ -26,21 +26,29 @@ export const pabloConfig: ProductPageConfig = {
     ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=PABLO%20-%20Get%20in%20touch',
     screens: [
       {
-        /* Real PABLO home / site workspace screen - already in /public. */
+        /* Real PABLO home / site workspace screen. */
         src: '/images/products/pablo/pablo-home.png',
         shortLabel: 'Site workspace',
         alt: 'PABLO site workspace showing the home view with map, project panels and financial overview',
       },
       {
-        /* Real PABLO energy flows screen - already in /public. */
+        /* Real PABLO energy flows screen. */
         src: '/images/products/pablo/pablo-flow.png',
         shortLabel: 'Energy flows',
         alt: 'PABLO energy flows view',
       },
       {
-        /* Third screen pending. Falls back to placeholder. */
+        /* Real PABLO financial case screen. */
+        src: '/images/products/pablo/pablo-financial.png',
         shortLabel: 'Financial case',
-        alt: 'PABLO financial case showing the payback curve',
+        alt: 'PABLO financial case showing the payback curve and savings breakdown',
+      },
+      {
+        /* Real PABLO optimisation screen - bonus 4th panel since the
+           BrowserFrame supports any number of cycles. */
+        src: '/images/products/pablo/pablo-optimise.png',
+        shortLabel: 'Optimisation',
+        alt: 'PABLO optimisation view',
       },
     ],
   },
