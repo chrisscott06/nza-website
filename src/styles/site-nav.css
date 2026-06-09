@@ -214,6 +214,22 @@
 }
 
 /* =========================================================================
+   BODY BACKGROUND PER CONTEXT
+   The site-wide body has bg: var(--paper) by default (set in
+   nza-website.css). On navy/dark pages that creates a problem: when
+   the page first loads at scroll 0, the sticky nav's backdrop-filter
+   averages the cream body bg below it with the navy hero - producing
+   the "funny light blue" tint Chris flagged until the user scrolls
+   and the navy hero slides up behind the nav.
+   These overrides put the right colour BEHIND the nav from the start
+   so the blur reads correctly regardless of scroll position.
+   context-cream inherits the body default (--paper). */
+body.context-navy    { background: var(--ink-navy); }
+body.context-pablo   { background: #1F0F2E; }
+body.context-nzai    { background: #0A1628; }
+body.context-decoded { background: #F3EFE3; }
+
+/* =========================================================================
    CONTEXT VARIANTS - background + logo recolour per body.context-*
    (Brief Section 1 + Section 3). The "signature move" per the brief:
    mark + net + zero share one colour, advisory is independent and

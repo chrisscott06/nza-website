@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../components/MaskReveal'
 
@@ -80,6 +80,17 @@ export function ProductsScreen() {
   const [active, setActive] = useState<ProductId | null>(null)
   const leaveTimerRef = useRef<number | null>(null)
 
+  // Per-card random draw-origin so the bounding box doesn't always
+  // start tracing from exactly top-centre - feels more organic
+  // (Chris: "could we just offset it slightly... a random percentage
+  // ... so it feels a bit more organic"). Computed once on mount so
+  // the same card always uses the same origin within a session, but
+  // refreshing the page reshuffles. Range 30-70% of the top edge.
+  const drawOriginsX = useMemo(
+    () => PRODUCTS.map(() => 30 + Math.random() * 40),
+    [],
+  )
+
   function cancelLeaveTimer() {
     if (leaveTimerRef.current !== null) {
       window.clearTimeout(leaveTimerRef.current)
@@ -134,6 +145,11 @@ export function ProductsScreen() {
                     'product-card' + (isActive ? ' is-active' : '')
                   }
                   data-id={p.id}
+                  style={
+                    {
+                      '--draw-origin-x': `${drawOriginsX[i]}%`,
+                    } as CSSProperties
+                  }
                   onMouseEnter={() => activate(p.id)}
                   onMouseLeave={scheduleDeactivate}
                 >

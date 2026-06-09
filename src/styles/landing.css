@@ -1240,18 +1240,36 @@
     linear-gradient(#fff 0 0) padding-box,
     linear-gradient(#fff 0 0);
           mask-composite: exclude;
-  clip-path: polygon(50% 0%, 50% 0%, 50% 0%, 50% 0%);
+  /* --draw-origin-x is set inline per card (random 30-70%) so each
+     box traces in from a slightly different point on the top edge -
+     organic asymmetry. Falls back to 50% if the var isn't set. */
+  clip-path: polygon(
+    var(--draw-origin-x, 50%) 0%,
+    var(--draw-origin-x, 50%) 0%,
+    var(--draw-origin-x, 50%) 0%,
+    var(--draw-origin-x, 50%) 0%
+  );
   transition: clip-path 620ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 0;
 }
-/* Active states - each half expands to cover its side of the box.
-   The 1% overlap at top + bottom centre closes the anti-alias gap
-   where the two halves meet. */
+/* Active states - each half expands to cover its side of the box,
+   starting from the random --draw-origin-x at top and meeting at
+   51% / 49% at the bottom (1% overlap to close the anti-alias seam). */
 .product-card.is-active .product-card-box-half--left {
-  clip-path: polygon(51% 0%, 0% 0%, 0% 100%, 51% 100%);
+  clip-path: polygon(
+    var(--draw-origin-x, 50%) 0%,
+    0% 0%,
+    0% 100%,
+    51% 100%
+  );
 }
 .product-card.is-active .product-card-box-half--right {
-  clip-path: polygon(49% 0%, 100% 0%, 100% 100%, 49% 100%);
+  clip-path: polygon(
+    var(--draw-origin-x, 50%) 0%,
+    100% 0%,
+    100% 100%,
+    49% 100%
+  );
 }
 
 /* LOGO BUTTON - clicking toggles activation. Doesn't navigate. */
