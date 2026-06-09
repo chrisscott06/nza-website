@@ -162,6 +162,48 @@
   color: #FFFFFF;
 }
 
+/* Scroll-down affordance at the bottom of the hero. */
+.product-hero-scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.65;
+  animation: product-hero-scroll-bob 2400ms ease-in-out infinite;
+}
+@media (max-width: 1023px) {
+  .product-hero-scroll-hint { display: none; }
+}
+@keyframes product-hero-scroll-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(4px); }
+}
+.product-hero-scroll-hint-label {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--product-text-muted-on-canvas);
+}
+.product-hero-scroll-hint-chevron {
+  width: 18px;
+  height: 18px;
+  stroke: var(--product-accent-light);
+  stroke-width: 1.5;
+  fill: none;
+}
+.is-light .product-hero-scroll-hint-chevron { stroke: var(--product-accent); }
+@media (prefers-reduced-motion: reduce) {
+  .product-hero-scroll-hint { animation: none; }
+}
+
 /* Ambient blob field behind the hero (PABLO + NZ:AI only).
    Same technique as the landing-page hero - heavy blur, slow drift,
    co-prime durations so the pattern never visibly loops. */

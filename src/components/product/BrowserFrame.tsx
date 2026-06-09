@@ -143,7 +143,8 @@ export function BrowserFrame({ screens }: Props) {
                   (isActive ? ' is-active' : '') +
                   (isActive && paused ? ' is-paused' : '')
                 }
-                aria-label={`View screen ${i + 1}`}
+                aria-label={`View screen ${i + 1} of ${screens.length}`}
+                aria-current={isActive ? 'true' : undefined}
                 onClick={() => jumpTo(i)}
               >
                 <span

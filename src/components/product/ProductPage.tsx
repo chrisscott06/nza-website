@@ -176,7 +176,7 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
             <MaskReveal as="p" className="product-hero-oneliner" delay={600}>
               {config.hero.oneLiner}
             </MaskReveal>
-            <MaskReveal as="div" className="" delay={800}>
+            <MaskReveal as="div" className="product-hero-cta-wrap" delay={800}>
               <a className="product-hero-cta" href={config.hero.ctaHref}>
                 {config.hero.ctaLabel}
               </a>
@@ -186,6 +186,20 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           <div className="product-hero-frame-col">
             <BrowserFrame screens={config.hero.screens} />
           </div>
+        </div>
+
+        {/* Scroll-down affordance at the bottom of the hero. Subtle
+            mono micro-label + chevron indicating there's more below. */}
+        <div className="product-hero-scroll-hint" aria-hidden="true">
+          <span className="product-hero-scroll-hint-label">Scroll</span>
+          <svg
+            className="product-hero-scroll-hint-chevron"
+            viewBox="0 0 24 24"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 9 L12 15 L18 9" />
+          </svg>
         </div>
       </section>
 
