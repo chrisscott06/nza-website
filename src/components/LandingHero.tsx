@@ -1,34 +1,41 @@
-import { ThreeBeatInfographic } from './ThreeBeatInfographic'
 import { MaskReveal } from './MaskReveal'
+import { SlotMachineWord } from './SlotMachineWord'
 
 /**
  * Navy hero - the landing payoff that sits underneath the cream preloader.
  *
- *   Left column   pinned headline + sub-line
- *                 "We _decode_ decarbonisation for your organisation."
- *                 (decode in Times New Roman italic coral)
- *   Right column  three-beat infographic SVG that plays once on entry
- *                 (Decode -> Build -> Partner) and holds in its final
- *                 state. Not a loop.
+ * Layout per the June 2026 landing brief (v2):
  *
- * Background carries a navy-tuned blob field (3 navy shades + coral +
- * cream accents) at heavy blur, co-prime durations matching the
- * preloader's calm-atmosphere feel. Mask gradient fades the field to
- * transparent on the left so the headline column reads on clean navy.
+ *   Left column   pinned headline + sub-line (mission statement)
+ *                 Headline carries the SlotMachineWord that rotates
+ *                 through four words: decarbonisation, climate
+ *                 complexity, energy markets, digital intelligence.
+ *                 "decode" stays italic coral.
  *
- * Brief: docs/briefs/landing-page-brief.md
+ *   Right column  intentionally empty - the three-beat infographic
+ *                 has been removed from the landing per the v2 brief
+ *                 ("let the background blob field and the slot-
+ *                 machine motion carry the visual interest"). The
+ *                 ThreeBeatInfographic component is retained in the
+ *                 repo for use on the Approach page later.
+ *
+ * Background carries a navy-tuned blob field weighted on the right
+ * with a mask gradient fading to clean navy on the left, so the
+ * headline column sits on solid ground while the right side carries
+ * the atmospheric motion.
+ *
+ * All text wrapped in <MaskReveal> for the site-wide upward-mask
+ * arrival motion, staggered by ~200ms so the headline lands first
+ * then the sub-line follows.
+ *
+ * Brief: docs/briefs/nza-landing-page-brief-v2.md
  */
 export function LandingHero() {
   return (
     <>
-      {/* Background blob field - navy-tuned (3 navy shades + coral
-          + cream accents) at heavy blur with co-prime durations.
-          Sits as a sibling of .landing-hero-inner so it fills the
-          full .landing-screen (the inner is max-width 1280 - bounded
-          - which previously cropped the motion). A mask gradient
-          fades the field to transparent on the left so the blob
-          motion lives on the right while the headline column reads
-          on a clean navy ground. */}
+      {/* Background blob field - sits as a sibling of .landing-hero-inner
+          so it fills the full .landing-screen edge-to-edge. Mask
+          gradient fades it to transparent on the left. */}
       <div className="landing-blobs landing-blobs--hero" aria-hidden="true">
         <span className="landing-blob landing-blob--hero-navy-1" />
         <span className="landing-blob landing-blob--hero-navy-2" />
@@ -38,26 +45,29 @@ export function LandingHero() {
       </div>
 
       <div className="landing-hero-inner">
-      {/* Left column - pinned headline + sub-line. Each text element
-          wrapped in <MaskReveal> for the site-wide upward-mask
-          arrival motion. Staggered delays so the headline lands
-          first, then the sub-line follows. */}
-      <div className="landing-hero-text">
-        <MaskReveal as="h1" className="landing-hero-headline" delay={120}>
-          We <em>decode</em> decarbonisation for your organisation.
-        </MaskReveal>
-        <MaskReveal as="p" className="landing-hero-sub" delay={320}>
-          We figure out the unknown, then build the tools for your people to
-          act on it.
-        </MaskReveal>
-      </div>
+        <div className="landing-hero-text">
+          <MaskReveal as="h1" className="landing-hero-headline" delay={120}>
+            We <em>decode</em>{' '}
+            <SlotMachineWord />{' '}
+            for your organisation.
+          </MaskReveal>
+          {/* Sub-line - the mission statement. Hyphens not em-dashes
+              per Chris's standing site convention (brief copy used
+              em-dashes which I'm converting on the way in). The
+              max-width on .landing-hero-sub lets the line break
+              naturally after "buildings, energy and climate." */}
+          <MaskReveal as="p" className="landing-hero-sub" delay={320}>
+            We are specialists in buildings, energy and climate. We cut through
+            the complexity of decarbonisation - and build the tools your people
+            need to act on it.
+          </MaskReveal>
+        </div>
 
-      {/* Right column - three-beat infographic. Plays once when the
-          hero enters the viewport (IntersectionObserver-triggered)
-          and holds in its final state. */}
-      <div className="landing-hero-visual">
-        <ThreeBeatInfographic />
-      </div>
+        {/* Right column intentionally empty per v2 brief - the blob
+            field and the slot-machine word swap carry the visual
+            interest. Removed: ThreeBeatInfographic (moves to the
+            Approach page in a follow-on brief). */}
+        <div className="landing-hero-visual" aria-hidden="true" />
       </div>
     </>
   )

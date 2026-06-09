@@ -460,6 +460,60 @@
   letter-spacing: -0.01em;
 }
 
+/* =========================================================================
+   SLOT-MACHINE WORD SWAP
+   Dotted-outline frame containing the rotating word in the hero
+   headline. Frame is static; the inner stack rotates upward every
+   2.5s, swapping the visible word in slot-machine style.
+   ========================================================================= */
+.slot-frame {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  border: 1px dashed rgba(245, 241, 232, 0.32);
+  border-radius: 8px;
+  /* Padding tuned so the frame hugs the word without choking it. */
+  padding: 0.04em 0.32em;
+  vertical-align: baseline;
+  /* Height held to one line so the second stacked word sits below
+     the visible area until the rotation pulls it in. line-height:1
+     pins the height to exactly the cap-height of the font at the
+     current size. */
+  height: 1em;
+  line-height: 1;
+  /* Min-width sized to "climate complexity" (the longest of the four
+     rotating words) so the frame never resizes mid-rotation. Falls
+     back to the inline content if the user's font renders wider. */
+  min-width: 9.5em;
+  /* Subtle vertical baseline correction - the dashed border + padding
+     pushes the rendered text up slightly off the inline baseline of
+     the surrounding headline. translateY puts the visible word back
+     in line with the rest of the headline. */
+  transform: translateY(0.08em);
+}
+.slot-stack {
+  display: flex;
+  flex-direction: column;
+  /* 1800ms delay = visible hold; 700ms duration = the slide. Total
+     2500ms matches the JS interval cycle that re-keys the stack so
+     the rotation looks like a single continuous loop. */
+  animation: slot-machine-rotate 700ms cubic-bezier(0.7, 0, 0.3, 1) 1800ms forwards;
+}
+.slot-word {
+  display: block;
+  height: 1em;
+  line-height: 1;
+  white-space: nowrap;
+}
+@keyframes slot-machine-rotate {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-1em); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No rotation - the first word stays visible permanently. */
+  .slot-stack { animation: none; }
+}
+
 .landing-hero-sub {
   font-family: var(--font-body);
   font-weight: 400;
