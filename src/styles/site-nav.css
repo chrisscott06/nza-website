@@ -529,6 +529,70 @@ body.context-decoded .nza-logo-mark-only-svg #nza-logo-mark-mobile {
   font-size: 12px;
 }
 
+/* =========================================================================
+   STUB PAGES - /decoded, /about, /clients
+   Simple centred placeholder pages whose primary role today is to
+   give the nav links a destination + to let the per-context nav
+   adaptation be seen working live. Real templates replace these
+   in their respective briefs. */
+.stub-page {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 32px;
+  box-sizing: border-box;
+}
+@media (max-width: 767px) {
+  .stub-page {
+    min-height: calc(100vh - 56px);
+    padding: 64px 20px;
+  }
+}
+.stub-page-inner {
+  text-align: center;
+  max-width: 720px;
+}
+.stub-page-micro {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 24px;
+}
+.stub-page-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* decodED stub - cream-warm bg, deep-green headline, orange micro. */
+.stub-page--decoded {
+  background: #F3EFE3;
+  color: #0F5D43;
+}
+.stub-page--decoded .stub-page-micro {
+  color: rgba(232, 116, 60, 0.7); /* orange at 70% */
+}
+.stub-page--decoded .stub-page-headline {
+  color: #0F5D43;
+}
+
+/* About + Clients stubs - share a cream NZA treatment. */
+.stub-page--cream {
+  background: var(--paper);
+  color: var(--ink-navy);
+}
+.stub-page--cream .stub-page-micro {
+  color: rgba(247, 90, 85, 0.7); /* coral at 70% */
+}
+.stub-page--cream .stub-page-headline {
+  color: var(--ink-navy);
+}
+
 /* Reduced motion - transitions become instant, mobile menu slide
    shortens dramatically. */
 @media (prefers-reduced-motion: reduce) {
