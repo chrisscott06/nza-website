@@ -22,17 +22,17 @@ type Props = {
 export function NetZeroAdvisoryLayered({ className, show = 'all' }: Props) {
   // viewBox cropped per word so each instance sizes correctly within
   // its container. Source SVG layout (single 472.7 x 154.91 canvas):
-  //   "NET"        paths at x=0-180,   y=0-66
-  //   "ZERO"       paths at x=222-472, y=0-66
-  //   "ADVISORY"   paths at x=0-462,   y=87-154
-  // Cropping tightens to the visible glyph area so each rendered
-  // instance is just the width of its word - critical for the
-  // individual NET / ZERO rise-up animations on the preloader.
+  //   "NET"        paths at x=0   - 179.6, y=0  - 66
+  //   "ZERO"       paths at x=222 - 472.7, y=0  - 66    (O ends at x=472.7)
+  //   "ADVISORY"   paths at x=0   - 464.5, y=87 - 154.9 (O bowl bottoms at y=154.9; Y right edge at x=464.5)
+  // viewBox values have a small safety margin on every edge so no glyph
+  // is ever clipped by the box - Chris flagged the Y's top-right being
+  // chopped in an earlier crop because I'd undershot the right edge.
   const viewBox =
-    show === 'net' ? '0 0 180 66'
-      : show === 'zero' ? '222 0 250 66'
-      : show === 'net-zero' ? '0 0 472.7 66'
-      : show === 'advisory' ? '0 87 462 67'
+    show === 'net' ? '0 0 184 68'
+      : show === 'zero' ? '220 0 254 68'
+      : show === 'net-zero' ? '0 0 472.7 68'
+      : show === 'advisory' ? '-1 86 475 70'
       : '0 0 472.7 154.91'
 
   return (
