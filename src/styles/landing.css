@@ -1185,47 +1185,25 @@
   .product-card { min-height: 380px; padding: 32px 24px 28px; }
 }
 .product-card.is-active {
-  /* OPAQUE on activation so the ::before offset-clone shadow behind
-     it cannot leak through the card body. Previously this was
-     rgba(... 0.55) translucent, which let you see the dark gradient
-     of the shadow pseudo through the card itself (Chris flagged the
-     "shadow within the box"). Solid bg = shadow only renders in the
-     10px down-left strip that pokes out from beneath the card. */
   background: #FCF8EF;
-  /* No box-shadow here - the offset clone shape on ::before below
-     is the actual shadow. */
-}
-
-/* THE OFFSET SHADOW CLONE
-   A pseudo-element behind the card that's literally a copy of the
-   card's shape (matching border-radius), offset 10px left + 10px
-   down, with a linear gradient fading from solid (top-right corner -
-   nearest the card) to transparent (bottom-left - furthest away).
-   This is what Chris described - "the same bevelled edge shape,
-   offset, with a faded gradient on it" - rather than a box-shadow
-   blur ring. */
-.product-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  transform: translate(-10px, 10px);
-  background: linear-gradient(
-    225deg,
-    rgba(31, 51, 71, 0.18) 0%,
-    rgba(31, 51, 71, 0.08) 50%,
-    rgba(31, 51, 71, 0) 100%
-  );
-  /* A small blur takes the hard edge off the gradient stops without
-     turning the shape into a fuzzy cloud. */
-  filter: blur(4px);
-  opacity: 0;
-  z-index: -1;
-  pointer-events: none;
-  transition: opacity 380ms cubic-bezier(0.16, 1, 0.3, 1) 260ms;
-}
-.product-card.is-active::before {
-  opacity: 1;
+  /* OFFSET DROP SHADOW via box-shadow only.
+     - box-shadow paints OUTSIDE the element's box by definition,
+       NEVER inside, so the shade-inside-the-box issue Chris flagged
+       is structurally impossible here. No more pseudo-element trying
+       to be a "clone shape" - that was the cause of BOTH the
+       shade-bleed (translucent pseudo behind a translucent card body
+       showed through) AND the 1px hover jitter (filter: blur on a
+       fading pseudo forces a new compositing layer that the browser
+       sub-pixel-shifts).
+     - Two stacked layers for the clone-shape feel:
+         1. Tighter, denser nearer the element edge
+         2. Softer, wider further out
+     - Each respects the 16px border-radius so the shadow matches the
+       card's bevelled corners exactly - i.e. it IS the offset shape
+       Chris asked for, just rendered via box-shadow not pseudo. */
+  box-shadow:
+    -6px 8px 14px -6px rgba(31, 51, 71, 0.18),
+    -12px 16px 32px -8px rgba(31, 51, 71, 0.10);
 }
 
 /* Per-product accent palettes (Chris's brief):
@@ -1260,26 +1238,27 @@
 .product-card-box-half {
   position: absolute;
   inset: 0;
-  /* 3px (was 2px) so the gradient border reads as a confident edge.
-     At 2px the gradient's lighter end (e.g. PABLO's orange at the
-     top-left vs purple at the bottom-right of the 135deg gradient)
-     perceptually looked thinner on the lighter edges than the
-     darker ones. 3px gives it enough weight that the contrast issue
-     stops mattering. */
+  /* 3px gives the gradient border enough weight that the colour
+     asymmetry of the 135deg gradient (lighter at top-left, darker
+     at bottom-right) stops mattering perceptually. */
   border: 3px solid transparent;
   border-radius: 16px;
   pointer-events: none;
   background: linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
-  /* Two-layer mask that exposes ONLY the border ring (border-box
-     minus padding-box). Chrome + Firefox both honour this. */
+  /* Mask exposes ONLY the border ring (border-box minus padding-box).
+     CRITICAL: the gradient stops have to be (#fff, #fff) - NOT
+     (#fff 0 0) which is a single-stop non-gradient that renders
+     transparent and makes the mask do nothing. The earlier broken
+     syntax was why the full gradient was bleeding into the interior
+     of the card (Chris's "shade in the box"). */
   -webkit-mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(#fff, #fff) border-box;
   -webkit-mask-composite: xor;
-          mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
-          mask-composite: exclude;
+  mask:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(#fff, #fff) border-box;
+  mask-composite: exclude;
   /* --draw-origin-x is set inline per card (random 30-70%) so each
      box traces in from a slightly different point on the top edge -
      organic asymmetry. Falls back to 50% if the var isn't set. */
