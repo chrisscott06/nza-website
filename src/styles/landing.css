@@ -844,58 +844,44 @@
   color: var(--ink-navy);
 }
 
-/* ---------- HIGHLIGHT-CORAL: per-word marker-pen wipe ----------
+/* ---------- HIGHLIGHT-CORAL: per-word coral underline ----------
    The three words "buildings", "energy", "climate" inside paragraph 1
-   each get a coral slab that grows L->R across the word, with the
-   white Medium-weight text revealed in sync against the coral. The
-   slab REMAINS at the end (unlike the preloader "ADVISORY" slab
-   which sweeps through and disappears) so the final state is a
-   permanent coral highlight with white text on top.
+   stay in the same Stolzl Book navy as the rest of the line - only a
+   thin coral underline distinguishes them. The underline draws L->R
+   on a per-word stagger driven by the inline --highlight-delay so the
+   three lines arrive one at a time.
 
-   Trigger: the parent MaskReveal's .is-revealed class. Each span's
-   start time is set via inline --highlight-delay so the three wipes
-   cascade one-after-another (950/1300/1650ms). */
+   Per Chris: "just have a pink underline and then don't make the
+   font Medium, and then just the three things underline nice and
+   clean." Replaces the earlier marker-pen slab treatment - same
+   timing/trigger, much lighter visual hit. */
 .highlight-coral {
   position: relative;
   display: inline-block;
-  /* White text per Chris ("Medium and white colour as the pink goes
-     across it"). It's invisible against cream until the coral slab
-     arrives behind it - the synchronised clip-path below ensures it
-     only shows where the slab actually is. */
-  color: #fff;
-  font-weight: 500;
-  /* Coral marker pen drawn behind the text via background-image so
-     the text sits on top without a stacking-context dance. Slab
-     starts at 0% width (invisible) and grows to 100% (full
-     highlight) under the matching clip-path of the text. */
-  background-image: linear-gradient(var(--coral), var(--coral));
-  background-repeat: no-repeat;
-  background-position: 0 50%;
-  background-size: 0% 100%;
-  padding: 1px 6px;
-  border-radius: 3px;
-  /* Text initially clipped out from the right so the white isn't
-     ghost-visible against cream BEFORE the slab arrives. */
-  clip-path: inset(0 100% 0 0);
 }
-.mask-reveal.is-revealed .highlight-coral {
-  animation:
-    highlight-text-in 520ms cubic-bezier(0.7, 0, 0.3, 1) var(--highlight-delay, 0ms) forwards,
-    highlight-slab-in 520ms cubic-bezier(0.7, 0, 0.3, 1) var(--highlight-delay, 0ms) forwards;
+.highlight-coral::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Sits just below the text - 0.18em above the inline-block's
+     bottom is roughly the descender baseline for Stolzl Book. */
+  bottom: 0.18em;
+  height: 0.06em;
+  background: var(--coral);
+  transform: scaleX(0);
+  transform-origin: left center;
 }
-@keyframes highlight-text-in {
-  to { clip-path: inset(0 0 0 0); }
+.mask-reveal.is-revealed .highlight-coral::after {
+  animation: highlight-underline-draw 520ms cubic-bezier(0.7, 0, 0.3, 1) var(--highlight-delay, 0ms) forwards;
 }
-@keyframes highlight-slab-in {
-  to { background-size: 100% 100%; }
+@keyframes highlight-underline-draw {
+  to { transform: scaleX(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  /* Skip the wipe - jump straight to the final highlighted state. */
-  .highlight-coral {
-    clip-path: none;
-    background-size: 100% 100%;
-  }
-  .mask-reveal.is-revealed .highlight-coral { animation: none; }
+  /* Skip the draw - just show the underline at rest. */
+  .highlight-coral::after { transform: scaleX(1); }
+  .mask-reveal.is-revealed .highlight-coral::after { animation: none; }
 }
 
 /* NAVY HALF - three phase blocks in a 3-col grid. Each block is its
