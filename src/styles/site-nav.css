@@ -795,7 +795,10 @@ body.context-decoded .nza-logo-mark-only-svg #nza-logo-mark-mobile {
    per-context overrides keep the chrome consistent on other routes.
    ========================================================================= */
 .site-footer {
-  background: #1A2540;
+  /* Unified to --ink-navy (#0E1120) - was hard-coded #1A2540 which
+     read as a lighter blue than the hero / closer above. The
+     homepage navy is now one shade end-to-end. */
+  background: var(--ink-navy);
   color: var(--fg-on-navy-1);
   padding: 24px 0;
 }

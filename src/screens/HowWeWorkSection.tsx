@@ -129,12 +129,17 @@ export function HowWeWorkSection() {
               className="how-we-work-phase-block"
               style={
                 {
-                  /* Per-block stagger - paragraphs pop first
-                     (delay 0 + ~280ms), then block 1 lands at ~700ms,
-                     block 2 at ~1100ms, block 3 at ~1500ms. Reads as
-                     a calm sequenced arrival rather than everything
-                     fighting in at once. */
-                  '--reveal-delay': `${700 + i * 400}ms`,
+                  /* Per-block stagger - paragraphs pop in the cream
+                     half first (delay 0 + 280ms via MaskReveal), then
+                     the three blocks cascade LEFT-TO-RIGHT:
+                       Decode  at 1100ms
+                       Build   at 1750ms (650ms after Decode)
+                       Partner at 2400ms (650ms after Build)
+                     With the 800ms transition each block is mostly
+                     done before the next one starts, so the eye reads
+                     them as "one, then one, then one" rather than a
+                     blur of three landing at once. */
+                  '--reveal-delay': `${1100 + i * 650}ms`,
                 } as React.CSSProperties
               }
             >

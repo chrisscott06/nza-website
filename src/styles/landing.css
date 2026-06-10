@@ -797,7 +797,10 @@
   padding: 80px 32px 56px;
 }
 .how-we-work-page-half--navy {
-  background: #1A2540;
+  /* Was hard-coded #1A2540, a lighter blue that didn't match the
+     hero. Switched to the design-system token --ink-navy (#0E1120)
+     so the homepage's navy is one shade everywhere. */
+  background: var(--ink-navy);
   color: var(--fg-on-navy-1);
   align-items: flex-start;
   padding: 56px 32px 80px;
@@ -857,11 +860,14 @@
   gap: 14px;
   text-align: center;
   /* Block fades in as one unit. Stagger driven by inline
-     --reveal-delay per block (700ms / 1100ms / 1500ms). */
+     --reveal-delay per block (1100ms / 1750ms / 2400ms). Per Chris's
+     "kind of all appear one after the other" - transition shortened
+     to 800ms so each block is mostly done before the next one
+     starts, giving a clear left-to-right cascade. */
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
-              transform 1100ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+              transform 800ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
 }
 .how-we-work-page.is-revealed .how-we-work-phase-block {
   opacity: 1;
@@ -1822,7 +1828,11 @@
    beats .screen.canvas-navy + .screen for both background and the
    65vh min-height the brief specifies. */
 .screen.get-in-touch-screen {
-  background: #1A2540;
+  /* Unified to --ink-navy (#0E1120) - was a one-off #1A2540
+     lighter blue that drifted from the hero's navy. The whole
+     homepage now reads one navy across hero / how-we-work navy
+     half / closer. */
+  background: var(--ink-navy);
   color: var(--fg-on-navy-1);
   /* Whole-screen closer per Chris's latest - was 65vh so it focused
      rather than dominated, now back to 100vh so the homepage flows
