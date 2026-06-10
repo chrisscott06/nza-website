@@ -41,13 +41,17 @@ const AUTO_DISMISS_MS = 4500
 const FILL_DURATION_MS = 2000
 
 export function LandingPreloader() {
-  // Once-per-load skip. If the preloader has already run since the
-  // page bundle loaded (e.g. user went /pablo -> back to /), short-
-  // circuit: synchronously flip preloaderState.dismissed so the hero
-  // MaskReveals see "already dismissed" on their first effect run,
-  // and render nothing. Hard or soft refresh reloads the JS bundle
-  // and resets this flag.
-  const skip = hasPreloaderRunThisLoad()
+  // Once-per-load skip - captured ONCE at mount so it can't flip
+  // mid-lifetime. This matters because the dismiss handler calls
+  // markPreloaderHasRunThisLoad() to set the module-level flag, and
+  // dismiss() also triggers a re-render via setDismissed(true). If
+  // we re-read the flag on each render, that re-render would see
+  // skip=true and `if (skip) return null` would fire on the same
+  // tick as .is-dismissed wanted to apply - so the 1100ms zoom
+  // transition would never get to run. By capturing skip ONCE via
+  // useState's lazy initialiser, the component's render output
+  // tracks its own dismiss state rather than the global flag.
+  const [skip] = useState(() => hasPreloaderRunThisLoad())
   if (skip) {
     preloaderState.dismissed = true
   }
