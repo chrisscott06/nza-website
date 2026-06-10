@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { MaskReveal } from '../components/MaskReveal'
 
 /**
@@ -79,10 +79,23 @@ const PRODUCTS: Product[] = [
 ]
 
 const LEAVE_GRACE_MS = 150
+/* Time after activation before a card is considered "fully open" -
+   matching the box-border draw (~620ms) + reveal content fade-in.
+   Per Chris: "if you click on it, it should take you to the page,
+   but only once it's fully loaded." Below this threshold, clicks on
+   the already-active card are no-ops (the open animation is still
+   running and a navigation would feel jarring). At or past it,
+   another click navigates to the product page. */
+const FULLY_OPEN_MS = 650
 
 export function ProductsScreen() {
   const [active, setActive] = useState<ProductId | null>(null)
   const leaveTimerRef = useRef<number | null>(null)
+  /* Timestamp of when the current `active` card first became active.
+     Refreshed in a useEffect whenever active changes (so hover-in,
+     hover-out-then-in, or tap all reset the clock). */
+  const activeStartedAtRef = useRef<number | null>(null)
+  const navigate = useNavigate()
 
   // Per-card random draw-origin so the bounding box doesn't always
   // start tracing from exactly top-centre - feels more organic
@@ -112,15 +125,36 @@ export function ProductsScreen() {
       leaveTimerRef.current = null
     }, LEAVE_GRACE_MS)
   }
-  // Click handler. Previously this toggled (clicking an open card
-  // deactivated it) - Chris flagged that as wrong: "I only want it to
-  // revert back if we click off it or hover off it." So clicks now
-  // only ever ACTIVATE; the close paths are hover-leave + the
-  // document-click handler below for "click off".
-  function activateOnClick(id: ProductId) {
+  /* Click handler with two modes:
+       1. Card NOT active yet OR a different card active -> just
+          activate. (Used to be toggle; Chris fixed that earlier so
+          clicks never close.)
+       2. Card already active AND fully open (>= FULLY_OPEN_MS since
+          it activated) -> navigate to the product page. Per Chris:
+          "if you click on it, it should take you to the page, but
+          only once it's fully loaded." The explicit Explore link in
+          the reveal panel still routes at any moment for users who
+          want the obvious path.
+     Below the threshold (animation still running), the second click
+     is just a no-op to avoid jarring mid-animation navigation. */
+  function activateOrNavigate(id: ProductId, href: string) {
     cancelLeaveTimer()
+    if (active === id) {
+      const startedAt = activeStartedAtRef.current
+      if (startedAt !== null && performance.now() - startedAt >= FULLY_OPEN_MS) {
+        navigate(href)
+      }
+      return
+    }
     setActive(id)
   }
+
+  // Track when the active card first became active, so the
+  // "fully open" check above is accurate. Re-runs on every active
+  // change (hover in/out/in, tap, etc.).
+  useEffect(() => {
+    activeStartedAtRef.current = active === null ? null : performance.now()
+  }, [active])
 
   // Click-OFF handler: tapping anywhere that isn't inside an open
   // product card closes the open card. Bound to document so it
@@ -200,7 +234,7 @@ export function ProductsScreen() {
                   <button
                     type="button"
                     className="product-card-logo-button"
-                    onClick={() => activateOnClick(p.id)}
+                    onClick={() => activateOrNavigate(p.id, p.href)}
                     aria-expanded={isActive}
                     aria-label={
                       isActive
