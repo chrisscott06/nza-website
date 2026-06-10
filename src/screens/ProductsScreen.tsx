@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../components/MaskReveal'
 
@@ -112,10 +112,33 @@ export function ProductsScreen() {
       leaveTimerRef.current = null
     }, LEAVE_GRACE_MS)
   }
-  function toggle(id: ProductId) {
+  // Click handler. Previously this toggled (clicking an open card
+  // deactivated it) - Chris flagged that as wrong: "I only want it to
+  // revert back if we click off it or hover off it." So clicks now
+  // only ever ACTIVATE; the close paths are hover-leave + the
+  // document-click handler below for "click off".
+  function activateOnClick(id: ProductId) {
     cancelLeaveTimer()
-    setActive((curr) => (curr === id ? null : id))
+    setActive(id)
   }
+
+  // Click-OFF handler: tapping anywhere that isn't inside an open
+  // product card closes the open card. Bound to document so it
+  // catches taps on the section background, the page chrome, etc.
+  // Especially important for the mobile accordion (no hover state
+  // there - the only way to close an expanded card is to click off).
+  useEffect(() => {
+    if (active === null) return
+    function onDocClick(e: MouseEvent) {
+      const target = e.target as HTMLElement | null
+      if (!target) return
+      if (target.closest('.product-card')) return
+      cancelLeaveTimer()
+      setActive(null)
+    }
+    document.addEventListener('click', onDocClick)
+    return () => document.removeEventListener('click', onDocClick)
+  }, [active])
 
   return (
     <section
@@ -177,7 +200,7 @@ export function ProductsScreen() {
                   <button
                     type="button"
                     className="product-card-logo-button"
-                    onClick={() => toggle(p.id)}
+                    onClick={() => activateOnClick(p.id)}
                     aria-expanded={isActive}
                     aria-label={
                       isActive

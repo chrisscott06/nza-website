@@ -95,10 +95,22 @@ export function LandingPreloader() {
 
     // Manual-scroll override - any wheel / touch / key during the
     // preloader cancels the auto-transition and lets the user drive.
+    // touchmove added on top of touchstart for mobile robustness -
+    // some iOS gestures fire touchmove without an initial touchstart
+    // we can hear, and a stuck-loading-screen on mobile is the bug
+    // Chris flagged on the deployed Vercel build.
     const onScroll = () => dismiss()
     window.addEventListener('wheel', onScroll, { passive: true })
     window.addEventListener('touchstart', onScroll, { passive: true })
+    window.addEventListener('touchmove', onScroll, { passive: true })
     window.addEventListener('keydown', onScroll)
+
+    // Lock body scroll while the preloader is up. Per Chris -
+    // "I'd rather we're not able to scroll until that loading page
+    // is left." Restored on dismiss so the hero scrolls normally
+    // once the preloader's gone.
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
 
     // Auto-transition fallback - fires at 3s unless a scroll fired
     // first. Synced with the CSS animations so the slide-up coincides
@@ -123,11 +135,25 @@ export function LandingPreloader() {
     return () => {
       window.removeEventListener('wheel', onScroll)
       window.removeEventListener('touchstart', onScroll)
+      window.removeEventListener('touchmove', onScroll)
       window.removeEventListener('keydown', onScroll)
       window.clearTimeout(autoTimer)
       cancelAnimationFrame(rafId)
+      // Restore body scroll. (If unmount happens BEFORE dismiss, this
+      // also unlocks - belt-and-braces in case the user navigates away
+      // before the preloader auto-finishes.)
+      document.body.style.overflow = previousOverflow
     }
   }, [skip])
+
+  // Restore body scroll once the dismiss transition starts - we
+  // don't need to wait for it to finish since the preloader has
+  // pointer-events: none and the user is now seeing the hero.
+  useEffect(() => {
+    if (dismissed) {
+      document.body.style.overflow = ''
+    }
+  }, [dismissed])
 
   // Skip = nothing rendered. The hero MaskReveals will see the
   // synchronously-set preloaderState.dismissed = true and reveal on

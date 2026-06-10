@@ -122,12 +122,17 @@
 }
 /* Fill state - full-opacity navy mark, clip-pathed from the bottom up
    over the fill duration. Starts fully clipped (nothing visible),
-   ends with the full mark visible. Duration slowed from 1.5s -> 2.0s
-   so the rise feels deliberate rather than rushed. */
+   ends with the full mark visible.
+
+   Easing curve EASE-IN (cubic-bezier(0.55, 0, 0.95, 0.5)) per Chris -
+   "slower start, let it run for a little bit, build up". The previous
+   ease-out (0.16, 1, 0.3, 1) front-loaded the motion which felt
+   rushed at the start. The ease-in pacing gives the slow build the
+   user can watch happen before the text arrival + zoom take over. */
 .landing-mark-fill {
   color: var(--ink-navy);
   clip-path: inset(100% 0 0 0);
-  animation: landing-mark-fill-rise 2000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: landing-mark-fill-rise 2200ms cubic-bezier(0.55, 0, 0.95, 0.5) forwards;
 }
 @keyframes landing-mark-fill-rise {
   to { clip-path: inset(0 0 0 0); }
@@ -678,11 +683,11 @@
    reads as a "funny light blue" against the dark navy. White wins. */
 .canvas-navy .landing-hero-sub,
 .landing-hero-sub {
-  /* Stolzl Medium (500) per Chris - trying a more confident body
-     weight than the Thin (100) we had previously. The Thin read as
-     too whispery against the display headline. */
+  /* Stolzl Light (300) per Chris - reverted from the Medium (500) trial.
+     Light reads as a quiet supporting voice beneath the display
+     headline without going as whisper-thin as the previous 100. */
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 300;
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.35;
   letter-spacing: -0.005em;
@@ -1247,7 +1252,44 @@
   transition: background 360ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
 }
 @media (max-width: 599px) {
-  .product-card { min-height: 380px; padding: 32px 24px 28px; }
+  /* MOBILE ACCORDION per Chris:
+     - 3 cards visible together at the top of the section (compact)
+     - Each card is COMPACT at rest (just enough for the logo, no
+       reserved space for the reveal panel)
+     - Click expands one downward, the cream section grows to
+       accommodate, the user can scroll past it
+     - Click off (handled by ProductsScreen's document-click) collapses
+       it back. (Chris previously said don't expand the section on
+       desktop; he explicitly OK'd it for mobile.)
+  */
+  .product-card {
+    min-height: 0;
+    padding: 24px 20px 20px;
+  }
+  /* Compact logo slot at rest. */
+  .product-card-logo-stack { height: 96px; }
+  /* Reveal panel switches from opacity-only to height-driven on
+     mobile. Collapsed at rest (max-height 0, no margin); accordion
+     opens downward when .is-active. */
+  .product-card-reveal {
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: none;
+    transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
+                margin-top 460ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 280ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
+  }
+  .product-card.is-active .product-card-reveal {
+    max-height: 380px; /* generous to fit the longest copy */
+    margin-top: 12px;
+    opacity: 1;
+    transform: none;
+  }
+  /* The triptych grid keeps the per-card gap visually tight so all
+     three cards land within the first viewport on phones. */
+  .products-triptych { gap: 20px; }
 }
 .product-card.is-active {
   background: #FCF8EF;
