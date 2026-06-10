@@ -56,11 +56,10 @@ const PRODUCTS: Product[] = [
     id: 'nzai',
     name: 'NZ:AI',
     href: '/nz-ai',
-    /* Dark variant of the NZ:AI wordmark - text in navy, teal colon
-       outlines - because the homepage products section sits on cream.
-       The white-text variant (nzai-logo.svg) is used on the actual
-       /nz-ai product page where the canvas is dark navy. */
-    logoSrc: '/assets/logos/nzai-logo-dark.svg',
+    /* The products section is now NAVY (v2 brief Change 3) so the
+       white-text variant reads correctly here too. The dark-text
+       variant is no longer needed on the homepage. */
+    logoSrc: '/assets/logos/nzai-logo.svg',
     alt: 'NZ:AI',
     question: 'Want to make sense of complex carbon data?',
     promise:
@@ -176,18 +175,38 @@ export function ProductsScreen() {
 
   return (
     <section
-      className="screen canvas-paper products-section in-view"
+      className="screen canvas-navy products-section in-view"
       id="products"
       data-screen-label="Products"
     >
+      {/* Ambient blob field - same five-blob system as the hero,
+          continuing the visual language through the navy band per
+          v2 brief Change 3. */}
+      <div
+        className="landing-blobs landing-blobs--products"
+        aria-hidden="true"
+      >
+        <span className="landing-blob landing-blob--products-navy-1" />
+        <span className="landing-blob landing-blob--products-navy-2" />
+        <span className="landing-blob landing-blob--products-navy-3" />
+        <span className="landing-blob landing-blob--products-coral" />
+        <span className="landing-blob landing-blob--products-cream" />
+      </div>
+
       <div className="frame">
         <div className="products-intro-block">
+          <MaskReveal as="p" className="products-micro" delay={0}>
+            OUR PRODUCTS
+          </MaskReveal>
           <MaskReveal as="h2" className="products-heading" delay={100}>
             Our products
           </MaskReveal>
           <MaskReveal as="p" className="products-intro" delay={300}>
-            Three tools to help organisations move from climate ambition into
-            climate action - each one solving a different piece of the puzzle.
+            Three tools we've built to help organisations move on net zero -
+            each one solving a different piece of the puzzle.
+          </MaskReveal>
+          <MaskReveal as="p" className="products-hint" delay={460}>
+            Hover to see what each does. Click to dive in.
           </MaskReveal>
         </div>
 

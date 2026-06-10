@@ -1304,11 +1304,19 @@
      - Explore link appears at the bottom
    Clicking the logo itself does NOT route - only the Explore link does.
    ========================================================================= */
-.products-section {
-  background: var(--paper);
-  color: var(--ink-navy);
+/* .screen.products-section beats .screen.canvas-navy (also 0,2,0) by
+   being declared later. The brief specifies #1A2540 exactly which is
+   slightly different from --ink-navy (#0E1120). */
+.screen.products-section {
+  /* Inverted to navy per v2 brief Change 3. Cream -> navy hard cut
+     from the "How we work" section above. Ambient blob field
+     continues the hero's visual language through this band. */
+  background: #1A2540;
+  color: var(--fg-on-navy-1);
   padding: 120px 0;
   min-height: auto;
+  position: relative;
+  overflow: hidden;
 }
 @media (max-width: 899px) {
   .products-section { padding: 96px 0; }
@@ -1316,43 +1324,108 @@
 @media (max-width: 599px) {
   .products-section { padding: 80px 0; }
 }
+.products-section > .frame {
+  position: relative;
+  z-index: 2;
+}
 
-/* Centred intro block - heading + body intro above the triptych. */
+/* Centred intro block - micro + heading + body intro + sub-line. */
 .products-intro-block {
   text-align: center;
   max-width: 760px;
   margin: 0 auto 96px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 18px;
 }
 @media (max-width: 599px) {
   .products-intro-block { margin-bottom: 64px; }
 }
 
-/* "Our products" - hero-headline size, Stolzl Book, coral. Matches
-   the visual weight of the home page's coral italic word. */
-.products-heading {
+/* Section micro-label - mono coral above the headline. */
+.products-micro {
   margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400; /* Stolzl Book per Chris */
-  font-size: clamp(36px, 6vw, 72px);
-  line-height: 1.06;
-  letter-spacing: -0.025em;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
   color: var(--coral);
 }
 
-/* Body intro - Stolzl Thin per Chris ("let's stick with Stolzl Thin
-   throughout for now"). */
-.products-intro {
+/* "Our products" - Stolzl, cream on navy. Per v2 brief: no italic
+   accent on the heading (the hero already carries that). */
+.products-heading {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 500;
+  font-size: clamp(36px, 6vw, 72px);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  color: var(--fg-on-navy-1);
+}
+
+/* Body intro - cream at ~75% opacity per v2 brief. */
+.products-intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.4;
   letter-spacing: -0.005em;
-  color: var(--ink-navy);
-  opacity: 0.85;
+  color: rgba(245, 241, 232, 0.75);
+}
+
+/* Sub-line - "Hover to see what each does. Click to dive in."
+   Coral mono, small, sits beneath the intro paragraph. */
+.products-hint {
+  margin: 8px 0 0;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+/* ===== Products section blob field - continuous with the hero =====
+   Same 5-blob spec as the hero (3 navy tones + coral + cream, heavy
+   blur), spread across this band so the navy reads as alive. */
+.landing-blobs--products {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.landing-blob--products-navy-1 {
+  background: rgba(30, 38, 70, 0.55);
+  top: -8%;
+  left: -10%;
+  animation: landing-blob-drift-1 27s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--products-navy-2 {
+  background: rgba(55, 68, 110, 0.42);
+  top: 32%;
+  right: -10%;
+  animation: landing-blob-drift-2 34s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--products-navy-3 {
+  background: rgba(85, 100, 145, 0.26);
+  bottom: -12%;
+  left: 24%;
+  animation: landing-blob-drift-3 29s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--products-coral {
+  background: rgba(247, 90, 85, 0.18);
+  top: 20%;
+  right: 22%;
+  animation: landing-blob-drift-4 38s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+.landing-blob--products-cream {
+  background: rgba(245, 241, 232, 0.12);
+  bottom: 18%;
+  left: 12%;
+  animation: landing-blob-drift-1 43s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 }
 
 /* TRIPTYCH - three equal cells side by side using the full frame width. */
@@ -1448,7 +1521,10 @@
   .products-triptych { gap: 20px; }
 }
 .product-card.is-active {
-  background: #FCF8EF;
+  /* Subtle cream wash on the dark navy ground per v2 brief Change 3
+     ("rgba(255, 255, 255, 0.04) - very subtle cream wash, much
+     lighter than the navy"). */
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* Per-product accent palettes (Chris's brief):
@@ -1483,13 +1559,18 @@
 .product-card-box-half {
   position: absolute;
   inset: 0;
-  /* 3px gives the gradient border enough weight that the colour
-     asymmetry of the 135deg gradient (lighter at top-left, darker
-     at bottom-right) stops mattering perceptually. */
-  border: 3px solid transparent;
-  border-radius: 16px;
+  /* Reduced from 3px to 1.5px per v2 brief Change 3 - "hairline
+     coral 0.5px solid rgba(247, 90, 85, 0.4)". 1.5px is the
+     threshold where the draw-in animation still reads clearly on
+     a 1x display without looking like a heavy border on a 2x. */
+  border: 1.5px solid transparent;
+  border-radius: 14px;
   pointer-events: none;
-  background: linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
+  /* Solid coral background - the mask trick still exposes only the
+     border ring. Per v2 brief: "hairline coral, rgba(247, 90, 85, 0.4)"
+     - single colour, no longer per-product gradient. The product
+     identity now lives entirely in the logo mark itself. */
+  background: rgba(247, 90, 85, 0.55) border-box;
   /* Mask exposes ONLY the border ring (border-box minus padding-box).
      CRITICAL: the gradient stops have to be (#fff, #fff) - NOT
      (#fff 0 0) which is a single-stop non-gradient that renders
@@ -1572,12 +1653,12 @@
 .product-card-logo-silhouette {
   position: absolute;
   inset: 0;
-  /* Slightly lifted navy so the mask reads as DARK BLUE rather than
-     black at large scale (per Chris). The base --ink-navy (#0E1120)
-     is so dark that as a flat mask fill it loses its blue cast and
-     reads as black. #1A2A47 still feels confidently navy but holds
-     enough blue to match the site's other navy moments visibly. */
-  background-color: #1A2A47;
+  /* CREAM silhouette on the navy products surface (v2 brief Change 3).
+     Was #1A2A47 navy when the section was cream - on the inverted
+     navy surface the navy silhouette would be invisible. Cream at
+     ~85% reads as the same "muted at rest" treatment but on the
+     dark canvas. */
+  background-color: rgba(245, 241, 232, 0.85);
   -webkit-mask-size: contain;
           mask-size: contain;
   -webkit-mask-position: center;
@@ -1626,27 +1707,25 @@
 
 .product-card-question {
   margin: 0;
-  /* SAME font face as the landing-page italic emphasis (Times New
-     Roman via var(--font-italic) per the project MEMORY note),
-     but font-style: normal so it's NOT italic - that's what Chris
-     asked for: "I still like the font type, just not it being
-     italic." Times New Roman regular reads as a confident serif
-     statement of the catch-line phrase. */
+  /* Per v2 brief: serif italic-style face, cream on navy. (Per
+     project MEMORY: this face is Times New Roman, kept upright via
+     font-style: normal per Chris's earlier "same font type, just
+     not italic" call.) */
   font-family: var(--font-italic);
   font-style: normal;
   font-weight: 400;
-  font-size: clamp(18px, 1.8vw, 22px);
+  font-size: clamp(17px, 1.6vw, 20px);
   line-height: 1.25;
-  color: var(--accent-text);
+  color: var(--fg-on-navy-1);
 }
 .product-card-promise {
   margin: 0;
-  font-family: var(--font-display);
-  font-weight: 100; /* Stolzl Thin per Chris */
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--ink-navy);
-  opacity: 0.85;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.5;
+  /* Cream at 65% opacity per v2 brief. */
+  color: rgba(245, 241, 232, 0.65);
 }
 .product-card-explore {
   display: inline-flex;
@@ -1658,14 +1737,16 @@
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--accent-text);
+  /* Coral per v2 brief - explicit brand coral, not per-product
+     accent (the per-product accent lives on the gradient border). */
+  color: var(--coral);
   text-decoration: none;
-  border-bottom: 1px solid var(--accent-text);
+  border-bottom: 1px solid var(--coral);
   transition: gap 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .product-card-explore:hover { gap: 12px; }
 .product-card-explore:focus-visible {
-  outline: 2px solid var(--accent-text);
+  outline: 2px solid var(--coral);
   outline-offset: 4px;
   border-radius: 2px;
 }
