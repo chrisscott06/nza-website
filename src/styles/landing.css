@@ -766,14 +766,40 @@
    with the three blocks stacked).
    ========================================================================= */
 .how-we-work-page {
+  /* OUTER scroll runway. The pin wrapper inside is sticky at top: 0
+     with height 100vh; the (300vh - 100vh = 200vh) of extra outer
+     height is the scroll length over which the pin holds the inner
+     layout to the viewport. The user scrolls into the section, the
+     pin engages, animations play out while pin is locked, then the
+     user scrolls past the bottom of this 300vh container and the
+     next section takes over. */
+  position: relative;
+  height: 300vh;
+  /* Background colour matters once the pin releases - the small gap
+     between pin's bottom edge and parent's bottom edge would otherwise
+     show the page bg. Set to the navy of the navy-half so the
+     transition out feels seamless. */
+  background: var(--ink-navy);
+}
+.how-we-work-page-pin {
+  position: sticky;
+  top: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 @media (max-width: 1023px) {
+  /* Mobile drops the pin entirely - section is content-tall and the
+     two halves stack vertically. */
   .how-we-work-page {
     height: auto;
+    background: transparent;
+  }
+  .how-we-work-page-pin {
+    position: static;
+    top: auto;
+    height: auto;
+    display: block;
   }
 }
 

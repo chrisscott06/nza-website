@@ -8,27 +8,37 @@ import {
 } from '../components/svg/HowWeWorkVisuals'
 
 /**
- * "How we work" - ONE page per Chris's latest. The section is a
- * single 100vh slot with a hard horizontal divide:
+ * "How we work" - SCROLL-PINNED page per Chris's latest.
  *
- *   TOP HALF (cream): the two intro paragraphs. Both Stolzl Medium
- *     at the same size for consistency. They sit centred horizontally
- *     and aligned to the bottom of the cream half so they hover just
- *     above the divide line. They pop in via MaskReveal on stagger.
+ * The outer .how-we-work-page is tall (300vh on desktop) and the
+ * inner .how-we-work-page-pin is position: sticky; top: 0 with
+ * height 100vh, so as the user scrolls down through the section
+ * the pin LOCKS the cream-half / navy-half layout to the viewport
+ * for ~200vh of scroll. They scroll into the section, the animations
+ * play out while the pin holds, then they keep scrolling to leave it.
+ *
+ *   TOP HALF (cream): two intro paragraphs in Stolzl Book navy.
+ *     The three words "buildings", "energy", "climate" get a coral
+ *     underline that draws L->R one at a time (.highlight-coral).
  *
  *   BOTTOM HALF (navy): three phase blocks (Decode / Build / Partner)
- *     in a row. Each block is one atomic unit - heading, body, visual -
- *     and fades in as a block, not piece by piece. The old coral
- *     "01 - DECODE" mono label is gone; the number is folded into the
- *     heading itself ("01 Decode") in big Stolzl, all white-on-navy.
+ *     in a row. Each block fades in as one atomic unit, staggered
+ *     L->R. Each block's SVG visual then animates inside the block
+ *     (DecodeVisual / BuildVisual / PartnerVisual).
  *
- * Mobile (<1024) ditches the 100vh split - the section just stacks
- * vertically (cream zone with the two paragraphs, hard cut to navy
- * zone with the three blocks stacked).
+ * Mobile (<1024) drops the pin - the section becomes content-tall
+ * and stacks vertically (cream zone with the paragraphs, hard cut
+ * to navy zone with the three blocks stacked).
  *
- * Reveal: a single IntersectionObserver on the section trips
- * .is-revealed once the section is 25% in view; CSS then drives the
- * per-block stagger via inline --reveal-delay vars.
+ * Reveal trigger: a single IntersectionObserver fires when the
+ * section TOP reaches the top ~20% of the viewport - this is the
+ * moment the pin is about to engage, so animations start in sync
+ * with the user actually scrolling INTO the locked view. Without
+ * the rootMargin tweak, the old threshold:0.25 IO triggered when
+ * the section was just barely in view (cream half at viewport
+ * bottom) and most animations played out before the user could
+ * see them. CSS then drives the per-block stagger via inline
+ * --reveal-delay vars and the per-word --highlight-delay vars.
  */
 
 const VISUALS = {
@@ -86,7 +96,18 @@ export function HowWeWorkSection() {
           }
         }
       },
-      { threshold: 0.25 },
+      {
+        threshold: 0,
+        /* Root rect shrunk to the top 20% of viewport. IO fires
+           when the section's bounding rect intersects that strip -
+           i.e., when section's TOP crosses y=20% of viewport,
+           which is the moment the sticky pin is about to engage.
+           Without this, the default-threshold IO fired when the
+           section was just barely in view at the viewport bottom,
+           which on a fresh page load meant animations had played
+           out by the time Chris had scrolled enough to see them. */
+        rootMargin: '0px 0px -80% 0px',
+      },
     )
     obs.observe(section)
     return () => obs.disconnect()
@@ -101,6 +122,11 @@ export function HowWeWorkSection() {
       id="how-we-work"
       data-screen-label="How we work"
     >
+      {/* PIN WRAPPER - position: sticky; top: 0; height: 100vh on
+          desktop so the cream / navy split layout LOCKS to the
+          viewport while the parent section (300vh tall) scrolls
+          past underneath. Mobile drops sticky and just stacks. */}
+      <div className="how-we-work-page-pin">
       {/* ===== CREAM TOP HALF - two intro paragraphs ===== */}
       <div className="how-we-work-page-half how-we-work-page-half--cream">
         <div className="how-we-work-page-intro">
@@ -186,6 +212,7 @@ export function HowWeWorkSection() {
           ))}
         </div>
       </div>
+      </div>{/* end .how-we-work-page-pin */}
     </section>
   )
 }
