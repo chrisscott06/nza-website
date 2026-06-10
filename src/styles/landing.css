@@ -384,6 +384,72 @@
   animation: landing-blob-drift-1 41s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 }
 
+/* ===== MOBILE override - cluster all five blobs into the top-right
+   corner and use a RADIAL mask that fades outward from there. On a
+   narrow phone viewport the desktop layout effectively pushed the
+   navy + coral blobs off-screen and only the cream blob (positioned
+   closer to centre) was visibly bleeding through - making the field
+   read as "only white" per Chris. Repositioning + radial mask makes
+   ALL five colours visible, anchored at the top-right corner so
+   the colour bloom blurs DOWN + LEFT across the page from there.
+   Blob size also reduced to ~320px so the cluster fits the corner. */
+@media (max-width: 767px) {
+  .landing-blobs--hero {
+    -webkit-mask-image: radial-gradient(
+      ellipse 130% 95% at 95% 5%,
+      black 0%,
+      rgba(0, 0, 0, 0.9) 25%,
+      rgba(0, 0, 0, 0.55) 50%,
+      rgba(0, 0, 0, 0.2) 75%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 130% 95% at 95% 5%,
+      black 0%,
+      rgba(0, 0, 0, 0.9) 25%,
+      rgba(0, 0, 0, 0.55) 50%,
+      rgba(0, 0, 0, 0.2) 75%,
+      transparent 100%
+    );
+  }
+  /* Smaller blobs on mobile - 320px instead of 480px so the cluster
+     reads at the corner scale. */
+  .landing-blobs--hero .landing-blob {
+    width: 320px;
+    height: 320px;
+  }
+  /* All blobs cluster around the top-right. Each gets a slightly
+     different anchor so they overlap + blend rather than stack. */
+  .landing-blob--hero-navy-1 {
+    top: -18%;
+    right: -12%;
+    bottom: auto;
+  }
+  .landing-blob--hero-navy-2 {
+    top: -2%;
+    right: 18%;
+    bottom: auto;
+  }
+  .landing-blob--hero-navy-3 {
+    top: 18%;
+    right: -8%;
+    bottom: auto;
+  }
+  .landing-blob--hero-coral {
+    /* Bump coral opacity slightly on mobile so the red-pink note
+       reads against the surrounding navies in the cluster. */
+    background: rgba(247, 90, 85, 0.32);
+    top: 8%;
+    right: 10%;
+  }
+  .landing-blob--hero-cream {
+    background: rgba(245, 241, 232, 0.22);
+    top: 28%;
+    right: 25%;
+    bottom: auto;
+  }
+}
+
 /* ===== GET IN TOUCH closing screen - MIRROR of the landing hero
    blob field. Visual weight on the LEFT (where the hero's was on the
    right), mask fades to clean navy on the RIGHT. The two pages
