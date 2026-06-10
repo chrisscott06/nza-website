@@ -104,12 +104,42 @@ export function HowWeWorkSection() {
       {/* ===== CREAM TOP HALF - two intro paragraphs ===== */}
       <div className="how-we-work-page-half how-we-work-page-half--cream">
         <div className="how-we-work-page-intro">
+          {/* Paragraph 1 slides in via MaskReveal (transform 0-900ms).
+              After the slide settles, the three highlight words each
+              get a coral-slab wipe in sequence (one at a time) -
+              same effect as the "ADVISORY" treatment on the preloader.
+              The slab grows L->R across the word; the white text is
+              clip-path-revealed in sync so it only appears against
+              the coral. Each word ends up Medium white on a coral
+              highlight - a permanent mark, not a passing slab. */}
           <MaskReveal as="p" className="how-we-work-page-para" delay={0}>
-            We are specialists in buildings, energy and climate. We cut through
-            the complexity of decarbonisation - and build the tools your people
-            need to act on it.
+            We are specialists in{' '}
+            <span
+              className="highlight-coral"
+              style={{ '--highlight-delay': '950ms' } as React.CSSProperties}
+            >
+              buildings
+            </span>
+            ,{' '}
+            <span
+              className="highlight-coral"
+              style={{ '--highlight-delay': '1300ms' } as React.CSSProperties}
+            >
+              energy
+            </span>
+            {' '}and{' '}
+            <span
+              className="highlight-coral"
+              style={{ '--highlight-delay': '1650ms' } as React.CSSProperties}
+            >
+              climate
+            </span>
+            . We cut through the complexity of decarbonisation - and build
+            the tools your people need to act on it.
           </MaskReveal>
-          <MaskReveal as="p" className="how-we-work-page-para" delay={280}>
+          {/* Paragraph 2 waits for the three highlight wipes to
+              finish (last one ends ~2150ms) before sliding in. */}
+          <MaskReveal as="p" className="how-we-work-page-para" delay={2200}>
             Every engagement follows three phases - decode, build, partner.
           </MaskReveal>
         </div>
@@ -129,17 +159,16 @@ export function HowWeWorkSection() {
               className="how-we-work-phase-block"
               style={
                 {
-                  /* Per-block stagger - paragraphs pop in the cream
-                     half first (delay 0 + 280ms via MaskReveal), then
-                     the three blocks cascade LEFT-TO-RIGHT:
-                       Decode  at 1100ms
-                       Build   at 1750ms (650ms after Decode)
-                       Partner at 2400ms (650ms after Build)
-                     With the 800ms transition each block is mostly
-                     done before the next one starts, so the eye reads
-                     them as "one, then one, then one" rather than a
-                     blur of three landing at once. */
-                  '--reveal-delay': `${1100 + i * 650}ms`,
+                  /* Per-block stagger - the cream-half intro now runs
+                     a longer sequence (slide para 1, three coral
+                     wipes, slide para 2), so the phase blocks wait
+                     until para 2 is settled before they begin:
+                       Decode  at 3300ms (150ms after para 2 done)
+                       Build   at 3950ms (650ms after Decode)
+                       Partner at 4600ms (650ms after Build)
+                     800ms transition each - clear L-to-R cascade,
+                     same as before, just shifted later. */
+                  '--reveal-delay': `${3300 + i * 650}ms`,
                 } as React.CSSProperties
               }
             >
