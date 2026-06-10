@@ -748,32 +748,56 @@
    inside MaskReveal would pick up #C8D3E4 cream-on-navy-2 which
    reads as a "funny light blue" against the dark navy. White wins. */
 /* =========================================================================
-   HOW WE WORK (v2 brief Change 2)
-   Cream section between client logo strip + products. Two-row
-   composition - intro at the top, triptych of cards beneath. SVG
-   visualisations in the cards land in chunk B.
+   HOW WE WORK - scrollytelling redesign per Chris's revision.
+   Section is tall (~260vh); the visible content is pinned via sticky
+   inside it. User scrolls through 3 reveal thresholds and each card
+   cascades in with a slow 1.1s transition - "see, read, scroll, see,
+   read." Cards smaller than before, intro pinned at top.
    ========================================================================= */
 .how-we-work {
   background: #FAF5EB;
   color: var(--ink-navy);
-  padding: 120px 0 140px;
+  /* 260vh = three reveal phases x ~85vh of scroll range + buffer. */
+  height: 260vh;
+  position: relative;
 }
-@media (max-width: 767px) {
-  .how-we-work { padding: 80px 0 96px; }
-}
-.how-we-work-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 96px;
-}
-@media (max-width: 767px) {
-  .how-we-work-inner { gap: 64px; }
+@media (max-width: 1023px) {
+  /* Mobile: no page-lock. Section is content-driven height; each
+     card reveals via its own IntersectionObserver. */
+  .how-we-work {
+    height: auto;
+    padding: 80px 0 96px;
+  }
 }
 
-/* ===== Row 1: section intro ===== */
+.how-we-work-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+@media (max-width: 1023px) {
+  .how-we-work-pin {
+    position: static;
+    height: auto;
+  }
+}
+.how-we-work-pin-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+  width: 100%;
+}
+@media (max-width: 1023px) { .how-we-work-pin-inner { gap: 56px; } }
+
+/* ===== Pinned intro - sits ABOVE the cards in the sticky view ===== */
 .how-we-work-intro {
   text-align: center;
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
 }
 .how-we-work-micro {
@@ -782,27 +806,20 @@
   font-weight: 500;
   letter-spacing: 0.22em;
   color: var(--coral);
-  margin: 0 0 28px;
+  margin: 0 0 20px;
 }
 .how-we-work-specialist {
   font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(28px, 4vw, 44px);
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  /* Stolzl Light (300) per Chris - the Medium (500) read as a
+     competing headline against the hero. Light keeps it as a
+     quieter supporting voice. */
+  font-weight: 300;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.22;
+  letter-spacing: -0.01em;
   color: var(--ink-navy);
-  margin: 0;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* ===== Row 2: triptych ===== */
-.how-we-work-triptych {
-  display: flex;
-  flex-direction: column;
-  gap: 56px;
-  align-items: center;
+  margin: 0 auto;
+  max-width: 680px;
 }
 .how-we-work-subhead {
   font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
@@ -810,35 +827,55 @@
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(14, 17, 32, 0.6);
+  color: rgba(14, 17, 32, 0.5);
   margin: 0;
 }
+
+/* ===== Cards row - SMALLER than before; cascade-in driven by scroll
+   progress through the section (desktop) or per-card IntersectionObserver
+   (mobile). ===== */
 .how-we-work-cards {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
+  gap: 28px;
+  max-width: 920px;
   width: 100%;
+  padding: 0 32px;
+  box-sizing: border-box;
 }
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .how-we-work-cards {
     grid-template-columns: 1fr;
     gap: 40px;
+    padding: 0 20px;
   }
 }
 .how-we-work-card-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  max-width: 320px;
+  gap: 14px;
+  max-width: 240px;
   margin: 0 auto;
+  /* Hidden at rest; revealed by .is-revealed via scroll progress
+     (desktop) or IntersectionObserver (mobile). 1.1s transition
+     per Chris - "slow load, fully in the page, scroll, scroll
+     again, the three things load." */
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.how-we-work-card-wrap.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 .how-we-work-card {
   width: 100%;
   aspect-ratio: 1 / 1;
   background: #1A2540;
-  border-radius: 20px;
-  padding: 36px;
+  border-radius: 16px;
+  padding: 24px;
   box-sizing: border-box;
   box-shadow: 0 12px 36px -16px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -875,9 +912,9 @@
   .pulse-dot { animation: none; filter: blur(1.5px); opacity: 0.85; }
 }
 .how-we-work-card-label {
-  margin: 0;
+  margin: 6px 0 0;
   font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.18em;
   color: var(--coral);
@@ -887,7 +924,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: 20px;
+  font-size: 17px;
   letter-spacing: -0.005em;
   color: var(--ink-navy);
   text-align: center;
@@ -896,11 +933,19 @@
   margin: 0;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: rgba(14, 17, 32, 0.65);
+  color: rgba(14, 17, 32, 0.7);
   text-align: center;
-  max-width: 260px;
+  max-width: 220px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .how-we-work-card-wrap { transition: none; }
+  .how-we-work-card-wrap.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .canvas-navy .landing-hero-sub,
