@@ -1,4 +1,15 @@
 import { MaskReveal } from '../components/MaskReveal'
+import {
+  DecodeVisual,
+  BuildVisual,
+  PartnerVisual,
+} from '../components/svg/HowWeWorkVisuals'
+
+const VISUALS = {
+  decode: <DecodeVisual />,
+  build: <BuildVisual />,
+  partner: <PartnerVisual />,
+} as const
 
 /**
  * "How we work" - cream section inserted between the client logo
@@ -83,7 +94,7 @@ export function HowWeWorkSection() {
                   className={'how-we-work-card how-we-work-card--' + phase.id}
                   aria-hidden="true"
                 >
-                  {/* SVG visualisation placeholder - replaced in chunk B */}
+                  {VISUALS[phase.id]}
                 </div>
                 <p className="how-we-work-card-label">
                   {phase.number} · {phase.name.toUpperCase()}
