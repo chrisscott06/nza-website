@@ -5,8 +5,80 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NZA - Net Zero Advisory</title>
+    <!--
+      STATIC SPLASH - rendered the moment the HTML is parsed, BEFORE
+      the JS bundle has loaded or React has mounted anything. Without
+      this the user sees a blank screen for the duration of the JS
+      fetch/parse - on mobile networks via Vercel that was ~15s for
+      Chris. With this they immediately see the cream NZA splash and
+      the static React preloader takes over the moment main.tsx
+      finishes loading.
+
+      The splash is removed by main.tsx the moment React mounts (just
+      before the first render) so there's a clean handoff to the
+      React-driven preloader animation.
+    -->
+    <style>
+      html, body { margin: 0; padding: 0; background: #FAF7F0; }
+      #initial-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #FAF7F0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 18px;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      #initial-splash svg {
+        width: 84px;
+        height: 84px;
+      }
+      #initial-splash .splash-label {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(14, 17, 32, 0.42);
+        font-weight: 500;
+      }
+      #initial-splash .splash-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #0E1120;
+        margin: 0 3px;
+        opacity: 0.32;
+        animation: splash-bob 1.4s ease-in-out infinite;
+      }
+      #initial-splash .splash-dot:nth-child(2) { animation-delay: 0.18s; }
+      #initial-splash .splash-dot:nth-child(3) { animation-delay: 0.36s; }
+      @keyframes splash-bob {
+        0%, 100% { transform: translateY(0); opacity: 0.32; }
+        50%      { transform: translateY(-4px); opacity: 0.72; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #initial-splash .splash-dot { animation: none; }
+      }
+    </style>
   </head>
   <body>
+    <div id="initial-splash" aria-hidden="true">
+      <svg viewBox="0 0 267 267" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#0E1120">
+          <path d="M133.49,267C59.88,267,0,207.11,0,133.5S59.88,0,133.49,0s133.5,59.89,133.5,133.5-59.89,133.5-133.5,133.5ZM133.49,9.98c-68.11,0-123.52,55.41-123.52,123.52s55.41,123.52,123.52,123.52,123.52-55.41,123.52-123.52S201.6,9.98,133.5,9.98h0Z"/>
+          <path d="M133.1,29.19l-98.98,123.01c-.26.33-.03.81.39.81h197.95c.42,0,.65-.49.39-.81L133.88,29.19c-.2-.25-.58-.25-.78,0ZM55,142.21l78.1-97.06c.2-.25.58-.25.78,0l78.1,97.06c.26.33.03.81-.39.81H55.39c-.42,0-.65-.49-.39-.81Z"/>
+        </g>
+      </svg>
+      <div>
+        <span class="splash-dot"></span>
+        <span class="splash-dot"></span>
+        <span class="splash-dot"></span>
+      </div>
+      <span class="splash-label">Net Zero Advisory</span>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

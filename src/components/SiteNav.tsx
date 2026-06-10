@@ -248,79 +248,130 @@ export function SiteNav() {
   )
 }
 
+type MobileExpanded = 'products' | 'about' | null
+
 function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
+  /* The two top-level dropdowns ("Our products", "About us") now
+     accordion open / closed per Chris's request. Tapping a header
+     toggles its section. Tapping "Who we work with" routes directly. */
+  const [expanded, setExpanded] = useState<MobileExpanded>(null)
+
+  function toggleSection(key: MobileExpanded) {
+    setExpanded((curr) => (curr === key ? null : key))
+  }
+
   return (
     <div className="site-nav-mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu">
       <div className="site-nav-mobile-menu-inner">
-        <section className="site-nav-mobile-section">
-          <h2 className="site-nav-mobile-label">Products</h2>
-          <Link
-            to="/pablo"
-            className="site-nav-mobile-link"
-            onClick={onClose}
+
+        {/* ===== OUR PRODUCTS ===== */}
+        <section
+          className={
+            'site-nav-mobile-section site-nav-mobile-section--accordion' +
+            (expanded === 'products' ? ' is-expanded' : '')
+          }
+        >
+          <button
+            type="button"
+            className="site-nav-mobile-section-header"
+            aria-expanded={expanded === 'products'}
+            onClick={() => toggleSection('products')}
           >
-            <span
-              className="site-nav-dropdown-swatch site-nav-dropdown-swatch--pablo"
-              aria-hidden="true"
-            />
-            PABLO
-          </Link>
-          <Link
-            to="/nz-ai"
-            className="site-nav-mobile-link"
-            onClick={onClose}
-          >
-            <span
-              className="site-nav-dropdown-swatch site-nav-dropdown-swatch--nzai"
-              aria-hidden="true"
-            />
-            NZ:AI
-          </Link>
-          <Link
-            to="/decoded"
-            className="site-nav-mobile-link"
-            onClick={onClose}
-          >
-            <span
-              className="site-nav-dropdown-swatch site-nav-dropdown-swatch--decoded"
-              aria-hidden="true"
-            />
-            decodED
-          </Link>
+            <span>Our products</span>
+            <span className="site-nav-mobile-section-chevron" aria-hidden="true" />
+          </button>
+          <div className="site-nav-mobile-section-body">
+            <Link
+              to="/pablo"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'products' ? 0 : -1}
+            >
+              <span
+                className="site-nav-dropdown-swatch site-nav-dropdown-swatch--pablo"
+                aria-hidden="true"
+              />
+              PABLO
+            </Link>
+            <Link
+              to="/nz-ai"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'products' ? 0 : -1}
+            >
+              <span
+                className="site-nav-dropdown-swatch site-nav-dropdown-swatch--nzai"
+                aria-hidden="true"
+              />
+              NZ:AI
+            </Link>
+            <Link
+              to="/decoded"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'products' ? 0 : -1}
+            >
+              <span
+                className="site-nav-dropdown-swatch site-nav-dropdown-swatch--decoded"
+                aria-hidden="true"
+              />
+              decodED
+            </Link>
+          </div>
         </section>
 
-        <section className="site-nav-mobile-section">
-          <h2 className="site-nav-mobile-label">About us</h2>
-          <Link
-            to="/approach"
-            className="site-nav-mobile-link"
-            onClick={onClose}
+        {/* ===== ABOUT US ===== */}
+        <section
+          className={
+            'site-nav-mobile-section site-nav-mobile-section--accordion' +
+            (expanded === 'about' ? ' is-expanded' : '')
+          }
+        >
+          <button
+            type="button"
+            className="site-nav-mobile-section-header"
+            aria-expanded={expanded === 'about'}
+            onClick={() => toggleSection('about')}
           >
-            Our approach
-          </Link>
-          <Link
-            to="/expertise"
-            className="site-nav-mobile-link"
-            onClick={onClose}
-          >
-            Our expertise
-          </Link>
-          <Link
-            to="/about"
-            className="site-nav-mobile-link"
-            onClick={onClose}
-          >
-            Who we are
-          </Link>
+            <span>About us</span>
+            <span className="site-nav-mobile-section-chevron" aria-hidden="true" />
+          </button>
+          <div className="site-nav-mobile-section-body">
+            <Link
+              to="/approach"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'about' ? 0 : -1}
+            >
+              Our approach
+            </Link>
+            <Link
+              to="/expertise"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'about' ? 0 : -1}
+            >
+              Our expertise
+            </Link>
+            <Link
+              to="/about"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'about' ? 0 : -1}
+            >
+              Who we are
+            </Link>
+          </div>
         </section>
 
+        {/* ===== WHO WE WORK WITH (single link, no accordion) ===== */}
         <section className="site-nav-mobile-section">
           <Link
             to="/clients"
-            className="site-nav-mobile-link"
+            className="site-nav-mobile-section-header site-nav-mobile-section-header--link"
             onClick={onClose}
           >
-            Who we work with
+            <span>Who we work with</span>
           </Link>
         </section>
 

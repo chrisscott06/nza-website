@@ -525,8 +525,91 @@ body.context-decoded .nza-logo-mark-only-svg #nza-logo-mark-mobile {
 .site-nav-mobile-section {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
+/* Accordion header - the tappable button at the top of each section
+   in the mobile menu. Same visual tier as the three desktop nav items
+   ("Our products", "About us", "Who we work with") - Stolzl Medium,
+   confident size. Chevron on the right rotates 180° when expanded. */
+.site-nav-mobile-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 8px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.005em;
+  color: var(--fg-on-navy-1);
+  background: transparent;
+  border: none;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 0.5px solid rgba(245, 241, 232, 0.10);
+  transition: color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-mobile-section-header:active,
+.site-nav-mobile-section-header:focus-visible {
+  color: var(--coral);
+  outline: none;
+}
+.site-nav-mobile-section--accordion.is-expanded .site-nav-mobile-section-header {
+  color: var(--coral);
+  border-bottom-color: rgba(247, 90, 85, 0.18);
+}
+/* Chevron - small ▾ that rotates 180° when the section is open. */
+.site-nav-mobile-section-chevron {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-mobile-section--accordion.is-expanded .site-nav-mobile-section-chevron {
+  transform: translateY(2px) rotate(-135deg);
+}
+
+/* Body - the collapsible list of links beneath the header. Closed at
+   rest (max-height 0, opacity 0), opens to the natural content height
+   when .is-expanded. */
+.site-nav-mobile-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 8px;
+  transition: max-height 340ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              padding 340ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-nav-mobile-section--accordion.is-expanded .site-nav-mobile-section-body {
+  max-height: 320px;
+  opacity: 1;
+  padding: 8px 8px 16px;
+}
+
+/* "Who we work with" is a single link styled like the accordion
+   headers (same visual tier) but routes directly on tap, no
+   collapsible body. */
+.site-nav-mobile-section-header--link {
+  cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-nav-mobile-section-chevron,
+  .site-nav-mobile-section-body {
+    transition: none;
+  }
+}
+
+/* Legacy label class kept for any callers I missed (the live overlay
+   no longer renders it). */
 .site-nav-mobile-label {
   font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 10px;
