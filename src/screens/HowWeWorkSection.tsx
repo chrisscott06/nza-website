@@ -7,24 +7,22 @@ import {
 } from '../components/svg/HowWeWorkVisuals'
 
 /**
- * "How we work" - scrollytelling section between client strip + products.
+ * "How we work" - TWO bands per Chris's latest revision:
  *
- * Per Chris's revision (he flagged the previous big-square row as too
- * big and the cards repeating themselves):
- *   - Section is tall (~260vh) but the visible content is sticky-
- *     locked to the viewport during scroll
- *   - The user scrolls down to "see, read, see, read" through each
- *     phase one at a time
- *   - The three cards are smaller + cascade in slowly (1.1s each)
- *     as the user crosses each scroll threshold inside the section
- *   - Text intro stays pinned above the cards throughout
- *   - Final scroll past the last threshold releases the lock and the
- *     user continues to products
+ *   1. CREAM intro band - just the specialist sentence, sits as a
+ *      quiet continuation of the client logo strip.
+ *   2. NAVY cards band - scrollytelling section ~260vh tall with a
+ *      sticky pin and the three Decode/Build/Partner cards
+ *      cascading in slowly as the user scrolls through the
+ *      thresholds.
  *
- * Mobile (<1024): page-lock disabled, normal stacked layout, each
- * card reveals via its own IntersectionObserver as it enters viewport.
+ * The cream-navy boundary between the two bands is the hard colour
+ * cut that gives the page its alternating rhythm (per Chris:
+ *   navy hero -> cream specialists -> navy infographic -> cream
+ *   products -> navy let's talk).
  *
- * Brief: docs/briefs/nza-landing-page-v2-brief.md (Change 2)
+ * Mobile (<1024): no page-lock; each card reveals via its own
+ * IntersectionObserver as it enters viewport.
  */
 
 const VISUALS = {
@@ -65,16 +63,14 @@ const PHASES: Array<{
 ]
 
 export function HowWeWorkSection() {
-  const sectionRef = useRef<HTMLElement | null>(null)
+  /* Ref is on the NAVY cards band - that's the section the
+     scrollytelling pin lives inside. */
+  const cardsBandRef = useRef<HTMLElement | null>(null)
   const [revealedCount, setRevealedCount] = useState(0)
 
-  /* Scroll-driven reveal for desktop scrollytelling.
-     Three thresholds within the section's scroll range trigger
-     each card. Disabled on phone via a media-query check so the
-     stacked mobile layout uses its own IntersectionObserver path
-     (see effect below). */
+  /* Scroll-driven reveal for desktop scrollytelling. */
   useEffect(() => {
-    const section = sectionRef.current
+    const section = cardsBandRef.current
     if (!section) return
 
     const desktopQuery = window.matchMedia('(min-width: 1024px)')
@@ -86,16 +82,12 @@ export function HowWeWorkSection() {
       window.requestAnimationFrame(() => {
         rafPending = false
         if (!section) return
-        if (!desktopQuery.matches) return // mobile uses observer path
+        if (!desktopQuery.matches) return
         const rect = section.getBoundingClientRect()
         const usable = section.offsetHeight - window.innerHeight
         if (usable <= 0) return
         const scrolled = -rect.top
         const progress = Math.max(0, Math.min(1, scrolled / usable))
-        // Thresholds: card 1 reveals at 8% scrolled, card 2 at 32%,
-        // card 3 at 56%. Each card has ~25% scroll range to settle
-        // before the next begins, giving the "see + read" pacing
-        // Chris asked for.
         let target = 0
         if (progress >= 0.55) target = 3
         else if (progress >= 0.31) target = 2
@@ -104,28 +96,20 @@ export function HowWeWorkSection() {
       })
     }
 
-    function onResize() {
-      // Re-evaluate on resize / orientation change in case desktop
-      // <-> mobile boundary is crossed.
-      onScroll()
-    }
-
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onResize)
+    window.addEventListener('resize', onScroll)
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onResize)
+      window.removeEventListener('resize', onScroll)
     }
   }, [])
 
-  /* Mobile fallback - one IntersectionObserver per card so each
-     reveals naturally as it scrolls into view (no sticky page-lock
-     on phone). Only attaches when below the desktop breakpoint. */
+  /* Mobile fallback - per-card IntersectionObserver. */
   const mobileCardRefs = useRef<Array<HTMLElement | null>>([])
   useEffect(() => {
     const desktopQuery = window.matchMedia('(min-width: 1024px)')
-    if (desktopQuery.matches) return // desktop uses scroll path
+    if (desktopQuery.matches) return
 
     const observers: IntersectionObserver[] = []
     mobileCardRefs.current.forEach((el, i) => {
@@ -149,58 +133,62 @@ export function HowWeWorkSection() {
   }, [])
 
   return (
-    <section
-      ref={sectionRef}
-      className="how-we-work"
-      id="how-we-work"
-      data-screen-label="How we work"
-    >
-      <div className="how-we-work-pin">
-        <div className="frame how-we-work-pin-inner">
-          <div className="how-we-work-intro">
-            <MaskReveal as="p" className="how-we-work-micro" delay={0}>
-              HOW WE WORK
-            </MaskReveal>
-            <MaskReveal as="h2" className="how-we-work-specialist" delay={120}>
-              We are specialists in buildings, energy and climate. We cut through
-              the complexity of decarbonisation - and build the tools your people
-              need to act on it.
-            </MaskReveal>
-          </div>
+    <>
+      {/* ===== CREAM intro band ===== */}
+      <section
+        className="how-we-work-intro-band"
+        id="how-we-work"
+        data-screen-label="How we work"
+      >
+        <div className="frame how-we-work-intro-frame">
+          <MaskReveal as="h2" className="how-we-work-specialist" delay={0}>
+            We are specialists in buildings, energy and climate. We cut through
+            the complexity of decarbonisation - and build the tools your people
+            need to act on it.
+          </MaskReveal>
+        </div>
+      </section>
 
-          <p className="how-we-work-subhead">This is how we work.</p>
-
-          <div className="how-we-work-cards">
-            {PHASES.map((phase, i) => {
-              const isRevealed = revealedCount >= i + 1
-              return (
-                <article
-                  key={phase.id}
-                  ref={(el) => {
-                    mobileCardRefs.current[i] = el
-                  }}
-                  className={
-                    'how-we-work-card-wrap' +
-                    (isRevealed ? ' is-revealed' : '')
-                  }
-                >
-                  <div
-                    className={'how-we-work-card how-we-work-card--' + phase.id}
-                    aria-hidden="true"
+      {/* ===== NAVY cards band - scrollytelling ===== */}
+      <section
+        ref={cardsBandRef}
+        className="how-we-work-cards-band"
+        data-screen-label="How we work cards"
+      >
+        <div className="how-we-work-pin">
+          <div className="frame how-we-work-pin-inner">
+            <div className="how-we-work-cards">
+              {PHASES.map((phase, i) => {
+                const isRevealed = revealedCount >= i + 1
+                return (
+                  <article
+                    key={phase.id}
+                    ref={(el) => {
+                      mobileCardRefs.current[i] = el
+                    }}
+                    className={
+                      'how-we-work-card-wrap' +
+                      (isRevealed ? ' is-revealed' : '')
+                    }
                   >
-                    {VISUALS[phase.id]}
-                  </div>
-                  <p className="how-we-work-card-label">
-                    {phase.number} · {phase.name.toUpperCase()}
-                  </p>
-                  <h3 className="how-we-work-card-name">{phase.name}</h3>
-                  <p className="how-we-work-card-body">{phase.body}</p>
-                </article>
-              )
-            })}
+                    <div
+                      className={'how-we-work-card how-we-work-card--' + phase.id}
+                      aria-hidden="true"
+                    >
+                      {VISUALS[phase.id]}
+                    </div>
+                    <p className="how-we-work-card-label">
+                      {phase.number} · {phase.name.toUpperCase()}
+                    </p>
+                    <h3 className="how-we-work-card-name">{phase.name}</h3>
+                    <p className="how-we-work-card-body">{phase.body}</p>
+                  </article>
+                )
+              })}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }

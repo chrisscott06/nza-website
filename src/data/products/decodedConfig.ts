@@ -46,6 +46,12 @@ export const decodedConfig: ProductPageConfig = {
         shortLabel: 'Dashboard',
         alt: 'decodED dashboard showing climate risk, biodiversity and key metrics',
       },
+      {
+        /* Second dashboard view added by Chris (decoded-dashboard-2). */
+        src: '/images/products/decoded/decoded-dashboard-2.png',
+        shortLabel: 'Detail view',
+        alt: 'decodED dashboard detail view with additional metric breakdowns',
+      },
     ],
   },
 

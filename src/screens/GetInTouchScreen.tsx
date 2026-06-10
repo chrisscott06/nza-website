@@ -48,17 +48,14 @@ export function GetInTouchScreen() {
 
       <div className="frame">
         <div className="get-in-touch-inner">
-          <MaskReveal as="p" className="get-in-touch-micro" delay={0}>
-            READY WHEN YOU ARE
-          </MaskReveal>
-          <MaskReveal as="h2" className="get-in-touch-headline" delay={120}>
+          <MaskReveal as="h2" className="get-in-touch-headline" delay={0}>
             Let's <em>talk</em>.
           </MaskReveal>
-          <MaskReveal as="p" className="get-in-touch-body" delay={240}>
+          <MaskReveal as="p" className="get-in-touch-body" delay={120}>
             We'd be delighted to hear from you. Whether you want a quick demo,
             a longer conversation, or just to ask questions.
           </MaskReveal>
-          <MaskReveal as="div" className="get-in-touch-cta-wrap" delay={360}>
+          <MaskReveal as="div" className="get-in-touch-cta-wrap" delay={240}>
             <a className="get-in-touch-cta" href={CONTACT_HREF}>
               Get in touch
               <span aria-hidden="true"> →</span>
@@ -68,7 +65,7 @@ export function GetInTouchScreen() {
           {/* CONTACT ICONS ROW - moved inside the closer per v2 brief.
               Three real links: Email, LinkedIn, Call. Hover flips
               stroke + label to coral. */}
-          <MaskReveal as="div" className="get-in-touch-contacts" delay={500}>
+          <MaskReveal as="div" className="get-in-touch-contacts" delay={380}>
             <a
               className="get-in-touch-contact"
               href={`mailto:${EMAIL}`}
