@@ -8,24 +8,27 @@ import {
 } from '../components/svg/HowWeWorkVisuals'
 
 /**
- * "How we work" - TWO bands per Chris's latest revision:
+ * "How we work" - ONE page per Chris's latest. The section is a
+ * single 100vh slot with a hard horizontal divide:
  *
- *   1. CREAM intro band - the specialist sentence + a follow-up
- *      "Every engagement follows three phases" tagline. Taller now
- *      so the white reads as a deliberate breather, not a margin.
- *   2. SPLIT cards band - exactly one viewport tall (locked). Top
- *      half cream, bottom half navy, hard horizontal divide at 50%.
- *      Per phase: number + name + body sit in the cream half (navy
- *      text), the SVG visual sits in the navy half (cream-on-navy).
- *      Each "column" reads as one phase, the divide line is the
- *      thing that gives the section its visual identity.
+ *   TOP HALF (cream): the two intro paragraphs. Both Stolzl Medium
+ *     at the same size for consistency. They sit centred horizontally
+ *     and aligned to the bottom of the cream half so they hover just
+ *     above the divide line. They pop in via MaskReveal on stagger.
  *
- * Mobile (<1024): the split doesn't work in a narrow column - the
- * cards stack vertically on solid navy, same single-card layout
- * the old code used.
+ *   BOTTOM HALF (navy): three phase blocks (Decode / Build / Partner)
+ *     in a row. Each block is one atomic unit - heading, body, visual -
+ *     and fades in as a block, not piece by piece. The old coral
+ *     "01 - DECODE" mono label is gone; the number is folded into the
+ *     heading itself ("01 Decode") in big Stolzl, all white-on-navy.
  *
- * Reveal: IntersectionObserver fires once when the section enters
- * viewport; CSS handles the per-column stagger via nth-child delays.
+ * Mobile (<1024) ditches the 100vh split - the section just stacks
+ * vertically (cream zone with the two paragraphs, hard cut to navy
+ * zone with the three blocks stacked).
+ *
+ * Reveal: a single IntersectionObserver on the section trips
+ * .is-revealed once the section is 25% in view; CSS then drives the
+ * per-block stagger via inline --reveal-delay vars.
  */
 
 const VISUALS = {
@@ -67,14 +70,11 @@ const PHASES: Array<{
 
 export function HowWeWorkSection() {
   const isDesktop = useMediaQuery('(min-width: 1024px)')
-  const cardsBandRef = useRef<HTMLElement | null>(null)
+  const sectionRef = useRef<HTMLElement | null>(null)
   const [revealed, setRevealed] = useState(false)
 
-  /* Single IntersectionObserver on the cards band. When 25% of the
-     section enters viewport we fire the reveal once - CSS handles
-     the per-column stagger from there. */
   useEffect(() => {
-    const section = cardsBandRef.current
+    const section = sectionRef.current
     if (!section) return
     const obs = new IntersectionObserver(
       (entries) => {
@@ -93,97 +93,65 @@ export function HowWeWorkSection() {
   }, [])
 
   return (
-    <>
-      {/* ===== CREAM intro band ===== */}
-      <section
-        className="how-we-work-intro-band"
-        id="how-we-work"
-        data-screen-label="How we work"
-      >
-        <div className="frame how-we-work-intro-frame">
-          <MaskReveal as="h2" className="how-we-work-specialist" delay={0}>
+    <section
+      ref={sectionRef}
+      className={
+        'how-we-work-page' + (revealed ? ' is-revealed' : '')
+      }
+      id="how-we-work"
+      data-screen-label="How we work"
+    >
+      {/* ===== CREAM TOP HALF - two intro paragraphs ===== */}
+      <div className="how-we-work-page-half how-we-work-page-half--cream">
+        <div className="how-we-work-page-intro">
+          <MaskReveal as="p" className="how-we-work-page-para" delay={0}>
             We are specialists in buildings, energy and climate. We cut through
             the complexity of decarbonisation - and build the tools your people
             need to act on it.
           </MaskReveal>
-          <MaskReveal as="p" className="how-we-work-tagline" delay={260}>
+          <MaskReveal as="p" className="how-we-work-page-para" delay={280}>
             Every engagement follows three phases - decode, build, partner.
           </MaskReveal>
         </div>
-      </section>
+      </div>
 
-      {/* ===== SPLIT cards band - top half cream, bottom half navy ===== */}
-      <section
-        ref={cardsBandRef}
-        className={
-          'how-we-work-cards-band' +
-          (revealed ? ' is-revealed' : '')
-        }
-        data-screen-label="How we work cards"
-      >
-        {isDesktop ? (
-          <>
-            {/* CREAM HALF - text blocks (number / name / body) sit at
-                the bottom of this half so they sit just above the
-                divide line. */}
-            <div className="how-we-work-half how-we-work-half--top">
-              <div className="how-we-work-half-grid">
-                {PHASES.map((phase, i) => (
-                  <div
-                    key={phase.id}
-                    className="how-we-work-text-block"
-                    style={{ '--reveal-delay': `${i * 220}ms` } as React.CSSProperties}
-                  >
-                    <p className="how-we-work-card-label">
-                      {phase.number} - {phase.name.toUpperCase()}
-                    </p>
-                    <h3 className="how-we-work-card-name">{phase.name}</h3>
-                    <p className="how-we-work-card-body">{phase.body}</p>
-                  </div>
-                ))}
+      {/* ===== NAVY BOTTOM HALF - three phase blocks ===== */}
+      <div className="how-we-work-page-half how-we-work-page-half--navy">
+        <div
+          className={
+            'how-we-work-page-phases' +
+            (isDesktop ? '' : ' how-we-work-page-phases--stack')
+          }
+        >
+          {PHASES.map((phase, i) => (
+            <article
+              key={phase.id}
+              className="how-we-work-phase-block"
+              style={
+                {
+                  /* Per-block stagger - paragraphs pop first
+                     (delay 0 + ~280ms), then block 1 lands at ~700ms,
+                     block 2 at ~1100ms, block 3 at ~1500ms. Reads as
+                     a calm sequenced arrival rather than everything
+                     fighting in at once. */
+                  '--reveal-delay': `${700 + i * 400}ms`,
+                } as React.CSSProperties
+              }
+            >
+              <h3 className="how-we-work-phase-heading">
+                <span className="how-we-work-phase-number">
+                  {phase.number}
+                </span>{' '}
+                <span className="how-we-work-phase-name">{phase.name}</span>
+              </h3>
+              <p className="how-we-work-phase-body">{phase.body}</p>
+              <div className="how-we-work-phase-visual" aria-hidden="true">
+                {VISUALS[phase.id]}
               </div>
-            </div>
-            {/* NAVY HALF - SVG visuals sit at the top of this half so
-                they sit just below the divide line. Each visual lines
-                up with its text block in the cream half above. */}
-            <div className="how-we-work-half how-we-work-half--bot">
-              <div className="how-we-work-half-grid">
-                {PHASES.map((phase, i) => (
-                  <div
-                    key={phase.id}
-                    className="how-we-work-visual-block"
-                    style={{ '--reveal-delay': `${i * 220}ms` } as React.CSSProperties}
-                  >
-                    <div className="how-we-work-card" aria-hidden="true">
-                      {VISUALS[phase.id]}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          // ===== MOBILE - simple stacked layout, solid navy bg =====
-          <div className="how-we-work-mobile-stack">
-            {PHASES.map((phase, i) => (
-              <article
-                key={phase.id}
-                className="how-we-work-card-wrap-mobile"
-                style={{ '--reveal-delay': `${i * 220}ms` } as React.CSSProperties}
-              >
-                <div className="how-we-work-card" aria-hidden="true">
-                  {VISUALS[phase.id]}
-                </div>
-                <p className="how-we-work-card-label">
-                  {phase.number} - {phase.name.toUpperCase()}
-                </p>
-                <h3 className="how-we-work-card-name">{phase.name}</h3>
-                <p className="how-we-work-card-body">{phase.body}</p>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-    </>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
