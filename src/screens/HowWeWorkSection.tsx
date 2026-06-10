@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { MaskReveal } from '../components/MaskReveal'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import {
   DecodeVisual,
   BuildVisual,
@@ -9,20 +10,22 @@ import {
 /**
  * "How we work" - TWO bands per Chris's latest revision:
  *
- *   1. CREAM intro band - just the specialist sentence, sits as a
- *      quiet continuation of the client logo strip.
- *   2. NAVY cards band - scrollytelling section ~260vh tall with a
- *      sticky pin and the three Decode/Build/Partner cards
- *      cascading in slowly as the user scrolls through the
- *      thresholds.
+ *   1. CREAM intro band - the specialist sentence + a follow-up
+ *      "Every engagement follows three phases" tagline. Taller now
+ *      so the white reads as a deliberate breather, not a margin.
+ *   2. SPLIT cards band - exactly one viewport tall (locked). Top
+ *      half cream, bottom half navy, hard horizontal divide at 50%.
+ *      Per phase: number + name + body sit in the cream half (navy
+ *      text), the SVG visual sits in the navy half (cream-on-navy).
+ *      Each "column" reads as one phase, the divide line is the
+ *      thing that gives the section its visual identity.
  *
- * The cream-navy boundary between the two bands is the hard colour
- * cut that gives the page its alternating rhythm (per Chris:
- *   navy hero -> cream specialists -> navy infographic -> cream
- *   products -> navy let's talk).
+ * Mobile (<1024): the split doesn't work in a narrow column - the
+ * cards stack vertically on solid navy, same single-card layout
+ * the old code used.
  *
- * Mobile (<1024): no page-lock; each card reveals via its own
- * IntersectionObserver as it enters viewport.
+ * Reveal: IntersectionObserver fires once when the section enters
+ * viewport; CSS handles the per-column stagger via nth-child delays.
  */
 
 const VISUALS = {
@@ -63,73 +66,30 @@ const PHASES: Array<{
 ]
 
 export function HowWeWorkSection() {
-  /* Ref is on the NAVY cards band - that's the section the
-     scrollytelling pin lives inside. */
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
   const cardsBandRef = useRef<HTMLElement | null>(null)
-  const [revealedCount, setRevealedCount] = useState(0)
+  const [revealed, setRevealed] = useState(false)
 
-  /* Scroll-driven reveal for desktop scrollytelling. */
+  /* Single IntersectionObserver on the cards band. When 25% of the
+     section enters viewport we fire the reveal once - CSS handles
+     the per-column stagger from there. */
   useEffect(() => {
     const section = cardsBandRef.current
     if (!section) return
-
-    const desktopQuery = window.matchMedia('(min-width: 1024px)')
-
-    let rafPending = false
-    function onScroll() {
-      if (rafPending) return
-      rafPending = true
-      window.requestAnimationFrame(() => {
-        rafPending = false
-        if (!section) return
-        if (!desktopQuery.matches) return
-        const rect = section.getBoundingClientRect()
-        const usable = section.offsetHeight - window.innerHeight
-        if (usable <= 0) return
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / usable))
-        let target = 0
-        if (progress >= 0.55) target = 3
-        else if (progress >= 0.31) target = 2
-        else if (progress >= 0.08) target = 1
-        setRevealedCount((curr) => (curr === target ? curr : target))
-      })
-    }
-
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
-  }, [])
-
-  /* Mobile fallback - per-card IntersectionObserver. */
-  const mobileCardRefs = useRef<Array<HTMLElement | null>>([])
-  useEffect(() => {
-    const desktopQuery = window.matchMedia('(min-width: 1024px)')
-    if (desktopQuery.matches) return
-
-    const observers: IntersectionObserver[] = []
-    mobileCardRefs.current.forEach((el, i) => {
-      if (!el) return
-      const obs = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              setRevealedCount((curr) => Math.max(curr, i + 1))
-              obs.disconnect()
-              break
-            }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setRevealed(true)
+            obs.disconnect()
+            break
           }
-        },
-        { threshold: 0.35 },
-      )
-      obs.observe(el)
-      observers.push(obs)
-    })
-    return () => observers.forEach((o) => o.disconnect())
+        }
+      },
+      { threshold: 0.25 },
+    )
+    obs.observe(section)
+    return () => obs.disconnect()
   }, [])
 
   return (
@@ -146,48 +106,83 @@ export function HowWeWorkSection() {
             the complexity of decarbonisation - and build the tools your people
             need to act on it.
           </MaskReveal>
+          <MaskReveal as="p" className="how-we-work-tagline" delay={260}>
+            Every engagement follows three phases - decode, build, partner.
+          </MaskReveal>
         </div>
       </section>
 
-      {/* ===== NAVY cards band - scrollytelling ===== */}
+      {/* ===== SPLIT cards band - top half cream, bottom half navy ===== */}
       <section
         ref={cardsBandRef}
-        className="how-we-work-cards-band"
+        className={
+          'how-we-work-cards-band' +
+          (revealed ? ' is-revealed' : '')
+        }
         data-screen-label="How we work cards"
       >
-        <div className="how-we-work-pin">
-          <div className="frame how-we-work-pin-inner">
-            <div className="how-we-work-cards">
-              {PHASES.map((phase, i) => {
-                const isRevealed = revealedCount >= i + 1
-                return (
-                  <article
+        {isDesktop ? (
+          <>
+            {/* CREAM HALF - text blocks (number / name / body) sit at
+                the bottom of this half so they sit just above the
+                divide line. */}
+            <div className="how-we-work-half how-we-work-half--top">
+              <div className="how-we-work-half-grid">
+                {PHASES.map((phase, i) => (
+                  <div
                     key={phase.id}
-                    ref={(el) => {
-                      mobileCardRefs.current[i] = el
-                    }}
-                    className={
-                      'how-we-work-card-wrap' +
-                      (isRevealed ? ' is-revealed' : '')
-                    }
+                    className="how-we-work-text-block"
+                    style={{ '--reveal-delay': `${i * 220}ms` } as React.CSSProperties}
                   >
-                    <div
-                      className={'how-we-work-card how-we-work-card--' + phase.id}
-                      aria-hidden="true"
-                    >
-                      {VISUALS[phase.id]}
-                    </div>
                     <p className="how-we-work-card-label">
-                      {phase.number} · {phase.name.toUpperCase()}
+                      {phase.number} - {phase.name.toUpperCase()}
                     </p>
                     <h3 className="how-we-work-card-name">{phase.name}</h3>
                     <p className="how-we-work-card-body">{phase.body}</p>
-                  </article>
-                )
-              })}
+                  </div>
+                ))}
+              </div>
             </div>
+            {/* NAVY HALF - SVG visuals sit at the top of this half so
+                they sit just below the divide line. Each visual lines
+                up with its text block in the cream half above. */}
+            <div className="how-we-work-half how-we-work-half--bot">
+              <div className="how-we-work-half-grid">
+                {PHASES.map((phase, i) => (
+                  <div
+                    key={phase.id}
+                    className="how-we-work-visual-block"
+                    style={{ '--reveal-delay': `${i * 220}ms` } as React.CSSProperties}
+                  >
+                    <div className="how-we-work-card" aria-hidden="true">
+                      {VISUALS[phase.id]}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          // ===== MOBILE - simple stacked layout, solid navy bg =====
+          <div className="how-we-work-mobile-stack">
+            {PHASES.map((phase, i) => (
+              <article
+                key={phase.id}
+                className="how-we-work-card-wrap-mobile"
+                style={{ '--reveal-delay': `${i * 220}ms` } as React.CSSProperties}
+              >
+                <div className="how-we-work-card" aria-hidden="true">
+                  {VISUALS[phase.id]}
+                </div>
+                <p className="how-we-work-card-label">
+                  {phase.number} - {phase.name.toUpperCase()}
+                </p>
+                <h3 className="how-we-work-card-name">{phase.name}</h3>
+                <p className="how-we-work-card-body">{phase.body}</p>
+              </article>
+            ))}
           </div>
-        </div>
+        )}
       </section>
     </>
   )
