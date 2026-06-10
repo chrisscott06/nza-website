@@ -1763,36 +1763,61 @@
 }
 
 /* =========================================================================
-   GET IN TOUCH closing screen - scaffold (proper styling in chunk B)
+   GET IN TOUCH ("Let's talk") closer - v2 brief Change 4
+   Continues the navy band from the products section above (no colour
+   cut between them). Section is ~65vh so it closes the page without
+   dominating. Contact icons live INSIDE the section per v2 so the
+   footer can collapse to a single legal strip.
    ========================================================================= */
-.get-in-touch-screen {
-  background: var(--ink-navy);
+/* Specificity bumped (.screen.get-in-touch-screen = 0,2,0) so it
+   beats .screen.canvas-navy + .screen for both background and the
+   65vh min-height the brief specifies. */
+.screen.get-in-touch-screen {
+  background: #1A2540;
   color: var(--fg-on-navy-1);
-  /* Clip the heavy-blur blobs to the section bounds. */
+  min-height: 65vh;
   overflow: hidden;
   position: relative;
+  /* The 100vh-tall .screen default centred its content; with 65vh
+     we just let content size naturally inside the padding. */
+  justify-content: flex-start;
 }
-/* The .frame parent of .get-in-touch-inner needs to sit above the
-   blob field so the headline + CTA stay readable. */
+@media (max-width: 767px) {
+  .screen.get-in-touch-screen { min-height: auto; }
+}
 .get-in-touch-screen > .frame {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 .get-in-touch-inner {
   max-width: 720px;
   margin: 0 auto;
-  padding: 120px 24px;
+  padding: 100px 24px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media (max-width: 767px) {
+  .get-in-touch-inner { padding: 72px 24px; }
+}
+/* Section micro label - "READY WHEN YOU ARE" */
+.get-in-touch-micro {
+  margin: 0 0 24px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--coral);
 }
 .get-in-touch-headline {
   font-family: var(--font-display);
-  font-weight: 300;
-  /* Page hero tier (72px) per June 2026 type scale - the closing
-     CTA wants the same weight as a section's primary headline. */
-  font-size: clamp(36px, 5.4vw, 72px);
+  font-weight: 500;
+  font-size: clamp(44px, 6vw, 72px);
   line-height: 1.04;
   letter-spacing: -0.025em;
   margin: 0 0 24px;
+  color: var(--fg-on-navy-1);
 }
 .get-in-touch-headline em {
   font-family: "Times New Roman", serif;
@@ -1801,40 +1826,94 @@
   color: var(--coral);
   font-size: 1.15em;
 }
-/* Selector qualified with .canvas-navy to beat the global
-   `.canvas-navy p { color: var(--fg-on-navy-2) }` rule - same
-   specificity fix as .landing-hero-sub. */
 .canvas-navy .get-in-touch-body,
 .get-in-touch-body {
-  /* Stolzl Thin per Chris - matches the landing hero sub-line
-     treatment so the two navy-body moments on the homepage flow
-     read as one continuous editorial voice. */
-  font-family: var(--font-display);
-  font-weight: 100;
-  font-size: clamp(18px, 1.8vw, 24px);
-  line-height: 1.4;
-  letter-spacing: -0.005em;
-  color: #FFFFFF;
-  max-width: 520px;
-  margin: 0 auto 40px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  color: rgba(245, 241, 232, 0.75);
+  max-width: 580px;
+  margin: 0 auto 36px;
+}
+
+/* PRIMARY CTA - solid coral pill, white text, soft coral glow. */
+.get-in-touch-cta-wrap {
+  margin-bottom: 48px;
 }
 .get-in-touch-cta {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 28px;
+  gap: 4px;
+  padding: 14px 32px;
   background: var(--coral);
-  color: var(--ink-navy);
+  color: #FFFFFF;
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  font-size: 14px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
-  border-radius: 2px;
-  transition: transform 220ms ease-out, box-shadow 220ms ease-out;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -8px rgba(247, 90, 85, 0.4);
+  transition: background 240ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.get-in-touch-cta:hover {
+.get-in-touch-cta:hover,
+.get-in-touch-cta:focus-visible {
+  background: #DC4844;
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px -10px rgba(247, 90, 85, 0.55);
+  outline: none;
+}
+
+/* CONTACT ICONS ROW - three icons, ~80px gap. Real links each. */
+.get-in-touch-contacts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 80px;
+}
+@media (max-width: 767px) {
+  .get-in-touch-contacts {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+.get-in-touch-contact {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  text-decoration: none;
+  color: var(--fg-on-navy-1);
+  transition: color 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.get-in-touch-contact svg {
+  width: 36px;
+  height: 36px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: stroke 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.get-in-touch-contact-label {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: rgba(245, 241, 232, 0.7);
+  transition: color 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.get-in-touch-contact:hover,
+.get-in-touch-contact:focus-visible {
+  color: var(--coral);
+  outline: none;
+}
+.get-in-touch-contact:hover .get-in-touch-contact-label,
+.get-in-touch-contact:focus-visible .get-in-touch-contact-label {
+  color: var(--coral);
 }
