@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { HomeScreen } from '../screens/HomeScreen'
+import { HowWeWorkSection } from '../screens/HowWeWorkSection'
 import { ProductsScreen } from '../screens/ProductsScreen'
 import { GetInTouchScreen } from '../screens/GetInTouchScreen'
 
@@ -37,6 +38,7 @@ export function WebsitePage() {
   return (
     <>
       <HomeScreen />
+      <HowWeWorkSection />
       <ProductsScreen />
       <GetInTouchScreen />
     </>

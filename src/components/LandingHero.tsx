@@ -80,20 +80,10 @@ export function LandingHero() {
               for your organisation.
             </MaskReveal>
           </h1>
-          {/* Body lifts up as one block per Chris's latest - "we can
-              just lift it up in one go, but give it a second or two
-              for that to fade in." 2500ms delay places it ~half a
-              second after the third headline line finishes settling. */}
-          <MaskReveal
-            as="p"
-            className="landing-hero-sub"
-            delay={2500}
-            waitForPreloader
-          >
-            We are specialists in buildings, energy and climate. We cut through
-            the complexity of decarbonisation - and build the tools your people
-            need to act on it.
-          </MaskReveal>
+          {/* Sub-line removed per v2 brief - the specialist sentence
+              moves to the new "How we work" section beneath the
+              client strip. The hero is now slot-machine only so the
+              rotating word claims the screen. */}
         </div>
       </div>
     </>
