@@ -264,6 +264,21 @@ function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
     <div className="site-nav-mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu">
       <div className="site-nav-mobile-menu-inner">
 
+        {/* ===== HOME (single link, no accordion) =====
+            On mobile the NZA mark in the nav opens the menu rather
+            than routing, so without this row the user has no way to
+            get back to the homepage from inside a product / about
+            page. Sits at the top so it's the easiest tap. */}
+        <section className="site-nav-mobile-section">
+          <Link
+            to="/"
+            className="site-nav-mobile-section-header site-nav-mobile-section-header--link"
+            onClick={onClose}
+          >
+            <span>Home</span>
+          </Link>
+        </section>
+
         {/* ===== OUR PRODUCTS ===== */}
         <section
           className={
