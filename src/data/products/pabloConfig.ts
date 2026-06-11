@@ -23,11 +23,17 @@ export const pabloConfig: ProductPageConfig = {
     microLabel: 'SOFTWARE',
     name: 'PABLO',
     logoSrc: '/assets/logos/pablo-logo.svg',
-    tagline: 'Half-hourly intelligence. Real impact.',
+    /* Tagline updated per Chris - was "Half-hourly intelligence. Real
+       impact." Now a punchier promise that frames PABLO as the answer
+       to "energy is confusing." */
+    tagline: 'Make energy make sense',
     oneLiner:
-      'Bespoke energy analytics and optimisation software. PABLO brings intelligence to how buildings consume, generate, and trade energy - turning complexity into clear, actionable insight.',
-    ctaLabel: 'Get in touch',
-    ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=PABLO%20-%20Get%20in%20touch',
+      'Your electricity bill is more complex than you think. PABLO breaks it down - and shows you what to do about it.',
+    /* CTA updated per nza-pablo-page-brief.md Change 3 - "Get in
+       Touch" -> "Book a demo" on every PABLO-page CTA (hero + closer).
+       The site-wide nav CTA stays "GET IN TOUCH". */
+    ctaLabel: 'Book a demo',
+    ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=PABLO%20-%20Book%20a%20demo',
     screens: [
       {
         /* Real PABLO home / site workspace screen. */
@@ -69,73 +75,104 @@ export const pabloConfig: ProductPageConfig = {
     trailingText: 'how we do it',
   },
 
+  /* Five "how it works" sections per nza-pablo-page-brief.md Change 1.
+     Copy is LOCKED - do not paraphrase. Section verbs (breaks down /
+     models / separates / test / builds) are the coral-highlighted
+     words in each headline; the prefix + suffix render in cream
+     around them. Icons are interim placeholders - per the brief, real
+     illustrations will be supplied as SVG exports in a follow-up. */
   steps: [
     {
       number: '01',
-      iconName: 'ti-map',
+      iconName: 'ti-receipt',
       headlinePrefix: 'First, PABLO ',
-      highlightedVerb: 'maps',
-      headlineSuffix: ' every load on your site.',
+      highlightedVerb: 'breaks down',
+      headlineSuffix: ' your bill.',
       body:
-        'Every building, every meter, every connection. Half-hourly data, real measurements, no industry-average estimates.',
-      illustrationConcept: 'site-boundary-with-meters',
+        "All PABLO needs is your load shape and a copy of your electricity bill. From those two inputs, it builds a complete picture of your demand and breaks out your costs into every constituent charge.",
+      illustrationConcept: 'bill-decomposition',
     },
     {
       number: '02',
-      iconName: 'ti-bolt',
+      iconName: 'ti-activity',
       headlinePrefix: 'Then PABLO ',
       highlightedVerb: 'models',
-      headlineSuffix: ' the interventions.',
+      headlineSuffix: ' your demand.',
       body:
-        'Solar, battery, flex services. Test every combination. Find what works and what does not.',
-      illustrationConcept: 'solar-battery-load',
+        "Explore your building's energy profile at half-hourly resolution. See where your peaks are, how weekdays differ from weekends, where the patterns and anomalies hide. Then play with it - model the impact of electrifying heat, installing EV chargers, or shifting your peaks.",
+      illustrationConcept: 'demand-profile-half-hourly',
     },
     {
       number: '03',
       iconName: 'ti-currency-pound',
       headlinePrefix: 'Next, PABLO ',
-      highlightedVerb: 'builds',
-      headlineSuffix: ' the financial case.',
+      highlightedVerb: 'separates',
+      headlineSuffix: ' every charge.',
       body:
-        'Costs, savings, payback. Year-by-year, line-by-line. A case your finance director will read.',
-      illustrationConcept: 'payback-curve-breakeven',
+        "Your electricity rate isn't one number - it's built from over a dozen separate charges, each escalating at a different rate. PABLO separates every component, shows you which charges are rising fastest, and projects them forward.",
+      illustrationConcept: 'charges-stack',
     },
     {
       number: '04',
-      iconName: 'ti-rocket',
-      headlinePrefix: 'Finally, you ',
-      highlightedVerb: 'deploy',
-      headlineSuffix: ' the strategy.',
+      iconName: 'ti-flask',
+      headlinePrefix: 'Then you ',
+      highlightedVerb: 'test',
+      headlineSuffix: ' every option.',
       body:
-        'From spreadsheet to substation. PABLO stays with you through implementation and monitoring.',
-      illustrationConcept: 'building-energy-flows',
+        'Solar, wind, battery storage, peak shaving, tariff arbitrage, flexibility revenue. Change an input and watch everything respond - the energy flows, the cost stack, the financial case. See the battery cycling, the solar feeding in, the picture shifting in real time.',
+      illustrationConcept: 'options-sandbox',
+    },
+    {
+      number: '05',
+      iconName: 'ti-chart-bar',
+      headlinePrefix: 'Finally, PABLO ',
+      highlightedVerb: 'builds',
+      headlineSuffix: ' the investment case.',
+      body:
+        'Layer interventions together, compare scenarios side by side, and see the full financial case over the asset lifetime. The analytical confidence to recommend a strategy - or to challenge one.',
+      illustrationConcept: 'investment-case-stack',
     },
   ],
 
+  /* Closer restructured per nza-pablo-page-brief.md Change 2:
+     - microLabel omitted (the old "WHO'S USING PABLO" pink eyebrow
+       is dropped entirely)
+     - subhead replaced with the combined audience + value line that
+       used to sit at the bottom of the page sign-off
+     - clientLogos -> caseStudies: 3 expandable cards (Hartpury / IVG
+       / RWGC), Molson dropped per the brief
+     - ctaLabel "Get in touch" -> "Book a demo" */
   closer: {
-    microLabel: "WHO'S USING PABLO",
     headline: 'Real estates. Real savings.',
     subhead:
-      'PABLO is helping commercial sites across the UK turn complexity into clear, costed action.',
-    clientLogos: [
+      'Built for energy consultants, sustainability advisors, and building owners who need to understand the true cost of electricity - and the real value of the solutions. PABLO turns complexity into clear, costed action.',
+    caseStudies: [
       {
-        src: `${CLIENT_LOGO_BASE}/hartpury-university.svg`,
+        id: 'hartpury',
+        logoSrc: `${CLIENT_LOGO_BASE}/hartpury-university.svg`,
         alt: 'Hartpury University',
+        companyName: 'Hartpury University',
+        body:
+          "PABLO was used to analyse Hartpury's site load and optimise their grid connection - saving over GBP250,000 a year in network charges and rising, while enabling them to move forward with their electrification strategy with confidence.",
       },
       {
-        src: `${CLIENT_LOGO_BASE}/inspired-villages.svg`,
+        id: 'inspired-villages',
+        logoSrc: `${CLIENT_LOGO_BASE}/inspired-villages.svg`,
         alt: 'Inspired Villages',
+        companyName: 'Inspired Villages',
+        body:
+          "PABLO is being used to model IVG's entire portfolio - providing clarity on their energy spend and developing a microgrid strategy that delivers energy resilience, supports IVG's net zero ambitions, and benefits residents directly.",
       },
       {
-        src: `${CLIENT_LOGO_BASE}/molson-group.svg`,
-        alt: 'Molson Group',
-      },
-      {
-        src: `${CLIENT_LOGO_BASE}/royal-wimbledon-golf-club.svg`,
+        id: 'royal-wimbledon',
+        logoSrc: `${CLIENT_LOGO_BASE}/royal-wimbledon-golf-club.svg`,
         alt: 'Royal Wimbledon Golf Club',
+        companyName: 'Royal Wimbledon Golf Club',
+        body:
+          "PABLO is being used to make sense of RWGC's electricity spend, find them a better tariff, and now model a solar canopy and battery system to help power one of the oldest golf clubs in England.",
       },
     ],
-    ctaLabel: 'Get in touch',
-    ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=PABLO%20-%20Get%20in%20touch',
+    ctaLabel: 'Book a demo',
+    ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=PABLO%20-%20Book%20a%20demo',
   },
 }

@@ -1061,6 +1061,170 @@
   filter: brightness(0);
   opacity: 0.55;
 }
+
+/* =========================================================================
+   CASE STUDIES (PABLO June 2026 redesign) - three click-to-expand cards
+   sitting where the stacked client logos used to. Spec values lifted
+   verbatim from nza-pablo-page-brief.md Change 2.
+   ========================================================================= */
+.product-closer-cases {
+  width: 100%;
+  margin: 32px 0 40px;
+}
+/* MaskReveal wraps its children in a `<span class="mask-reveal-inner">`
+   that does the translateY arrival animation. That inner span ends up
+   between .product-closer-cases and the actual card buttons in the DOM,
+   so the grid template has to sit on the INNER span - putting it on
+   .product-closer-cases would only give it one grid child (the inner
+   span) and the three buttons would stack normally inside that. */
+.product-closer-cases > .mask-reveal-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  /* Each card stretches to the row's tallest content; align-items:
+     start so the row settles at the closed-card height when nothing is
+     expanded, and a single open card grows downward into the row. */
+  align-items: start;
+  /* Span the cases container's full width - MaskReveal's default
+     display: block already does this on the inner, but we explicitly
+     set the width to be defensive against future MaskReveal changes. */
+  width: 100%;
+}
+@media (max-width: 767px) {
+  /* Per brief: below 768px, three cards stack vertically. */
+  .product-closer-cases > .mask-reveal-inner {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .product-closer-cases { margin: 24px 0 32px; }
+}
+
+/* The card itself is a button so the whole surface is clickable +
+   keyboard-accessible. Reset button chrome, then apply the card spec. */
+.product-closer-case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 180px;
+  padding: 32px 28px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(237, 229, 216, 0.12);
+  border-radius: 16px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  /* Max-height is the magic that makes the height transition smooth.
+     Default = the closed-card height (matches min-height 180); open
+     state lifts to a generous ceiling so the content's natural height
+     decides where the card actually ends. */
+  max-height: 180px;
+  overflow: hidden;
+  transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-closer-case:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(237, 229, 216, 0.20);
+}
+.product-closer-case:focus-visible {
+  outline: 2px solid var(--product-accent-light);
+  outline-offset: 4px;
+}
+.product-closer-case.is-open {
+  background: rgba(255, 255, 255, 0.08);
+  /* Coral hairline marks the active card. */
+  border-color: rgba(247, 90, 85, 0.30);
+  /* Generous ceiling so the body copy decides actual height. */
+  max-height: 600px;
+}
+
+/* Logo - centred when card is closed; anchored to top when open so
+   the company name + body have room beneath. The logo is rendered in
+   the same cream monochrome treatment as the legacy logo row. */
+.product-closer-case-logo {
+  height: 56px;
+  max-width: 140px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-closer-case:hover .product-closer-case-logo {
+  opacity: 1;
+}
+@media (max-width: 767px) {
+  .product-closer-case-logo { height: 48px; max-width: 120px; }
+}
+
+/* Chevron-down at bottom-right, drawn from CSS borders so we don't
+   pull in another icon dependency. Rotates 180deg when the card is
+   open per the brief. */
+.product-closer-case-chevron {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid #EDE5D8;
+  border-bottom: 1.5px solid #EDE5D8;
+  transform: rotate(45deg);
+  opacity: 0.4;
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-closer-case:hover .product-closer-case-chevron {
+  opacity: 0.8;
+}
+.product-closer-case.is-open .product-closer-case-chevron {
+  /* Flip the chevron: original rotate(45) points down; rotate(-135)
+     (= 45 - 180) points up. */
+  transform: rotate(-135deg);
+  opacity: 0.85;
+}
+
+/* Reveal panel - lives in the DOM always so the parent's max-height
+   transition has content to size to, but opacity 0 at rest so it's
+   invisible until is-open lands. Per brief: body fades in with a
+   ~150ms delay AFTER the card starts expanding. */
+.product-closer-case-reveal {
+  width: 100%;
+  margin-top: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              margin-top 460ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-closer-case.is-open .product-closer-case-reveal {
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 24px;
+  /* Opacity + transform delayed so the height transition leads. */
+  transition-delay: 150ms;
+}
+
+.product-closer-case-name {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.005em;
+  color: rgba(237, 229, 216, 0.95);
+}
+.product-closer-case-body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(237, 229, 216, 0.7);
+}
+
 .product-closer-cta {
   display: inline-flex;
   align-items: center;
@@ -1115,5 +1279,14 @@
   }
   .browser-frame-progress-segment.is-active .browser-frame-progress-fill {
     width: 100%;
+  }
+  /* Case studies expand/collapse becomes instant per the brief
+     ("prefers-reduced-motion is respected - expand/collapse becomes
+     instant if requested"). */
+  .product-closer-case,
+  .product-closer-case-reveal,
+  .product-closer-case-chevron,
+  .product-closer-case-logo {
+    transition: none !important;
   }
 }

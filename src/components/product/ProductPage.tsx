@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
@@ -81,11 +81,25 @@ export type ProductPageConfig = {
   }>
   /** SECTION 5 - Closer */
   closer: {
-    microLabel: string
+    /** Optional - dropped from PABLO per the June 2026 redesign
+     *  brief; NZ:AI and decodED still pass it through. */
+    microLabel?: string
     headline: string
     subhead: string
-    /** Optional - omit for decodED which has no logo row. */
+    /** Plain logo row used by NZ:AI / decodED. Mutually exclusive
+     *  with caseStudies - if both are provided the cases win. */
     clientLogos?: Array<{ src: string; alt: string }>
+    /** Click-to-expand case-study cards used by PABLO per the June
+     *  2026 redesign brief. Each card shows the logo at rest, expands
+     *  on click to reveal the company name + body, and only one card
+     *  can be open at a time. */
+    caseStudies?: Array<{
+      id: string
+      logoSrc: string
+      alt: string
+      companyName: string
+      body: string
+    }>
     ctaLabel: string
     ctaHref: string
   }
@@ -99,6 +113,12 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [config.slug])
+
+  /* Case studies single-expand state - only one card open at a time.
+     Null = all collapsed. Click the open card to collapse, click a
+     different card to swap. Used only when config.closer.caseStudies
+     is provided (currently just PABLO per the June 2026 redesign). */
+  const [expandedCaseId, setExpandedCaseId] = useState<string | null>(null)
 
   // Set the document title per product so browser tabs read the
   // product name. Restores on unmount.
@@ -312,31 +332,99 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           </div>
         )}
         <div className="product-closer-inner">
-          <MaskReveal as="p" className="product-closer-micro" delay={0}>
-            {config.closer.microLabel}
-          </MaskReveal>
+          {/* microLabel is now optional. PABLO drops it per the
+              June 2026 brief; NZ:AI and decodED still pass it. */}
+          {config.closer.microLabel && (
+            <MaskReveal as="p" className="product-closer-micro" delay={0}>
+              {config.closer.microLabel}
+            </MaskReveal>
+          )}
           <MaskReveal as="h2" className="product-closer-headline" delay={150}>
             {config.closer.headline}
           </MaskReveal>
           <MaskReveal as="p" className="product-closer-subhead" delay={300}>
             {config.closer.subhead}
           </MaskReveal>
-          {config.closer.clientLogos && config.closer.clientLogos.length > 0 && (
+
+          {/* CASE STUDIES (new PABLO layout) - three click-to-expand
+              cards. Single-expand pattern: clicking an unopened card
+              opens it and closes any other open card; clicking the
+              open card collapses it. */}
+          {config.closer.caseStudies && config.closer.caseStudies.length > 0 && (
             <MaskReveal
               as="div"
-              className="product-closer-clients"
+              className="product-closer-cases"
               delay={500}
             >
-              {config.closer.clientLogos.map((logo, i) => (
-                <img
-                  key={i}
-                  src={logo.src}
-                  alt={logo.alt}
-                  className="product-closer-client-logo"
-                />
-              ))}
+              {config.closer.caseStudies.map((cs) => {
+                const isOpen = expandedCaseId === cs.id
+                return (
+                  <button
+                    key={cs.id}
+                    type="button"
+                    className={
+                      'product-closer-case' +
+                      (isOpen ? ' is-open' : '')
+                    }
+                    aria-expanded={isOpen}
+                    aria-label={
+                      isOpen
+                        ? `Collapse ${cs.alt} case study`
+                        : `Expand ${cs.alt} case study`
+                    }
+                    onClick={() =>
+                      setExpandedCaseId((curr) =>
+                        curr === cs.id ? null : cs.id,
+                      )
+                    }
+                  >
+                    <img
+                      src={cs.logoSrc}
+                      alt={cs.alt}
+                      className="product-closer-case-logo"
+                    />
+                    {/* Chevron rotates 180deg when open via CSS. */}
+                    <span
+                      className="product-closer-case-chevron"
+                      aria-hidden="true"
+                    />
+                    {/* Reveal panel - rendered in the DOM always so
+                        the max-height transition has content to size
+                        to; opacity + max-height animate together. */}
+                    <div
+                      className="product-closer-case-reveal"
+                      aria-hidden={!isOpen}
+                    >
+                      <p className="product-closer-case-name">{cs.companyName}</p>
+                      <p className="product-closer-case-body">{cs.body}</p>
+                    </div>
+                  </button>
+                )
+              })}
             </MaskReveal>
           )}
+
+          {/* Plain logo row (existing NZ:AI / decodED layout). Only
+              rendered if caseStudies isn't provided. */}
+          {!config.closer.caseStudies &&
+            config.closer.clientLogos &&
+            config.closer.clientLogos.length > 0 && (
+              <MaskReveal
+                as="div"
+                className="product-closer-clients"
+                delay={500}
+              >
+                {config.closer.clientLogos.map((logo, i) => (
+                  <img
+                    key={i}
+                    src={logo.src}
+                    alt={logo.alt}
+                    className="product-closer-client-logo"
+                  />
+                ))}
+              </MaskReveal>
+            )}
+
           <MaskReveal as="div" delay={650}>
             <a className="product-closer-cta" href={config.closer.ctaHref}>
               {config.closer.ctaLabel}
