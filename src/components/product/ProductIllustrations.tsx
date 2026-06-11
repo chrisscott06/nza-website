@@ -16,6 +16,7 @@
 
 import type { ReactNode } from 'react'
 import { PabloSection01Animation } from './pablo/PabloSection01Animation'
+import { PabloSection02Animation } from './pablo/PabloSection02Animation'
 
 const ILLUSTRATIONS: Record<string, ReactNode> = {
   // ============================================================
@@ -272,18 +273,34 @@ const ILLUSTRATIONS: Record<string, ReactNode> = {
   ),
 }
 
-/* Concepts that have moved off the static-SVG placeholder pattern
-   and into their own animated React components. The first one is
-   PABLO Section 01 ("Break down your bill") per the June 2026
-   animation brief - the inputs rise up, hold, swipe out, donut
-   slides in and sweeps, labels fade. */
-const ANIMATED_CONCEPTS: Record<string, () => ReactNode> = {
-  'bill-decomposition': () => <PabloSection01Animation />,
+/* Animated concepts now take a stepIndex prop so the component can
+   find its corresponding .product-step-text-block in the DOM and
+   subscribe to scroll progress through it (the scrollytelling
+   pattern Chris asked for in June 2026 - phases advance with
+   user scroll, not on a timer). */
+const ANIMATED_CONCEPTS: Record<
+  string,
+  (props: { stepIndex: number }) => ReactNode
+> = {
+  'bill-decomposition': ({ stepIndex }) => (
+    <PabloSection01Animation stepIndex={stepIndex} />
+  ),
+  'demand-profile-half-hourly': ({ stepIndex }) => (
+    <PabloSection02Animation stepIndex={stepIndex} />
+  ),
 }
 
-export function ProductIllustration({ concept }: { concept: string }) {
+export function ProductIllustration({
+  concept,
+  stepIndex,
+}: {
+  concept: string
+  stepIndex?: number
+}) {
   const animated = ANIMATED_CONCEPTS[concept]
-  if (animated) return animated()
+  if (animated && stepIndex !== undefined) {
+    return animated({ stepIndex })
+  }
   const illustration = ILLUSTRATIONS[concept]
   if (!illustration) return null
   return illustration

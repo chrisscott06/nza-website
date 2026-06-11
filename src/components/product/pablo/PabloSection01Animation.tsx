@@ -3,33 +3,26 @@ import { useEffect, useRef, useState } from 'react'
 /**
  * PABLO Section 01 ("Break down your bill") animation.
  *
- * Per Chris's refined direction: drop Recharts' simultaneous sweep
- * in favour of per-segment pops. Each donut wedge enters with a
- * spring-overshoot scale (grows past 1, settles back) alongside its
- * own label - building the donut piece-by-piece around the clock.
+ * SCROLL-DRIVEN per Chris's June 2026 redesign: the user scrolls
+ * through the step's 300vh-tall text-block; phase transitions fire
+ * as the user passes scroll thresholds, NOT on a timer.
  *
- * Sequence:
- *   pre        Nothing visible. Waiting for IO.
- *   a_in       0-700ms     Bill + plus + load shape pop up from below
- *                          the frame with a spring bounce.
- *   a_hold     700-2200ms  Composition holds.
- *   b_swipe    2200-2800ms Inputs SLIDE FULLY OFF the left edge of the
- *                          frame (translateX(-150%) - "really sliding
- *                          off the page" per Chris). Frame clips them.
- *   b_donut_in 2300-3000ms Donut SVG slides in from the right (100ms
- *                          overlap with the inputs swipe).
- *   b_segments 3000ms+     Six segments + labels appear ONE AT A TIME,
- *                          each with a spring-overshoot scale pop:
- *                              Wholesale at 3000
- *                              DUoS      at 3220
- *                              TNUoS     at 3440
- *                              Cost Gap  at 3660
- *                              Levies    at 3880
- *                              Other     at 4100
- *                          Per-segment animation: 480ms scale 0 -> ~1.06
- *                          -> 1 (overshoot ease). Label fades in over
- *                          400ms alongside its segment.
- *   done       ~4600ms+    Final state held; never replays.
+ *   Scroll 0 - 25%   pre - text only, frame empty
+ *   Scroll 25 - 55%  a   - inputs (bill + plus + load shape) rise up
+ *                          + hold (timer-based within the phase)
+ *   Scroll 55 - 100% b   - inputs swipe off left, donut slides in
+ *                          from right, segments pop in clockwise
+ *                          one-by-one (timer-based within the phase)
+ *
+ * Phase transitions are MONOTONIC: once 'a' fires it stays through
+ * 'b', and once 'b' fires it stays. Scrolling back doesn't reverse
+ * the animation - matches the "scroll forward through the story"
+ * feel Chris described.
+ *
+ * Within each phase, the existing time-based cascade still runs:
+ *   a_in (700ms scale-in) -> a_hold
+ *   b_swipe (700ms full swipe off) -> b_donut_in (700ms slide) ->
+ *     b_segments (6 x 220ms segment+label pops) -> done
  *
  * prefers-reduced-motion jumps straight to 'done' with all segments
  * visible immediately.
@@ -111,9 +104,10 @@ type Phase =
   | 'b_segments' /* segments + labels popping in one by one */
   | 'done' /* final state */
 
+/* Within-phase timer transitions only. Phase-LEVEL transitions
+   (pre -> a_in, a_hold -> b_swipe) are now scroll-driven below. */
 const PHASE_TIMINGS: Partial<Record<Phase, { next: Phase; afterMs: number }>> = {
   a_in: { next: 'a_hold', afterMs: 700 },
-  a_hold: { next: 'b_swipe', afterMs: 1500 },
   /* Donut starts sliding in 100ms after inputs begin swiping off -
      overlap for a clean handoff while the inputs are still mid-swipe. */
   b_swipe: { next: 'b_donut_in', afterMs: 100 },
@@ -123,12 +117,24 @@ const PHASE_TIMINGS: Partial<Record<Phase, { next: Phase; afterMs: number }>> = 
   b_donut_in: { next: 'b_segments', afterMs: 700 },
 }
 
+/* Scroll-progress thresholds (as fraction of progress through the
+   parent text-block's scroll runway) at which each phase fires.
+   Below 0.25 -> 'pre'. At >= 0.25 -> kick into 'a_in'. At >= 0.55
+   -> kick into 'b_swipe' (and from there the timer cascade carries
+   it through b_donut_in -> b_segments -> done). */
+const SCROLL_PHASE_A_AT = 0.25
+const SCROLL_PHASE_B_AT = 0.55
+
 /* Stagger between consecutive segments popping in. 220ms feels like a
    confident clockwise build - quick enough to keep momentum, slow
    enough that each pop reads as its own moment. */
 const SEGMENT_STAGGER_MS = 220
 
-export function PabloSection01Animation() {
+export function PabloSection01Animation({
+  stepIndex,
+}: {
+  stepIndex: number
+}) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<Phase>('pre')
   /* How many segments have popped in so far (0 -> 6). Segments use
@@ -144,32 +150,60 @@ export function PabloSection01Animation() {
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* IO trigger - fires once on first viewport entry; disconnects so
-     the sequence plays exactly once per page load. */
+  /* Scroll-driven phase trigger. Polls the corresponding text-block's
+     viewport position via requestAnimationFrame and advances the
+     phase as the user crosses thresholds. Monotonic - never
+     reverses. RAF polling instead of a scroll-event listener
+     because body { overflow-x: hidden } makes the scroll target
+     awkward (events fire inconsistently across host vs iframe
+     contexts) - polling is reliable in all cases at a flat ~60Hz
+     cost while the component is mounted. */
   useEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-    if (phase !== 'pre') return
-    const obs = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            if (reduced) {
-              setPhase('done')
-              setVisibleSegments(DONUT_DATA.length)
-            } else {
-              setPhase('a_in')
-            }
-            obs.disconnect()
-            break
-          }
-        }
-      },
-      { threshold: 0.3 },
+    if (reduced) {
+      setPhase('done')
+      setVisibleSegments(DONUT_DATA.length)
+      return
+    }
+    const blocks = document.querySelectorAll<HTMLElement>(
+      '.product-step-text-block',
     )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [phase, reduced])
+    const block = blocks[stepIndex]
+    if (!block) return
+
+    let frameId = 0
+    let lastProgress = -1
+    const tick = () => {
+      const rect = block.getBoundingClientRect()
+      const scrollRange = rect.height - window.innerHeight
+      if (scrollRange > 0) {
+        const scrolled = -rect.top
+        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
+        /* Only call setPhase when progress crosses a threshold;
+           keeps React renders down. */
+        if (Math.abs(progress - lastProgress) > 0.002) {
+          lastProgress = progress
+          setPhase((curr) => {
+            if (progress >= SCROLL_PHASE_B_AT) {
+              if (curr === 'pre' || curr === 'a_in' || curr === 'a_hold') {
+                return 'b_swipe'
+              }
+              return curr
+            }
+            if (progress >= SCROLL_PHASE_A_AT) {
+              if (curr === 'pre') return 'a_in'
+              return curr
+            }
+            return curr
+          })
+        }
+      }
+      frameId = window.requestAnimationFrame(tick)
+    }
+    frameId = window.requestAnimationFrame(tick)
+    return () => {
+      if (frameId) window.cancelAnimationFrame(frameId)
+    }
+  }, [stepIndex, reduced])
 
   /* Cascade timer - each phase schedules its successor per
      PHASE_TIMINGS. b_segments has its own effect below. */

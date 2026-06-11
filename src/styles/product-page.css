@@ -689,6 +689,26 @@
   }
 }
 
+/* SCROLLYTELL MODIFIER - steps with their own scroll-driven animation
+   (currently PABLO sections 01 + 02) get a 3x viewport-tall text-block
+   so the user scrolls THROUGH the step to advance the animation's
+   phases. Text stays pinned via .product-step-text-sticky (no change
+   there); the frame stays sticky too; the extra runway is what gives
+   the animation room to play out across the user's scroll input.
+   Per Chris: scroll 1 -> text only, scroll 2 -> first animation,
+   scroll 3 -> second animation, scroll 4 -> next step. */
+.product-step-text-block--scrollytell {
+  min-height: 300vh;
+}
+@media (max-width: 1023px) {
+  /* Mobile drops the shared frame entirely and uses inline-illustration
+     per step - the runway concept doesn't apply, so revert to content
+     height. */
+  .product-step-text-block--scrollytell {
+    min-height: auto;
+  }
+}
+
 /* THE STICKY TEXT - the content that page-locks during a step's
    scroll range. The Impilo mechanic Chris asked for: text stays
    pinned at top: 22vh until the user has scrolled the block's full
@@ -1629,6 +1649,90 @@
   .pablo-s01-stage,
   .pablo-s01-donut-seg,
   .pablo-s01-donut-label {
+    transition: none !important;
+  }
+}
+
+/* =========================================================================
+   PABLO SECTION 02 ANIMATION - "Understand your demand" load-shape morph
+   Three scroll-triggered states (year / month / week). Recharts handles
+   the line morph between data sets via its internal 1200ms animation.
+   ========================================================================= */
+.pablo-s02 {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+/* State label - top-right of the chart, mono micro-typography. */
+.pablo-s02-state-label {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--product-accent-light);
+  /* Fade in when the chart phase first lands. */
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s02-state-label.is-in {
+  opacity: 1;
+}
+
+/* Pulsing dot - 4px coral, slow ~2s breathing. */
+.pablo-s02-state-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--product-accent-light);
+  animation: pablo-s02-pulse 2s ease-in-out infinite;
+}
+@keyframes pablo-s02-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+.pablo-s02-state-text {
+  /* Cross-fade label text when phase changes - leans on React's key
+     change to trigger a fresh in-out animation. */
+  animation: pablo-s02-label-in 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes pablo-s02-label-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Chart container - full square, fades in alongside the state label. */
+.pablo-s02-chart {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s02-chart.is-in {
+  opacity: 1;
+}
+
+/* Recharts internal sizing inside the .pablo-s02-chart wrapper. */
+.pablo-s02 .recharts-wrapper,
+.pablo-s02 .recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pablo-s02-state-dot { animation: none; }
+  .pablo-s02-state-label,
+  .pablo-s02-chart {
     transition: none !important;
   }
 }

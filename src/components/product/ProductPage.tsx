@@ -83,6 +83,10 @@ export type ProductPageConfig = {
     headlineSuffix: string
     body: string
     illustrationConcept: string
+    /** Opt this step into scrollytelling - text-block becomes 300vh
+     *  tall and the animation's phases advance based on scroll
+     *  progress through the block (per Chris's June 2026 direction). */
+    scrollytell?: boolean
   }>
   /** SECTION 5 - Closer */
   closer: {
