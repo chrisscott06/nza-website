@@ -502,13 +502,20 @@
   animation: landing-blob-drift-3 27s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 }
 .landing-blob--git-coral {
-  background: rgba(247, 90, 85, 0.22);
+  /* Coral up from 0.22 -> 0.34 per Chris ("up the coral a bit").
+     More presence so the blur reads as warmth rather than as a
+     dim corner. */
+  background: rgba(247, 90, 85, 0.34);
   top: 14%;
   left: 14%;
   animation: landing-blob-drift-4 36s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 }
 .landing-blob--git-cream {
-  background: rgba(245, 241, 232, 0.16);
+  /* Cream down from 0.16 -> 0.06 per Chris ("tone down the cream
+     ... it feels very white, spotlight-ish"). Half the brightness
+     so the cream reads as a gentle warmth at the edge rather than
+     a bare lightbulb. */
+  background: rgba(245, 241, 232, 0.06);
   bottom: 12%;
   left: 8%;
   animation: landing-blob-drift-1 41s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
@@ -774,12 +781,41 @@
   color: #fff;
   /* Curved top edge - the Impilo "curve pops up" detail. As the user
      scrolls down from the navy hero, the coral section rises with a
-     soft 32px arc on its top corners before the pin engages. */
+     soft 32px arc on its top corners before the pin engages. The
+     parallax (hero stays put, coral slides up over it) comes from
+     .hero-coral-stack below pinning the hero via position: sticky. */
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
+  /* Above the sticky hero in the stack so the coral covers the navy
+     as it rises. */
+  z-index: 1;
   /* Sets the highlight underline colour for white-on-coral. The
      .highlight-coral rule pulls --underline-color via fallback. */
   --underline-color: #fff;
+}
+
+/* ===== HERO + CORAL PARALLAX STACK =====
+   Wraps just .landing-screen (hero) + .how-we-work-page (coral) so
+   the sticky hero scopes to this pair only and doesn't pin to the
+   top of the page through Products / Let's Talk. As the user scrolls
+   into the coral page, the hero stays at viewport top:0 (sticky)
+   while the coral rises up over it - "different rate of scroll for
+   the pink bit versus what's behind" per Chris. The 32px rounded top
+   on the coral is the visible curve as it crests the still hero. */
+.hero-coral-stack {
+  position: relative;
+}
+/* `#home.screen` in nza-website.css sets position: relative at (0,1,1)
+   specificity (one ID + one class), which beats `.hero-coral-stack
+   .landing-screen` (0,2,0). Match its specificity with another ID +
+   class selector and rely on source order (landing.css imports after
+   nza-website.css) to win. */
+.hero-coral-stack #home.landing-screen {
+  position: sticky;
+  top: 0;
+  /* Behind the coral page in the z-stack so the coral covers it
+     as it rises. */
+  z-index: 0;
 }
 .how-we-work-page-pin {
   position: sticky;

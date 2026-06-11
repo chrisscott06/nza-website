@@ -37,8 +37,17 @@ export function WebsitePage() {
 
   return (
     <>
-      <HomeScreen />
-      <HowWeWorkSection />
+      {/* Hero + coral page share a parallax wrapper. The hero is
+          position: sticky inside this stack so it stays in place
+          while the coral panel rises UP over it - the floating
+          curve transition Chris asked for (Impilo-style "different
+          rate of scroll for the pink bit versus what's behind").
+          Scoped to JUST these two so the sticky hero doesn't
+          interfere with anything below the coral page. */}
+      <div className="hero-coral-stack">
+        <HomeScreen />
+        <HowWeWorkSection />
+      </div>
       <ProductsScreen />
       <GetInTouchScreen />
     </>
