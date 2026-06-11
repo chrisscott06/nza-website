@@ -11,49 +11,56 @@ import {
 /**
  * PABLO Section 02 ("Understand your demand") animation.
  *
- * AUTO-PLAY ON VIEW + click-through PILLS per Chris's June 2026
- * round 3. The previous scroll-scrubbed model locked the user
- * inside the section. The new model:
+ * SCROLL-DRIVEN PHASES per Chris's June 2026 round 4 direction:
  *
- *   1. The step's text-block enters the viewport (IO threshold 0.4).
- *   2. phase is set to 'year' - the chart fades in and the 1-year
- *      load shape draws.
- *   3. Three pills sit at the bottom of the frame: [1 YEAR],
- *      [1 MONTH], [1 WEEK]. Click any of them at any time and the
- *      line MORPHS in place to that shape (squashes and stretches
- *      rather than redrawing). The morph is achieved by:
+ *   - 300vh runway (block --scrollytell).
+ *   - The user scrolls THROUGH the section and the chart progresses
+ *     phase by phase. Each phase gets ~25% of the runway = ~50vh of
+ *     scroll, so a single firm wheel push doesn't blow through it.
  *
- *      a. Resampling all three source slices (year=8760 pts,
- *         month=744 pts, week=168 pts) to the SAME length (N_POINTS).
- *      b. Indexing the X axis on the integer 0..N_POINTS-1, not on
- *         timestamps - so all three datasets share the same X domain.
- *      c. Keeping the <Line> element stable across phase changes
- *         (no key={phase}) - Recharts' isAnimationActive then
- *         interpolates each point's y value from the previous
- *         dataset to the new one over 900ms.
+ *   0.00 - 0.15  pre    chart empty (frame still has its dots)
+ *   0.15 - 0.40  year   chart fades in with the 1-year shape
+ *   0.40 - 0.60  month  line MORPHS in place to MARCH
+ *   0.60 - 0.85  week   line MORPHS in place to WEEK OF 10 MAR
+ *   0.85 - 1.00  outro  chart fades back out before next step
  *
- * Y domain is LOCKED at [0, 80] across all three states so the kW
- * scale stays consistent and peaks aren't normalised - you see the
- * actual kW values as the window zooms in.
+ * The morph (squash and stretch) is achieved by resampling all
+ * three source slices to the same length (N_POINTS=168) and keeping
+ * the <Line> element stable - Recharts' isAnimationActive
+ * interpolates each point's y value over 900ms.
  *
- * Tick labels are formatted from index based on the active phase:
- *   year  -> month name   (Jan / Feb / ...)
- *   month -> day of march (1, 5, 10, 15, 20, 25, 30)
- *   week  -> weekday short (Mon / Tue / ...)
+ * Y domain is LOCKED at [0, 80] kW across all three states so the
+ * scale stays consistent and peaks aren't normalised.
  *
- * Data loaded via fetch from /assets/data/pablo-load-data.json
- * (~42KB; lazy-fetched since Section 02 is not above the fold).
+ * Pills [1 YEAR] [1 MONTH] [1 WEEK] snap the phase to that view.
+ * The next wheel event lets scroll take over again.
  *
- * prefers-reduced-motion jumps straight to the week view; pills
- * remain clickable.
+ * prefers-reduced-motion jumps straight to the week view.
  */
 
-type Phase = 'pre' | 'year' | 'month' | 'week'
+type Phase = 'pre' | 'year' | 'month' | 'week' | 'outro'
 
 /* Common length for all three datasets - chosen so the week view
    (168 points = one point per hour) stays at full resolution and
    the year + month views get downsampled to fit. */
 const N_POINTS = 168
+
+/* Scroll-progress phase thresholds (upper bound of each phase). */
+const PHASE_BOUNDS = {
+  preEnd:   0.15,
+  yearEnd:  0.40,
+  monthEnd: 0.60,
+  weekEnd:  0.85,
+  /* >= weekEnd -> outro */
+} as const
+
+function phaseFromProgress(p: number): Phase {
+  if (p < PHASE_BOUNDS.preEnd) return 'pre'
+  if (p < PHASE_BOUNDS.yearEnd) return 'year'
+  if (p < PHASE_BOUNDS.monthEnd) return 'month'
+  if (p < PHASE_BOUNDS.weekEnd) return 'week'
+  return 'outro'
+}
 
 /* Source data starts 2025-01-01T00:00 hourly. March 1 sits at hour
    (31 + 28) * 24 = 1416. 10 March is 9 days into March = 1416 + 9*24
@@ -86,7 +93,10 @@ function resample(arr: number[], targetN: number): number[] {
 
 /** Format a tick (index 0..N_POINTS-1) into a human label based on
  *  the active phase. */
-function formatTick(index: number, phase: Phase): string {
+function formatTick(
+  index: number,
+  phase: 'year' | 'month' | 'week',
+): string {
   if (phase === 'year') {
     const monthIdx = Math.floor((index / N_POINTS) * 12)
     return [
@@ -116,7 +126,7 @@ function formatTick(index: number, phase: Phase): string {
 }
 
 /** Tick positions to show on the X axis per phase. */
-function ticksFor(phase: Phase): number[] {
+function ticksFor(phase: 'year' | 'month' | 'week'): number[] {
   if (phase === 'year') {
     return Array.from({ length: 12 }, (_, i) =>
       Math.floor((i * N_POINTS) / 12),
@@ -138,7 +148,9 @@ export function PabloSection02Animation({
   const [values, setValues] = useState<number[] | null>(null)
   const [phase, setPhase] = useState<Phase>('pre')
   const [reduced, setReduced] = useState(false)
-  const autoPlayStarted = useRef(false)
+  /* Pill override - takes precedence over the scroll-derived phase
+     until the next scroll event clears it. */
+  const pillOverride = useRef<Phase | null>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -163,10 +175,12 @@ export function PabloSection02Animation({
     }
   }, [])
 
-  /* Auto-play trigger: when the step's text-block enters the viewport
-     (IO threshold 0.4), set phase='year' so the chart fades in with
-     the 1-year shape. After that, the user drives the morphs by
-     clicking the pills - the IO is disconnected. */
+  /* Scroll-driven phase. Polls the matching text-block's viewport
+     position via RAF and recomputes phase on each frame.
+     Bidirectional - no monotonic guard - scrolling back walks
+     phases in reverse and the line morphs back. Pill clicks set
+     pillOverride which short-circuits scroll until the next scroll
+     event clears it. */
   useEffect(() => {
     if (reduced) {
       setPhase('week')
@@ -178,25 +192,32 @@ export function PabloSection02Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !autoPlayStarted.current) {
-          autoPlayStarted.current = true
-          setPhase('year')
-          io.disconnect()
+    let frameId = 0
+    let lastProgress = -1
+    const tick = () => {
+      const rect = block.getBoundingClientRect()
+      const scrollRange = rect.height - window.innerHeight
+      if (scrollRange > 0) {
+        const scrolled = -rect.top
+        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
+        if (Math.abs(progress - lastProgress) > 0.002) {
+          if (pillOverride.current !== null) pillOverride.current = null
+          lastProgress = progress
+          setPhase(phaseFromProgress(progress))
         }
-      },
-      { threshold: 0.4 },
-    )
-    io.observe(block)
-    return () => io.disconnect()
+      }
+      frameId = window.requestAnimationFrame(tick)
+    }
+    frameId = window.requestAnimationFrame(tick)
+    return () => {
+      if (frameId) window.cancelAnimationFrame(frameId)
+    }
   }, [stepIndex, reduced])
 
-  /* Pill click - user takes over. We DON'T need any timer cleanup
-     since there's no cascade for Section 02; just swap the phase
-     and let Recharts animate the line morph. */
+  /* Pill click - snap to that phase. Scroll overwrites this on the
+     next wheel event. */
   const onPillClick = (target: 'year' | 'month' | 'week') => {
-    autoPlayStarted.current = true
+    pillOverride.current = target
     setPhase(target)
   }
 
@@ -222,7 +243,8 @@ export function PabloSection02Animation({
   /* Active dataset wrapped as Recharts row objects. All three
      datasets share the same integer X domain (0..N_POINTS-1) so
      Recharts morphs the line in place between phases instead of
-     redrawing it from zero. */
+     redrawing it from zero. Outro keeps showing the week dataset
+     so the line doesn't reflow back to year as it fades. */
   const data = useMemo(() => {
     if (!datasets || phase === 'pre') return []
     const yArr =
@@ -230,24 +252,34 @@ export function PabloSection02Animation({
         ? datasets.year
         : phase === 'month'
           ? datasets.month
-          : datasets.week
+          : datasets.week /* week or outro */
     return yArr.map((v, i) => ({ t: i, kw: v }))
   }, [datasets, phase])
+
+  /* Pill highlight - 'outro' = "last seen view is week", so we keep
+     [1 Week] active during the fade. */
+  const pillView: 'year' | 'month' | 'week' =
+    phase === 'month' ? 'month' : phase === 'year' ? 'year' : 'week'
 
   const labelText =
     phase === 'year'
       ? '1 YEAR'
       : phase === 'month'
         ? '1 MONTH · MARCH'
-        : phase === 'week'
+        : phase === 'week' || phase === 'outro'
           ? '1 WEEK · 10 MAR'
           : ''
 
-  const chartIsIn = phase !== 'pre'
-  const xTicks = phase !== 'pre' ? ticksFor(phase) : []
+  /* Chart is in view for every phase except pre and outro - those
+     are the fade-in and fade-out moments. */
+  const chartIsIn = phase !== 'pre' && phase !== 'outro'
+  const xTicks =
+    phase !== 'pre' && phase !== 'outro' ? ticksFor(pillView) : []
+
+  const isOutro = phase === 'outro'
 
   return (
-    <div className="pablo-s02">
+    <div className={'pablo-s02' + (isOutro ? ' is-outro' : '')}>
       <div
         className={
           'pablo-s02-state-label' + (chartIsIn ? ' is-in' : '')
@@ -285,7 +317,7 @@ export function PabloSection02Animation({
                 type="number"
                 domain={[0, N_POINTS - 1]}
                 ticks={xTicks}
-                tickFormatter={(t: number) => formatTick(t, phase)}
+                tickFormatter={(t: number) => formatTick(t, pillView)}
                 tick={{
                   fontSize: 10,
                   fill: 'rgba(26, 37, 64, 0.62)',
@@ -345,13 +377,13 @@ export function PabloSection02Animation({
         )}
       </div>
 
-      {/* Tab pills at the bottom of the frame - clicking any pill
-          morphs the line in place to that time-window. */}
+      {/* Tab pills at the bottom of the frame - snap to a phase.
+          Scroll takes over again on the next wheel event. */}
       <div className="pablo-tab-pills">
         <button
           type="button"
           className={
-            'pablo-tab-pill' + (phase === 'year' ? ' is-active' : '')
+            'pablo-tab-pill' + (pillView === 'year' ? ' is-active' : '')
           }
           onClick={() => onPillClick('year')}
         >
@@ -360,7 +392,7 @@ export function PabloSection02Animation({
         <button
           type="button"
           className={
-            'pablo-tab-pill' + (phase === 'month' ? ' is-active' : '')
+            'pablo-tab-pill' + (pillView === 'month' ? ' is-active' : '')
           }
           onClick={() => onPillClick('month')}
         >
@@ -369,7 +401,7 @@ export function PabloSection02Animation({
         <button
           type="button"
           className={
-            'pablo-tab-pill' + (phase === 'week' ? ' is-active' : '')
+            'pablo-tab-pill' + (pillView === 'week' ? ' is-active' : '')
           }
           onClick={() => onPillClick('week')}
         >

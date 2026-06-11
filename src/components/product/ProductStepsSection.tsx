@@ -35,6 +35,14 @@ export type StepData = {
   headlineSuffix: string
   body: string
   illustrationConcept: string
+  /** Opt this step into the long-runway scrollytelling pattern: the
+   *  text-block is 300vh tall, the inner text + shared frame are
+   *  sticky, and the animation component reads its own scroll
+   *  progress inside the block to advance phases (intro -> phases ->
+   *  outro). User still scrolls naturally through; they're never
+   *  locked. Off by default - steps with static illustrations stay
+   *  100vh. */
+  scrollytell?: boolean
 }
 
 type Props = {
@@ -85,7 +93,8 @@ export function ProductStepsSection({
             }}
             className={
               'product-step-text-block' +
-              (i === activeIndex ? ' is-active' : '')
+              (i === activeIndex ? ' is-active' : '') +
+              (step.scrollytell ? ' product-step-text-block--scrollytell' : '')
             }
           >
             {/* Text content is sticky WITHIN its 100vh-tall block -

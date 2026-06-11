@@ -17,6 +17,7 @@
 import type { ReactNode } from 'react'
 import { PabloSection01Animation } from './pablo/PabloSection01Animation'
 import { PabloSection02Animation } from './pablo/PabloSection02Animation'
+import { PabloSection03Animation } from './pablo/PabloSection03Animation'
 
 const ILLUSTRATIONS: Record<string, ReactNode> = {
   // ============================================================
@@ -287,6 +288,9 @@ const ANIMATED_CONCEPTS: Record<
   ),
   'demand-profile-half-hourly': ({ stepIndex }) => (
     <PabloSection02Animation stepIndex={stepIndex} />
+  ),
+  'charges-stack': ({ stepIndex }) => (
+    <PabloSection03Animation stepIndex={stepIndex} />
   ),
 }
 

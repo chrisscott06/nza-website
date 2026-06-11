@@ -689,6 +689,24 @@
   }
 }
 
+/* SCROLLYTELL RUNWAY - PABLO sections 01/02/03 each get 300vh of
+   scroll runway so the user moves through the animation's phases
+   gradually as they scroll. Text + frame are sticky inside, so the
+   visual stays pinned while progress advances through phases like
+   "info appears -> breakdown appears -> graphic leaves". Chris's
+   June 2026 round 3 ask: each animation should get multiple
+   discrete scroll moments and time to breathe before the next one.
+   Mobile drops the shared frame entirely so the runway concept
+   doesn't apply - revert to content height. */
+.product-step-text-block--scrollytell {
+  min-height: 300vh;
+}
+@media (max-width: 1023px) {
+  .product-step-text-block--scrollytell {
+    min-height: auto;
+  }
+}
+
 /* THE STICKY TEXT - the content that page-locks during a step's
    scroll range. The Impilo mechanic Chris asked for: text stays
    pinned at top: 22vh until the user has scrolled the block's full
@@ -1495,6 +1513,13 @@
   /* Match the frame's inner border-radius so the clipping edge
      curves around the cards instead of presenting sharp corners. */
   border-radius: 10px;
+  /* Outro fade-out as the user scrolls toward the next step's
+     runway - .is-outro is added by the component in the last
+     ~10% of progress. */
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s01.is-outro {
+  opacity: 0;
 }
 .pablo-s01-stage {
   position: absolute;
@@ -1655,16 +1680,15 @@
   height: 100%;
   overflow: hidden;
   border-radius: 10px;
-  /* Centre the chart vertically inside the frame - the chart itself
-     is squashed to ~16:9 so there's whitespace above/below per
-     Chris's "too tall, more square" feedback. The absolute-positioned
-     state label still floats top-right regardless. padding-bottom
-     reserves space for the tab pills row. */
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding-bottom: 56px;
   box-sizing: border-box;
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s02.is-outro {
+  opacity: 0;
 }
 
 /* State label - top-right of the chart, mono micro-typography. */
@@ -1712,15 +1736,22 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Chart container - SQUASHED to ~16:9 per Chris's "the graph itself
-   is too tall" feedback. width:100% fills the frame's horizontal
-   space; aspect-ratio gives it a wide-rectangle shape; max-height
-   caps it on tall frames so it never exceeds the frame's content
-   area. The parent .pablo-s02 centres it vertically. */
+/* Chart container - aspect-ratio 3:2 splits the difference between
+   the square the chart used to be (too tall) and the 16:9 it became
+   (too wide / squashed). White background covers the cream-frame
+   dot texture so the chart reads as a clean clinical graph rather
+   than something painted onto the frame.
+   Padding pushes the Recharts plot area inward from the rounded
+   white card so the axis ticks sit nicely INSIDE the card. */
 .pablo-s02-chart {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 2;
   max-height: 100%;
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 0.5px solid rgba(26, 37, 64, 0.08);
+  padding: 12px 14px 8px 4px;
+  box-sizing: border-box;
   opacity: 0;
   transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1744,6 +1775,115 @@
 }
 
 /* =========================================================================
+   PABLO SECTION 03 ANIMATION - "See what's actually driving cost"
+   Two-phase: Phase A (comparison bars) cross-fades to Phase B
+   (15yr projection with dashed trajectory line + endpoint dot).
+   ========================================================================= */
+.pablo-s03 {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 56px;
+  box-sizing: border-box;
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s03.is-outro {
+  opacity: 0;
+}
+
+/* State label - same micro-typography pattern as Section 02. */
+.pablo-s03-state-label {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--product-accent-light);
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s03-state-label.is-in { opacity: 1; }
+.pablo-s03-state-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--product-accent-light);
+  animation: pablo-s02-pulse 2s ease-in-out infinite;
+}
+.pablo-s03-state-text {
+  animation: pablo-s02-label-in 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Chart cards - same white background + soft border treatment as
+   Section 02 so the frame's dot texture doesn't show through.
+   aspect-ratio 3:2 matches Section 02's height feel. Both chart
+   cards are absolutely stacked at the same spot and cross-fade
+   between phases via the .is-in class. */
+.pablo-s03-chart {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 56px; /* leaves room for the pills row */
+  margin: auto 0;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  max-height: calc(100% - 56px);
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 0.5px solid rgba(26, 37, 64, 0.08);
+  padding: 12px 14px 8px 4px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s03-chart.is-in {
+  opacity: 1;
+}
+
+/* Recharts internal sizing inside each chart card. */
+.pablo-s03 .recharts-wrapper,
+.pablo-s03 .recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 2040 endpoint marker - subtle pop on first render. */
+.pablo-s03 .recharts-reference-dot circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pablo-s03-dot-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 2100ms backwards;
+}
+@keyframes pablo-s03-dot-pop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pablo-s03-state-dot { animation: none; }
+  .pablo-s03-state-label,
+  .pablo-s03-chart,
+  .pablo-s03 {
+    transition: none !important;
+  }
+  .pablo-s03 .recharts-reference-dot circle {
+    animation: none;
+  }
+}
+
+/* =========================================================================
    PABLO TAB PILLS - shared across Section 01 + Section 02 (and future
    sections that want a "click to swap state" interaction). Pinned to
    the bottom-centre of the .pablo-sNN wrapper, sit above the
@@ -1751,7 +1891,8 @@
    the bottom of its wrapper so the pills don't crowd the visual.
    ========================================================================= */
 .pablo-s01 .pablo-tab-pills,
-.pablo-s02 .pablo-tab-pills {
+.pablo-s02 .pablo-tab-pills,
+.pablo-s03 .pablo-tab-pills {
   position: absolute;
   bottom: 14px;
   left: 50%;
