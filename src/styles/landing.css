@@ -748,126 +748,110 @@
    inside MaskReveal would pick up #C8D3E4 cream-on-navy-2 which
    reads as a "funny light blue" against the dark navy. White wins. */
 /* =========================================================================
-   HOW WE WORK - one page, hard horizontal divide. Per Chris's latest:
+   HOW WE WORK - HOT CORAL scroll-pinned page per Chris's latest.
 
-     TOP HALF (cream): the two intro paragraphs. Both Stolzl Medium,
-       same size, sit aligned to the bottom of the cream half so they
-       hover just above the divide. MaskReveal pops them in on stagger.
+   Background: solid coral so the section is "very clearly different"
+   from the navy hero above and the cream products section below.
+   Curved top edge (border-radius 32px on the top corners) so the
+   coral rises with a soft arc as you scroll down from the hero -
+   same trick Impilo uses on impilo.health.
 
-     BOTTOM HALF (navy): three phase blocks (Decode / Build / Partner)
-       side by side. Each block is one atomic unit - heading, body,
-       visual - and fades in as a block, staggered after the
-       paragraphs. The old coral "01 - DECODE" mono label is gone; the
-       number is folded into the heading itself ("01 Decode") in big
-       Stolzl, all white-on-navy.
+   Layout: 2-column grid inside the sticky pin.
+     LEFT  the two intro paragraphs in white Stolzl Book, with the
+           three highlight words ("buildings", "energy", "climate")
+           getting a white underline that draws L->R one at a time.
+     RIGHT three phase blocks STACKED VERTICALLY (1 -> 2 -> 3). Each
+           block is heading + body text on the left, with a small
+           (60px) SVG visual on the right.
 
-   Mobile (<1024) drops the 100vh split - the section just stacks
-   vertically (cream zone with the paragraphs, hard cut to navy zone
-   with the three blocks stacked).
+   Mobile (<1024) drops the pin and the 2-column grid - section becomes
+   content-tall, paragraphs on top, three phase blocks stacked below.
    ========================================================================= */
 .how-we-work-page {
-  /* OUTER scroll runway. The pin wrapper inside is sticky at top: 0
-     with height 100vh; the (300vh - 100vh = 200vh) of extra outer
-     height is the scroll length over which the pin holds the inner
-     layout to the viewport. The user scrolls into the section, the
-     pin engages, animations play out while pin is locked, then the
-     user scrolls past the bottom of this 300vh container and the
-     next section takes over. */
   position: relative;
   height: 300vh;
-  /* Background colour matters once the pin releases - the small gap
-     between pin's bottom edge and parent's bottom edge would otherwise
-     show the page bg. Set to the navy of the navy-half so the
-     transition out feels seamless. */
-  background: var(--ink-navy);
+  background: var(--coral);
+  color: #fff;
+  /* Curved top edge - the Impilo "curve pops up" detail. As the user
+     scrolls down from the navy hero, the coral section rises with a
+     soft 32px arc on its top corners before the pin engages. */
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  /* Sets the highlight underline colour for white-on-coral. The
+     .highlight-coral rule pulls --underline-color via fallback. */
+  --underline-color: #fff;
 }
 .how-we-work-page-pin {
   position: sticky;
   top: 0;
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 @media (max-width: 1023px) {
-  /* Mobile drops the pin entirely - section is content-tall and the
-     two halves stack vertically. */
   .how-we-work-page {
     height: auto;
-    background: transparent;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
   }
   .how-we-work-page-pin {
     position: static;
     top: auto;
     height: auto;
     display: block;
+    padding: 96px 0 112px;
   }
 }
 
-/* Both halves are flex containers that centre their content
-   horizontally. The cream half aligns to the BOTTOM (paragraphs sit
-   just above the divide). The navy half aligns to the TOP (phase
-   blocks sit just below the divide). On mobile the alignment is
-   irrelevant since the section is content-tall. */
-.how-we-work-page-half {
-  flex: 1 1 0;
-  min-height: 0;
-  display: flex;
-  justify-content: center;
+/* 2-column grid: left text, right phase blocks stacked. */
+.how-we-work-page-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 96px;
+  max-width: 1180px;
   width: 100%;
+  padding: 0 56px;
   box-sizing: border-box;
-}
-.how-we-work-page-half--cream {
-  background: #FAF5EB;
-  color: var(--ink-navy);
-  align-items: flex-end;
-  padding: 80px 32px 56px;
-}
-.how-we-work-page-half--navy {
-  /* Was hard-coded #1A2540, a lighter blue that didn't match the
-     hero. Switched to the design-system token --ink-navy (#0E1120)
-     so the homepage's navy is one shade everywhere. */
-  background: var(--ink-navy);
-  color: var(--fg-on-navy-1);
-  align-items: flex-start;
-  padding: 56px 32px 80px;
+  align-items: center;
 }
 @media (max-width: 1023px) {
-  .how-we-work-page-half--cream {
-    padding: 96px 20px 80px;
-    align-items: center;
-  }
-  .how-we-work-page-half--navy {
-    padding: 80px 20px 96px;
-    align-items: center;
+  .how-we-work-page-grid {
+    grid-template-columns: 1fr;
+    gap: 64px;
+    padding: 0 24px;
+    align-items: start;
   }
 }
 
-/* CREAM HALF - two paragraphs centred. Same Stolzl Medium at the
-   same size, separated by a generous gap so they read as two
-   independent voices rather than a wrapped paragraph. */
-.how-we-work-page-intro {
-  max-width: 760px;
-  width: 100%;
+/* LEFT column - paragraphs. Stolzl Book at a confident size, plenty
+   of breathing room. Aligned to the start so the heading reads
+   editorially, not centred. */
+.how-we-work-page-left {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 28px;
-  text-align: center;
+  gap: 32px;
+  max-width: 580px;
+}
+@media (max-width: 1023px) {
+  .how-we-work-page-left { gap: 24px; max-width: none; }
 }
 .how-we-work-page-para {
   margin: 0;
   font-family: var(--font-display);
-  /* Stolzl Book (400) per Chris - was Medium (500). Book reads as
-     the calm body voice for the two paragraphs, leaving Medium
-     reserved for the highlighted words inside. */
   font-weight: 400;
-  /* Bumped up another tier - was clamp(22px, 2.6vw, 32px). Chris
-     asked to "increase the size of this font" so the cream half
-     reads with more presence. */
-  font-size: clamp(24px, 2.8vw, 36px);
-  line-height: 1.3;
+  font-size: clamp(26px, 2.8vw, 36px);
+  line-height: 1.28;
   letter-spacing: -0.01em;
-  color: var(--ink-navy);
+  color: #fff;
+}
+/* The follow-up "Every engagement follows..." line gets a slightly
+   smaller size + a touch of opacity so it reads as a second voice
+   beneath the headline statement rather than competing with it. */
+.how-we-work-page-para--tagline {
+  font-size: clamp(18px, 1.7vw, 22px);
+  line-height: 1.4;
+  opacity: 0.85;
 }
 
 /* ---------- HIGHLIGHT-CORAL: per-word coral underline ----------
@@ -894,7 +878,10 @@
      bottom is roughly the descender baseline for Stolzl Book. */
   bottom: 0.18em;
   height: 0.06em;
-  background: var(--coral);
+  /* Pulls colour from --underline-color set by the parent context
+     (white on the new coral page). Falls back to the original
+     coral if no override is set. */
+  background: var(--underline-color, var(--coral));
   transform: scaleX(0);
   transform-origin: left center;
 }
@@ -910,94 +897,96 @@
   .mask-reveal.is-revealed .highlight-coral::after { animation: none; }
 }
 
-/* NAVY HALF - three phase blocks in a 3-col grid. Each block is its
-   own atomic unit (heading + body + visual) that fades in as one. */
-.how-we-work-page-phases {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 56px;
-  max-width: 1100px;
-  width: 100%;
-  align-items: start;
-}
-.how-we-work-page-phases--stack {
-  grid-template-columns: 1fr;
-  gap: 64px;
-  max-width: 360px;
-}
-.how-we-work-phase-block {
+/* RIGHT column - three phase blocks STACKED VERTICALLY. Each block is
+   a horizontal row: heading + body text on the left, small (60px)
+   SVG visual on the right. Per Chris "the icons don't need to be so
+   huge" - smaller visual lets the heading carry the weight. */
+.how-we-work-page-right {
   display: flex;
   flex-direction: column;
+  gap: 36px;
+  max-width: 460px;
+}
+@media (max-width: 1023px) {
+  .how-we-work-page-right { gap: 32px; max-width: none; }
+}
+.how-we-work-phase-block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
   align-items: center;
-  gap: 14px;
-  text-align: center;
+  /* Subtle separator above each block (except the first) so the three
+     read as a numbered list rather than a stack of floating cards. */
+  padding-top: 24px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.25);
   /* Block fades in as one unit. Stagger driven by inline
-     --reveal-delay per block (1100ms / 1750ms / 2400ms). Per Chris's
-     "kind of all appear one after the other" - transition shortened
-     to 800ms so each block is mostly done before the next one
-     starts, giving a clear left-to-right cascade. */
+     --reveal-delay per block (3300 / 3950 / 4600 ms) so the three
+     blocks cascade top-to-bottom one at a time after the paragraphs
+     have arrived. */
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
-              transform 800ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+  transform: translateY(20px);
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+              transform 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+}
+.how-we-work-phase-block:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 .how-we-work-page.is-revealed .how-we-work-phase-block {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Heading: "01 Decode" / "02 Build" / "03 Partner" in big Stolzl,
-   single line, white on navy. Number is the same size as the name
-   so it reads as part of the title rather than a label above it. */
+.how-we-work-phase-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Heading: "01 Decode" / "02 Build" / "03 Partner" in Stolzl Light.
+   Number folded in at lower opacity so the eye reads the name first. */
 .how-we-work-phase-heading {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(32px, 3.0vw, 42px);
+  font-size: clamp(26px, 2.4vw, 32px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--fg-on-navy-1);
+  color: #fff;
 }
 .how-we-work-phase-number {
-  /* Same family + size as the name; opacity drop lets the eye see
-     "name" first and "number" second without splitting them
-     visually. */
   opacity: 0.55;
   margin-right: 4px;
 }
 .how-we-work-phase-name {
-  color: var(--fg-on-navy-1);
+  color: #fff;
 }
 
-/* Body: small explainer text. Per Chris's earlier rule this stays
-   on Inter (the one small-font exception on the homepage). */
+/* Body explainer - Inter at 13px stays per Chris's "small font for
+   the explainers" rule. White at 80% on coral reads clearly. */
 .how-we-work-phase-body {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.55;
-  color: rgba(245, 241, 232, 0.72);
-  max-width: 260px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-/* The SVG visual lives inside a square card. Cream-on-navy SVGs sit
-   inside a subtle navy-on-navy card with a hairline cream border
-   that gives each visual a discrete edge. */
+/* Small SVG visual sat to the right of each block's text. The SVG
+   shapes use currentColor so they render white on the coral page. */
 .how-we-work-phase-visual {
-  width: 100%;
-  max-width: 200px;
-  aspect-ratio: 1 / 1;
-  background: rgba(255, 255, 255, 0.04);
-  border: 0.5px solid rgba(245, 241, 232, 0.14);
-  border-radius: 16px;
-  padding: 22px;
-  box-sizing: border-box;
-  box-shadow: 0 12px 36px -16px rgba(0, 0, 0, 0.35);
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 6px;
+  color: #fff;
+}
+@media (max-width: 1023px) {
+  .how-we-work-phase-visual { width: 56px; height: 56px; }
 }
 .how-we-work-phase-visual svg {
   width: 100%;
