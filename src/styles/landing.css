@@ -900,6 +900,13 @@
    font Medium, and then just the three things underline nice and
    clean." Replaces the earlier marker-pen slab treatment - same
    timing/trigger, much lighter visual hit. */
+/* Keeps a highlight word + its trailing punctuation together so the
+   punctuation never falls onto a new line by itself. The two children
+   - the .highlight-coral word and the comma / period - inherit the
+   parent's inline flow; only the line-break behaviour is constrained. */
+.highlight-nobr {
+  white-space: nowrap;
+}
 .highlight-coral {
   position: relative;
   display: inline-block;

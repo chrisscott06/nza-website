@@ -26,6 +26,61 @@ body {
 }
 
 /* =========================================================================
+   GLOBAL SCROLLBAR - subtle + non-shifting
+   Per Chris: "I'm also noticing a couple of jitters, like left and right
+   on the pages ... I think it's to do with this sidebar, maybe the scroll
+   bar. When that appears, it makes stuff shift to the left or right."
+   PLUS "can we design a nicer scroll bar ... more subtle, that maybe is
+   translucent and sits over it but it doesn't make the page move."
+
+   Two fixes layered:
+     1. scrollbar-gutter: stable reserves the gutter space at ALL times,
+        so the page width doesn't change when content goes from
+        short-enough (no scrollbar needed) to taller-than-viewport
+        (scrollbar appears). This is the jitter Chris saw on initial
+        load: the static splash in index.html is short, React then
+        renders the full site which is tall, the scrollbar appears,
+        and everything inside the page shifts left by the scrollbar
+        width. With stable gutter, the gutter is always reserved.
+     2. ::-webkit-scrollbar + scrollbar-width/color custom styling
+        makes the bar thinner, transparent track, translucent thumb
+        that's barely visible against any background. Hover darkens
+        it slightly.
+   ========================================================================= */
+html {
+  scrollbar-gutter: stable;
+  /* Firefox - thin + translucent neutral grey thumb. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 130, 0.4) transparent;
+}
+/* WebKit (Chrome / Edge / Safari) - 10px wide, transparent track,
+   neutral grey thumb that becomes ~60% opaque on hover. background-clip:
+   content-box together with a 2px transparent border creates breathing
+   room around the thumb so it reads as a hairline rather than a thick
+   slab against the page edge. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 130, 0.35);
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 8px;
+  transition: background-color 200ms ease-out;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 130, 0.6);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* =========================================================================
    PAGE FRAME
    ========================================================================= */
 .frame {

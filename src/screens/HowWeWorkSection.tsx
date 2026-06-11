@@ -181,13 +181,20 @@ export function HowWeWorkSection() {
           <div className="how-we-work-page-left">
             <MaskReveal as="p" className="how-we-work-page-para" delay={0}>
               We are specialists in{' '}
-              <span
-                className="highlight-coral"
-                style={{ '--highlight-delay': '950ms' } as React.CSSProperties}
-              >
-                buildings
-              </span>
-              ,{' '}
+              {/* Each highlight word is wrapped together with its
+                  trailing punctuation in a white-space: nowrap group
+                  so the comma after "buildings" and the period after
+                  "climate" can never fall to a new line on their own
+                  (Chris flagged the orphan comma after "buildings"). */}
+              <span className="highlight-nobr">
+                <span
+                  className="highlight-coral"
+                  style={{ '--highlight-delay': '950ms' } as React.CSSProperties}
+                >
+                  buildings
+                </span>
+                ,
+              </span>{' '}
               <span
                 className="highlight-coral"
                 style={{ '--highlight-delay': '1300ms' } as React.CSSProperties}
@@ -195,13 +202,16 @@ export function HowWeWorkSection() {
                 energy
               </span>
               {' '}and{' '}
-              <span
-                className="highlight-coral"
-                style={{ '--highlight-delay': '1650ms' } as React.CSSProperties}
-              >
-                climate
-              </span>
-              . We cut through the complexity of decarbonisation - and build
+              <span className="highlight-nobr">
+                <span
+                  className="highlight-coral"
+                  style={{ '--highlight-delay': '1650ms' } as React.CSSProperties}
+                >
+                  climate
+                </span>
+                .
+              </span>{' '}
+              We cut through the complexity of decarbonisation - and build
               the tools your people need to act on it.
             </MaskReveal>
             <MaskReveal as="p" className="how-we-work-page-para" delay={2200}>
