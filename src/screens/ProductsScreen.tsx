@@ -180,6 +180,15 @@ export function ProductsScreen() {
       id="products"
       data-screen-label="Products"
     >
+      {/* PIN WRAPPER - same scrollytelling pattern as the coral
+          "How we work" section. Outer .products-section is now a
+          250vh scroll runway; this inner .products-section-pin is
+          position: sticky; top: 0; height: 100vh so the cream
+          products view LOCKS to the viewport for ~150vh of scroll.
+          User scrolls in, the pin engages, they get the consistent
+          "land on the white" moment, then keep scrolling to leave it.
+          Mobile drops the pin entirely - just content-tall. */}
+      <div className="products-section-pin">
       <div className="frame">
         <div className="products-intro-block">
           <MaskReveal as="h2" className="products-heading" delay={0}>
@@ -283,6 +292,7 @@ export function ProductsScreen() {
           })}
         </div>
       </div>
+      </div>{/* end .products-section-pin */}
     </section>
   )
 }

@@ -1688,24 +1688,57 @@
      - Explore link appears at the bottom
    Clicking the logo itself does NOT route - only the Explore link does.
    ========================================================================= */
-/* Reverted to cream per Chris (was navy for a brief v2 chunk). */
 .products-section {
   background: var(--paper);
   color: var(--ink-navy);
-  padding: 120px 0;
-  /* Whole screen per Chris's latest - was min-height: auto so the
-     section was content-tall. Back to a full 100vh slot so the
-     homepage rhythm is one viewport per section. The .screen base
-     class already sets min-height: 100vh; the override below makes
-     that the floor (display: flex + justify-content: center on
-     .screen still centres the content vertically). */
-  min-height: 100vh;
+  /* OUTER scroll runway, same scrollytelling shell as
+     .how-we-work-page. The pin wrapper inside is sticky at top: 0
+     with height 100vh; the extra 150vh of section height is the
+     scroll length over which the pin holds the cream view to the
+     viewport. Per Chris: "kind of locks the screen for a second
+     before you can zoom past it. It requires an extra scroll, but
+     it locks to the full white when we land on it ... nice for just
+     getting that consistent locking feeling but nice and smooth."
+     Less aggressive than the coral page's 300vh - 250vh = 100vh
+     pin + 150vh of locked scroll feels like one beat rather than
+     the longer story the coral page tells. */
+  position: relative;
+  height: 250vh;
+  /* Override the .screen base's flex centering + min-height -
+     centering now happens inside the pin wrapper. */
+  min-height: auto;
+  display: block;
+  padding: 0;
 }
-@media (max-width: 899px) {
-  .products-section { padding: 96px 0; }
+.products-section-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* Centre content vertically inside the pinned viewport (replaces
+     what .screen's flex centering used to do). */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Padding that was previously on the section ground - the breathing
+     room above and below the intro + triptych content. */
+  padding: 120px 0;
+  box-sizing: border-box;
+}
+@media (max-width: 1023px) {
+  /* Mobile drops the pin per Chris ("not so important in mobile
+     mode"). Section becomes content-tall and the pin is static so
+     the cream view scrolls past normally. */
+  .products-section {
+    height: auto;
+  }
+  .products-section-pin {
+    position: static;
+    height: auto;
+    padding: 96px 0;
+  }
 }
 @media (max-width: 599px) {
-  .products-section { padding: 80px 0; }
+  .products-section-pin { padding: 80px 0; }
 }
 
 /* Centred intro block - heading + body. */
