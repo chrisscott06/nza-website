@@ -842,9 +842,25 @@
   width: 100%;
   height: auto;
   max-height: 100%;
+  /* The original placeholder illustrations were single-stroke line
+     art and relied on these defaults. Our PABLO Recharts charts
+     and inline SVGs have explicit per-element fills + strokes, so
+     each .pablo-sNN wrapper resets these back to initial (see the
+     per-section rules below). */
   stroke: var(--product-accent);
   stroke-width: 1.5;
   fill: none;
+}
+/* Reset for every PABLO animation SVG so the global line-art
+   defaults above don't paint Recharts bars / text in coral red.
+   Each section is responsible for its own colours. */
+.pablo-s02 svg,
+.pablo-s03 svg,
+.pablo-s04 svg,
+.pablo-s05 svg {
+  stroke: initial;
+  stroke-width: initial;
+  fill: initial;
 }
 
 /* INLINE ILLUSTRATION - mobile only (shared frame is hidden).
