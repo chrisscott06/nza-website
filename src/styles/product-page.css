@@ -1736,20 +1736,20 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Chart container - aspect-ratio 3:2 splits the difference between
-   the square the chart used to be (too tall) and the 16:9 it became
-   (too wide / squashed). White background covers the cream-frame
-   dot texture so the chart reads as a clean clinical graph rather
-   than something painted onto the frame.
-   Padding pushes the Recharts plot area inward from the rounded
-   white card so the axis ticks sit nicely INSIDE the card. */
+/* Chart container - aspect-ratio 3:2 sits between the square the
+   chart used to be (too tall) and the 16:9 it became (too wide).
+   SOLID cream background covers the frame's dot texture without
+   creating a stark white cut-out; matches the frame's base colour
+   (#FCF8EE) so the chart blends rather than fighting. The hairline
+   navy border + rounded corners are enough to define the chart
+   area against the dotted frame around it. */
 .pablo-s02-chart {
   width: 100%;
   aspect-ratio: 3 / 2;
   max-height: 100%;
-  background: #FFFFFF;
+  background: #FCF8EE;
   border-radius: 10px;
-  border: 0.5px solid rgba(26, 37, 64, 0.08);
+  border: 1px solid rgba(26, 37, 64, 0.10);
   padding: 12px 14px 8px 4px;
   box-sizing: border-box;
   opacity: 0;
@@ -1841,9 +1841,9 @@
   width: 100%;
   aspect-ratio: 3 / 2;
   max-height: calc(100% - 56px);
-  background: #FFFFFF;
+  background: #FCF8EE;
   border-radius: 10px;
-  border: 0.5px solid rgba(26, 37, 64, 0.08);
+  border: 1px solid rgba(26, 37, 64, 0.10);
   padding: 12px 14px 8px 4px;
   box-sizing: border-box;
   opacity: 0;

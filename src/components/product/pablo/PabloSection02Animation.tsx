@@ -151,6 +151,12 @@ export function PabloSection02Animation({
   /* Pill override - takes precedence over the scroll-derived phase
      until the next scroll event clears it. */
   const pillOverride = useRef<Phase | null>(null)
+  /* Monotonic - highest scroll progress reached. Scrolling back UP
+     doesn't drag the phase backwards; the chart sits at whichever
+     view the user last reached. Per Chris's June 2026 round 5:
+     "on the way back up, it just leaves it on whatever the final
+     bit of the graphic was". */
+  const maxProgressRef = useRef(0)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -201,9 +207,12 @@ export function PabloSection02Animation({
         const scrolled = -rect.top
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
-          if (pillOverride.current !== null) pillOverride.current = null
           lastProgress = progress
-          setPhase(phaseFromProgress(progress))
+          if (progress > maxProgressRef.current) {
+            maxProgressRef.current = progress
+          }
+          if (pillOverride.current !== null) pillOverride.current = null
+          setPhase(phaseFromProgress(maxProgressRef.current))
         }
       }
       frameId = window.requestAnimationFrame(tick)

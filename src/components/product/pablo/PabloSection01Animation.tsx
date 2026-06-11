@@ -135,18 +135,14 @@ function phaseFromProgress(p: number): Phase {
   return 'outro'
 }
 
-/* Visible segment count between bDonutInEnd (0) and bSegmentsEnd (6).
-   Linear distribution -> each segment takes ~3.7% of progress. */
-function segmentsFromProgress(p: number): number {
-  if (p < PHASE_BOUNDS.bDonutInEnd) return 0
-  if (p >= PHASE_BOUNDS.bSegmentsEnd) return DONUT_DATA.length
-  const range = PHASE_BOUNDS.bSegmentsEnd - PHASE_BOUNDS.bDonutInEnd
-  const step = range / DONUT_DATA.length
-  return Math.min(
-    DONUT_DATA.length,
-    Math.floor((p - PHASE_BOUNDS.bDonutInEnd) / step) + 1,
-  )
-}
+/* Segment cascade stagger. Each segment "pops in" with its own CSS
+   animation; the stagger is how long between consecutive pops. 320ms
+   feels like a confident clockwise build - quick enough to keep
+   momentum, slow enough that each pop reads as its own moment. Chris:
+   "the donut chart... popping up nice and slow". Time-based instead
+   of tied to scroll so the cascade always plays at the SAME pace
+   regardless of how fast the user scrolls past the segments phase. */
+const SEGMENT_STAGGER_MS = 320
 
 export function PabloSection01Animation({
   stepIndex,
@@ -155,14 +151,20 @@ export function PabloSection01Animation({
 }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<Phase>('pre')
-  /* Pill override - when set, the pill click takes precedence over
-     the scroll-derived phase until the user scrolls again (next
-     scroll wins). null = no override, follow scroll. */
+  /* Pill override - clicked pill state stays until the next forward
+     scroll event. null = no override, follow scroll. */
   const pillOverride = useRef<Phase | null>(null)
-  /* How many segments have popped in so far (0 -> 6). Driven by
-     scroll progress, OR set to all 6 on pill click. */
+  /* Highest scroll progress reached. The phase is computed from
+     THIS, not the current progress. So scrolling back UP doesn't
+     regress the animation - it stays at the furthest state it
+     reached. Per Chris: "on the way back up, it just leaves it
+     on whatever the final bit of the graphic was". */
+  const maxProgressRef = useRef(0)
+  /* How many segments have popped in so far (0 -> 6). Driven by a
+     time-based cascade triggered when phase first enters b_segments. */
   const [visibleSegments, setVisibleSegments] = useState(0)
-  const segmentOverride = useRef<number | null>(null)
+  const segmentCascadeStarted = useRef(false)
+  const segmentTimers = useRef<number[]>([])
   const [reduced, setReduced] = useState(false)
 
   useEffect(() => {
@@ -173,12 +175,11 @@ export function PabloSection01Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Scroll-driven phase + segment count. Polls the matching
-     .product-step-text-block's viewport position via RAF and
-     recomputes on each frame. Bidirectional - no monotonic guard
-     so scrolling back unwinds the animation.
-     Pill clicks set pillOverride/segmentOverride which short-circuit
-     scroll until the next scroll event clears them. */
+  /* MONOTONIC scroll-driven phase. RAF polls the text-block's
+     viewport position; we keep a running max of progress so a
+     scroll-back doesn't drag the animation back through earlier
+     phases. The first scroll event after a pill click clears the
+     pill override and scroll takes over. */
   useEffect(() => {
     if (reduced) {
       setPhase('done')
@@ -200,12 +201,14 @@ export function PabloSection01Animation({
         const scrolled = -rect.top
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
-          /* Scroll changed - clear pill overrides so scroll wins. */
-          if (pillOverride.current !== null) pillOverride.current = null
-          if (segmentOverride.current !== null) segmentOverride.current = null
           lastProgress = progress
-          setPhase(phaseFromProgress(progress))
-          setVisibleSegments(segmentsFromProgress(progress))
+          /* Monotonic - track the furthest scroll progress reached. */
+          if (progress > maxProgressRef.current) {
+            maxProgressRef.current = progress
+          }
+          /* Scroll moved -> clear any pill override so scroll wins. */
+          if (pillOverride.current !== null) pillOverride.current = null
+          setPhase(phaseFromProgress(maxProgressRef.current))
         }
       }
       frameId = window.requestAnimationFrame(tick)
@@ -221,16 +224,58 @@ export function PabloSection01Animation({
   const onPillClick = (target: 'info' | 'breakdown') => {
     if (target === 'info') {
       pillOverride.current = 'a_hold'
-      segmentOverride.current = 0
       setPhase('a_hold')
       setVisibleSegments(0)
     } else {
       pillOverride.current = 'done'
-      segmentOverride.current = DONUT_DATA.length
       setPhase('done')
       setVisibleSegments(DONUT_DATA.length)
     }
   }
+
+  /* Time-based segment cascade. Runs ONCE when phase first enters
+     b_segments - each segment pops in at SEGMENT_STAGGER_MS apart,
+     so the build always plays at the slow / confident pace Chris
+     liked, regardless of how fast the user scrolls through that
+     phase. If the user blasts past b_segments into 'done', the
+     effect below snaps all segments visible as a fallback. */
+  useEffect(() => {
+    if (
+      phase === 'b_segments' &&
+      !segmentCascadeStarted.current
+    ) {
+      segmentCascadeStarted.current = true
+      let i = 0
+      const fire = () => {
+        i += 1
+        setVisibleSegments(i)
+        if (i < DONUT_DATA.length) {
+          const t = window.setTimeout(fire, SEGMENT_STAGGER_MS)
+          segmentTimers.current.push(t)
+        }
+      }
+      /* Brief breathing room after the donut frame lands. */
+      const tStart = window.setTimeout(fire, 80)
+      segmentTimers.current.push(tStart)
+    }
+    /* If we've blown past the cascade into 'done' or 'outro' (e.g.
+       fast scroll), force all segments visible. Same as a fast-
+       forward to the cascade's end state. */
+    if (
+      (phase === 'done' || phase === 'outro') &&
+      visibleSegments < DONUT_DATA.length
+    ) {
+      setVisibleSegments(DONUT_DATA.length)
+    }
+  }, [phase, visibleSegments])
+
+  /* Clear any pending segment timers on unmount. */
+  useEffect(() => {
+    return () => {
+      segmentTimers.current.forEach((t) => window.clearTimeout(t))
+      segmentTimers.current = []
+    }
+  }, [])
 
   /* Derived visibility flags. */
   const inputsVisible = phase === 'a_in' || phase === 'a_hold'

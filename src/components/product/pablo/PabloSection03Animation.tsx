@@ -181,6 +181,9 @@ export function PabloSection03Animation({
   const [phase, setPhase] = useState<Phase>('pre')
   const [reduced, setReduced] = useState(false)
   const pillOverride = useRef<Phase | null>(null)
+  /* Monotonic - highest progress reached. Scroll-back leaves the
+     graphic at whichever phase the user got the furthest into. */
+  const maxProgressRef = useRef(0)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -212,9 +215,12 @@ export function PabloSection03Animation({
         const scrolled = -rect.top
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
-          if (pillOverride.current !== null) pillOverride.current = null
           lastProgress = progress
-          setPhase(phaseFromProgress(progress))
+          if (progress > maxProgressRef.current) {
+            maxProgressRef.current = progress
+          }
+          if (pillOverride.current !== null) pillOverride.current = null
+          setPhase(phaseFromProgress(maxProgressRef.current))
         }
       }
       frameId = window.requestAnimationFrame(tick)
