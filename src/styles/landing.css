@@ -1075,7 +1075,9 @@
   font-weight: 400;
   font-size: 13.5px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.8);
+  /* Was rgba(255,255,255,0.8) - bumped to full white per Chris's
+     site-wide rule "make it white if it's on a coloured background." */
+  color: #fff;
 }
 
 /* Small SVG visual sat to the right of each block's text. The SVG
@@ -1790,8 +1792,12 @@
   font-size: clamp(18px, 1.8vw, 24px);
   line-height: 1.4;
   letter-spacing: -0.005em;
-  color: var(--ink-navy);
-  opacity: 0.85;
+  /* Was --ink-navy at 0.85 opacity (dark blue cast). Switched to
+     --ink per Chris's site-wide rule "make it dark grey if it's
+     on a cream background." --ink is #1A1D20 - reads as neutral
+     dark grey rather than navy. Opacity dropped so the colour
+     resolves to its full dark-grey value. */
+  color: var(--ink);
 }
 
 /* TRIPTYCH - three equal cells side by side using the full frame width. */
@@ -2255,7 +2261,10 @@
   font-size: clamp(18px, 1.7vw, 21px);
   line-height: 1.5;
   letter-spacing: 0;
-  color: rgba(245, 241, 232, 0.78);
+  /* Was cream at 0.78 opacity. Switched to solid white per Chris's
+     site-wide rule "make it white if it's on a coloured background"
+     - the closer is on navy. */
+  color: #fff;
   max-width: 580px;
   margin: 0 auto 36px;
 }

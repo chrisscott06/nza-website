@@ -151,9 +151,17 @@
   font-weight: 400;
   font-size: 18px;
   line-height: 1.55;
-  color: var(--product-text-muted-on-canvas);
+  /* Per Chris's site-wide rule: body text is white on coloured
+     backgrounds, dark grey on cream. PABLO + NZ:AI have dark
+     aubergine / navy canvases - hero one-liner reads as solid white.
+     decodED has a cream-warm canvas - the .is-light override below
+     swaps to dark grey. */
+  color: #fff;
   max-width: 460px;
   margin: 0;
+}
+.is-light .product-hero-oneliner {
+  color: var(--ink);
 }
 .product-hero-cta {
   display: inline-flex;
@@ -927,12 +935,14 @@
   font-weight: 400;
   font-size: 17px;
   line-height: 1.6;
-  /* Darker than before per Chris ("Make the body text darker please,
-     it look dull at the moment like slightly faded"). Was 0.72 opacity
-     of the dark navy ink which read as a soft grey. Bumped to 0.92 so
-     the body sits as a confident reading colour without going solid
-     black-on-cream. */
-  color: color-mix(in oklab, var(--product-text-on-cream) 92%, transparent);
+  /* Switched from color-mix navy 92% to --ink per Chris's site-wide
+     rule "dark grey on cream." The steps section is on cream
+     (.product-steps { background: var(--product-cream) }) across
+     all products, so the same dark-grey value applies regardless
+     of product theme. --ink = #1A1D20, neutral dark grey, no blue
+     cast - reads as the confident body voice Chris wanted without
+     the navy tint the per-product --product-text-on-cream had. */
+  color: var(--ink);
   margin: 0;
   max-width: 460px;
 }
@@ -1062,9 +1072,15 @@
   font-weight: 400;
   font-size: 18px;
   line-height: 1.55;
-  color: var(--product-text-muted-on-canvas);
+  /* Site-wide rule: white on coloured background. Same is-light
+     override pattern as .product-hero-oneliner - decodED falls back
+     to dark grey on its cream-warm canvas. */
+  color: #fff;
   max-width: 540px;
   margin: 4px 0 16px;
+}
+.is-light .product-closer-subhead {
+  color: var(--ink);
 }
 .product-closer-clients {
   display: flex;
@@ -1277,7 +1293,12 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 1.65;
-  color: rgba(237, 229, 216, 0.7);
+  /* Was cream at 0.7 - bumped to solid white per Chris's site-wide
+     body-text rule (cards sit on the dark aubergine canvas). */
+  color: #fff;
+}
+.is-light .product-closer-case-body {
+  color: var(--ink);
 }
 
 .product-closer-cta {
