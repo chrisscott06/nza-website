@@ -944,11 +944,9 @@
   .mask-reveal.is-revealed .highlight-coral::after { animation: none; }
 }
 
-/* RIGHT column - three phase blocks STACKED VERTICALLY. Each block is
-   a horizontal row: heading + body text on the left, small (60px)
-   SVG visual on the right. More vertical breathing room per Chris
-   ("a bit more breathing space vertically and separate them a bit
-   more"): gap bumped from 36 -> 64. */
+/* RIGHT column - small intro line + three phase blocks STACKED
+   VERTICALLY. Each block is a horizontal row: heading + body text on
+   the left, small (60px) SVG visual on the right. */
 .how-we-work-page-right {
   display: flex;
   flex-direction: column;
@@ -957,6 +955,25 @@
 }
 @media (max-width: 1023px) {
   .how-we-work-page-right { gap: 56px; max-width: none; }
+}
+
+/* Small intro line sits at the top of the right column to frame the
+   three blocks. Body text size + 70% opacity so it reads as a quiet
+   caption, not a competing voice with the big sentence on the left.
+   Per Chris: "just have this as a tiny bit above to then make the
+   graphic make sense." Reduced bottom-margin so the line lives close
+   to block 1 (not separated by the column's 64px gap). */
+.how-we-work-page-phases-intro {
+  margin: 0 0 -32px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+@media (max-width: 1023px) {
+  .how-we-work-page-phases-intro { margin: 0 0 -24px; }
 }
 
 /* Each block opens with TWO staged moments per Chris's "nice way to
@@ -1849,30 +1866,45 @@
   /* Reveal panel switches from opacity-only to height-driven on
      mobile. Collapsed at rest (max-height 0, no margin); accordion
      opens downward when .is-active. */
+  /* MOBILE ACCORDION - grid-template-rows trick.
+     Was max-height: 0 -> 380px which the browser interpolated as a
+     linear pixel ramp. The ramp didn't line up with the content's
+     actual natural height, so the white panel "stretched" jerkily
+     before snapping to its true size at the end - Chris's "glitchy"
+     issue. The grid-template-rows: 0fr -> 1fr trick is the modern
+     smooth fix: the grid track size INTERPOLATES from 0 to the
+     content's natural row height, so every frame the white box is
+     exactly the height of however much content has unfolded.
+     Requires the content to sit inside a single child with
+     overflow:hidden + min-height:0 (the .product-card-reveal-inner
+     wrapper added to the JSX) - hence the override below from
+     desktop's display:contents. */
   .product-card-reveal {
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
     margin-top: 0;
-    overflow: hidden;
     opacity: 0;
-    transform: translateY(6px);
-    /* Opacity + transform extended to match the box growth so the
-       content arrives in step with the expanding container instead
-       of snapping in halfway through. Per Chris: "Can we have a bit
-       more, just a slower movement, to match the speed of the
-       growth of the box?" Was opacity 280ms@120ms delay (ended ~140
-       before the box did). Now opacity + transform run for the full
-       460ms with a tiny 40ms head-start so the fade is just barely
-       trailing the height. */
-    transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
+    /* Drop the transform - the grid trick handles the height
+       smoothly on its own; layering a Y translate on top adds the
+       same jitter we're trying to remove. */
+    transform: none;
+    transition: grid-template-rows 460ms cubic-bezier(0.16, 1, 0.3, 1),
                 margin-top 460ms cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 460ms cubic-bezier(0.16, 1, 0.3, 1) 40ms,
-                transform 460ms cubic-bezier(0.16, 1, 0.3, 1) 40ms;
+                opacity 460ms cubic-bezier(0.16, 1, 0.3, 1) 40ms;
+  }
+  .product-card-reveal-inner {
+    /* Override desktop's display:contents so this wrapper actually
+       sits as a grid-row child the parent can size. */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    min-height: 0;
   }
   .product-card.is-active .product-card-reveal {
-    max-height: 380px; /* generous to fit the longest copy */
+    grid-template-rows: 1fr;
     margin-top: 12px;
     opacity: 1;
-    transform: translateY(0);
   }
   /* The triptych grid keeps the per-card gap visually tight so all
      three cards land within the first viewport on phones. */
@@ -2037,26 +2069,46 @@
 /* REVEAL PANEL - takes layout space at rest (so the card height is
    fixed) but is opacity:0 + slightly translated until activation.
    Per Chris: no height movement, just fade-in over reserved space. */
-.product-card-reveal {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 320px;
-  margin: 0 auto;
-  opacity: 0;
-  transform: translateY(6px);
-  /* Delayed so it follows the box border drawing in. */
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
-              transform 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
+/* Desktop variant - scoped to min-width: 600px because the mobile
+   @media (max-width: 599px) block earlier in the file sets
+   display: grid + grid-template-rows on this same selector for the
+   smooth accordion. Without the min-width scope, this unscoped rule
+   would win at mobile (later source order, same specificity) and
+   break the grid accordion trick. */
+@media (min-width: 600px) {
+  .product-card-reveal {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(6px);
+    /* Delayed so it follows the box border drawing in. */
+    transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms,
+                transform 320ms cubic-bezier(0.16, 1, 0.3, 1) 240ms;
+  }
+  .product-card.is-active .product-card-reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.product-card.is-active .product-card-reveal {
-  opacity: 1;
-  transform: translateY(0);
+/* Desktop only: the wrapper is layout-transparent so the existing
+   flex column on .product-card-reveal still directly parents the
+   question / promise / explore. Scoped to min-width because the
+   mobile @media block above declares display: flex on this same
+   wrapper (for the grid accordion trick) and sits BEFORE this rule
+   in source order - without the min-width scope this rule would
+   win at mobile too and break the smooth accordion. */
+@media (min-width: 600px) {
+  .product-card-reveal-inner {
+    display: contents;
+  }
 }
 
 .product-card-question {

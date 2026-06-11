@@ -214,13 +214,22 @@ export function HowWeWorkSection() {
               We cut through the complexity of decarbonisation - and build
               the tools your people need to act on it.
             </MaskReveal>
-            <MaskReveal as="p" className="how-we-work-page-para" delay={2200}>
-              Every engagement follows three phases - decode, build, partner.
-            </MaskReveal>
           </div>
 
-          {/* ===== RIGHT - three phase blocks stacked vertically ===== */}
+          {/* ===== RIGHT - small intro line + three phase blocks ===== */}
           <div className="how-we-work-page-right">
+            {/* Tagline moved out of the left column per Chris - small
+                body-sized line above the three blocks so it just frames
+                the infographic. Trimmed from "Every engagement follows
+                three phases - decode, build, partner." to the shorter
+                "Every engagement follows three phases." */}
+            <MaskReveal
+              as="p"
+              className="how-we-work-page-phases-intro"
+              delay={2200}
+            >
+              Every engagement follows three phases.
+            </MaskReveal>
             {PHASES.map((phase, i) => (
               <article
                 key={phase.id}

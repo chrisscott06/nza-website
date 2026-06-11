@@ -270,11 +270,18 @@ export function ProductsScreen() {
 
                   {/* Reveal panel - takes layout space always (so the
                       card height is fixed), but opacity:0 at rest so
-                      it's invisible until activation. */}
+                      it's invisible until activation. The inner
+                      wrapper is required on mobile for the
+                      grid-template-rows 0fr -> 1fr accordion trick to
+                      animate smoothly (interpolating max-height
+                      alone caused the jittery height stretch Chris
+                      flagged). Desktop ignores the wrapper - the
+                      reveal is opacity-only there. */}
                   <div
                     className="product-card-reveal"
                     aria-hidden={!isActive}
                   >
+                    <div className="product-card-reveal-inner">
                     <p className="product-card-question">{p.question}</p>
                     <p className="product-card-promise">{p.promise}</p>
                     <Link
@@ -285,6 +292,7 @@ export function ProductsScreen() {
                       Explore {p.name}
                       <span aria-hidden="true"> →</span>
                     </Link>
+                    </div>{/* end .product-card-reveal-inner */}
                   </div>
                 </div>
               </MaskReveal>
