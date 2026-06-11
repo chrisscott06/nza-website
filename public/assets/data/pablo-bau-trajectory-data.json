@@ -1,0 +1,209 @@
+{
+  "metadata": {
+    "site": "Hartpury University",
+    "view": "Reconstructed",
+    "year_range": "2026-2040",
+    "currency": "GBP",
+    "npv": 24793393,
+    "total_25yr": 37466156
+  },
+  "components": [
+    {
+      "key": "Retail",
+      "label": "Retail Tariff",
+      "color": "#3498DB"
+    },
+    {
+      "key": "Wholesale",
+      "label": "Wholesale",
+      "color": "#ECB01F"
+    },
+    {
+      "key": "DUoS",
+      "label": "DUoS",
+      "color": "#E84393"
+    },
+    {
+      "key": "TNUoS",
+      "label": "TNUoS",
+      "color": "#9B59B6"
+    },
+    {
+      "key": "Levies",
+      "label": "Levies",
+      "color": "#27AE60"
+    },
+    {
+      "key": "Other",
+      "label": "Other",
+      "color": "#E67E22"
+    }
+  ],
+  "rows": [
+    {
+      "year_label": "2026/27",
+      "year": 2026,
+      "Retail": 0,
+      "Wholesale": 431870,
+      "DUoS": 184051,
+      "TNUoS": 245253,
+      "Levies": 560667,
+      "Other": 176719,
+      "Total": 1598560
+    },
+    {
+      "year_label": "2027/28",
+      "year": 2027,
+      "Retail": 0,
+      "Wholesale": 470216,
+      "DUoS": 200393,
+      "TNUoS": 267029,
+      "Levies": 610449,
+      "Other": 192410,
+      "Total": 1740497
+    },
+    {
+      "year_label": "2028/29",
+      "year": 2028,
+      "Retail": 0,
+      "Wholesale": 521429,
+      "DUoS": 222218,
+      "TNUoS": 296112,
+      "Levies": 676935,
+      "Other": 213366,
+      "Total": 1930060
+    },
+    {
+      "year_label": "2029/30",
+      "year": 2029,
+      "Retail": 0,
+      "Wholesale": 552659,
+      "DUoS": 235528,
+      "TNUoS": 313848,
+      "Levies": 717480,
+      "Other": 226145,
+      "Total": 2045660
+    },
+    {
+      "year_label": "2030/31",
+      "year": 2030,
+      "Retail": 0,
+      "Wholesale": 588138,
+      "DUoS": 250648,
+      "TNUoS": 333996,
+      "Levies": 763539,
+      "Other": 240663,
+      "Total": 2176984
+    },
+    {
+      "year_label": "2031/32",
+      "year": 2031,
+      "Retail": 0,
+      "Wholesale": 616495,
+      "DUoS": 262733,
+      "TNUoS": 350099,
+      "Levies": 800353,
+      "Other": 252267,
+      "Total": 2281947
+    },
+    {
+      "year_label": "2032/33",
+      "year": 2032,
+      "Retail": 0,
+      "Wholesale": 644949,
+      "DUoS": 274859,
+      "TNUoS": 366258,
+      "Levies": 837293,
+      "Other": 263910,
+      "Total": 2387269
+    },
+    {
+      "year_label": "2033/34",
+      "year": 2033,
+      "Retail": 0,
+      "Wholesale": 674294,
+      "DUoS": 287366,
+      "TNUoS": 382922,
+      "Levies": 875390,
+      "Other": 275918,
+      "Total": 2495890
+    },
+    {
+      "year_label": "2034/35",
+      "year": 2034,
+      "Retail": 0,
+      "Wholesale": 704555,
+      "DUoS": 300262,
+      "TNUoS": 400107,
+      "Levies": 914676,
+      "Other": 288301,
+      "Total": 2607901
+    },
+    {
+      "year_label": "2035/36",
+      "year": 2035,
+      "Retail": 0,
+      "Wholesale": 735757,
+      "DUoS": 313559,
+      "TNUoS": 417826,
+      "Levies": 955183,
+      "Other": 301068,
+      "Total": 2723393
+    },
+    {
+      "year_label": "2036/37",
+      "year": 2036,
+      "Retail": 0,
+      "Wholesale": 767925,
+      "DUoS": 327269,
+      "TNUoS": 436094,
+      "Levies": 996945,
+      "Other": 314231,
+      "Total": 2842464
+    },
+    {
+      "year_label": "2037/38",
+      "year": 2037,
+      "Retail": 0,
+      "Wholesale": 801086,
+      "DUoS": 341401,
+      "TNUoS": 454926,
+      "Levies": 1039995,
+      "Other": 327800,
+      "Total": 2965208
+    },
+    {
+      "year_label": "2038/39",
+      "year": 2038,
+      "Retail": 0,
+      "Wholesale": 835266,
+      "DUoS": 355967,
+      "TNUoS": 474336,
+      "Levies": 1084368,
+      "Other": 341787,
+      "Total": 3091724
+    },
+    {
+      "year_label": "2039/40",
+      "year": 2039,
+      "Retail": 0,
+      "Wholesale": 870492,
+      "DUoS": 370980,
+      "TNUoS": 494341,
+      "Levies": 1130100,
+      "Other": 356201,
+      "Total": 3222114
+    },
+    {
+      "year_label": "2040/41",
+      "year": 2040,
+      "Retail": 0,
+      "Wholesale": 906794,
+      "DUoS": 386450,
+      "TNUoS": 514956,
+      "Levies": 1177228,
+      "Other": 371056,
+      "Total": 3356484
+    }
+  ]
+}

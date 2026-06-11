@@ -18,6 +18,8 @@ import type { ReactNode } from 'react'
 import { PabloSection01Animation } from './pablo/PabloSection01Animation'
 import { PabloSection02Animation } from './pablo/PabloSection02Animation'
 import { PabloSection03Animation } from './pablo/PabloSection03Animation'
+import { PabloSection04Animation } from './pablo/PabloSection04Animation'
+import { PabloSection05Animation } from './pablo/PabloSection05Animation'
 
 const ILLUSTRATIONS: Record<string, ReactNode> = {
   // ============================================================
@@ -291,6 +293,12 @@ const ANIMATED_CONCEPTS: Record<
   ),
   'charges-stack': ({ stepIndex }) => (
     <PabloSection03Animation stepIndex={stepIndex} />
+  ),
+  'options-sandbox': ({ stepIndex }) => (
+    <PabloSection04Animation stepIndex={stepIndex} />
+  ),
+  'investment-case-stack': ({ stepIndex }) => (
+    <PabloSection05Animation stepIndex={stepIndex} />
   ),
 }
 

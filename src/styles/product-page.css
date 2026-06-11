@@ -1771,12 +1771,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 56px;
   box-sizing: border-box;
-  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.pablo-s03.is-outro {
-  opacity: 0;
 }
 
 /* State label - same micro-typography pattern as Section 02. */
@@ -1814,16 +1809,13 @@
    aspect-ratio 3:2 matches Section 02's height feel. Both chart
    cards are absolutely stacked at the same spot and cross-fade
    between phases via the .is-in class. */
+/* Single projection chart card - Phase A comparison was dropped per
+   the consolidated 03/04/05 brief, so the wrapper no longer needs
+   the absolute-stacked positioning the old --a/--b cards used. */
 .pablo-s03-chart {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 56px; /* leaves room for the pills row */
-  margin: auto 0;
   width: 100%;
   aspect-ratio: 3 / 2;
-  max-height: calc(100% - 56px);
+  max-height: 100%;
   background: #FCF8EE;
   border-radius: 10px;
   border: 1px solid rgba(26, 37, 64, 0.10);
@@ -1863,6 +1855,307 @@
   }
   .pablo-s03 .recharts-reference-dot circle {
     animation: none;
+  }
+}
+
+/* =========================================================================
+   PABLO SECTION 04 ANIMATION - "Test every option"
+   Interactive stacked area chart driven by Solar/Wind/Battery toggles.
+   No auto-animation; the interactivity IS the animation.
+   ========================================================================= */
+.pablo-s04 {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.pablo-s04-state-label {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--product-accent-light);
+}
+.pablo-s04-state-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--product-accent-light);
+  animation: pablo-s02-pulse 2s ease-in-out infinite;
+}
+
+.pablo-s04-chart {
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #FCF8EE;
+  border-radius: 10px;
+  border: 1px solid rgba(26, 37, 64, 0.10);
+  padding: 12px 14px 8px 4px;
+  box-sizing: border-box;
+}
+.pablo-s04 .recharts-wrapper,
+.pablo-s04 .recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.pablo-s04-toggles {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.pablo-s04-toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #FCF8EE;
+  border: 1px solid rgba(26, 37, 64, 0.18);
+  color: rgba(26, 37, 64, 0.72);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 220ms var(--product-ease),
+              color 220ms var(--product-ease),
+              border-color 220ms var(--product-ease),
+              transform 160ms var(--product-ease);
+}
+.pablo-s04-toggle:disabled {
+  cursor: default;
+}
+.pablo-s04-toggle-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--toggle-colour);
+  opacity: 0.4;
+  transition: opacity 220ms var(--product-ease);
+}
+.pablo-s04-toggle.is-active {
+  background: color-mix(in oklab, var(--toggle-colour) 14%, transparent);
+  border-color: color-mix(in oklab, var(--toggle-colour) 55%, transparent);
+  color: var(--ink-navy);
+}
+.pablo-s04-toggle.is-active .pablo-s04-toggle-swatch {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .pablo-s04-toggle:not(:disabled):hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--toggle-colour) 50%, transparent);
+  }
+}
+
+.pablo-s04-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.pablo-s04-summary-card {
+  background: #FCF8EE;
+  border-radius: 8px;
+  border: 1px solid rgba(26, 37, 64, 0.08);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pablo-s04-summary-label {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(26, 37, 64, 0.5);
+}
+.pablo-s04-summary-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--ink-navy);
+  font-variant-numeric: tabular-nums;
+}
+.pablo-s04-summary-tag {
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: #27AE60;
+}
+
+@media (max-width: 1023px) {
+  .pablo-s04-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================================
+   PABLO SECTION 05 ANIMATION - "Build the investment case" 25yr payback
+   Embeds the source SVG directly. CSS keyframes drive: blue line
+   draws in via stroke-dashoffset, blue area fills via clip-path,
+   pink payback marker scales in, 25 dots fade in with stagger.
+   ========================================================================= */
+.pablo-s05 {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  --line-length: 720;
+}
+
+.pablo-s05-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  background: #FCF8EE;
+  border-radius: 10px;
+  border: 1px solid rgba(26, 37, 64, 0.10);
+  padding: 12px 8px 8px 4px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s05.is-in .pablo-s05-svg {
+  opacity: 1;
+}
+
+/* State label - matches Section 03's micro-typography. */
+.pablo-s05-state-label {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--product-accent-light);
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+}
+.pablo-s05-state-label.is-in { opacity: 1; }
+.pablo-s05-state-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--product-accent-light);
+  animation: pablo-s02-pulse 2s ease-in-out infinite;
+}
+
+/* === Animated elements inside the SVG === */
+
+/* Blue cumulative cashflow line - draws left to right via
+   stroke-dashoffset. Initial: dashoffset = full path length so the
+   line is invisible. Animate to 0 to fully reveal. */
+.pablo-s05-line {
+  stroke-dasharray: calc(var(--line-length) * 1px);
+  stroke-dashoffset: calc(var(--line-length) * 1px);
+}
+.pablo-s05.is-in .pablo-s05-line {
+  animation: pablo-s05-line-draw 2000ms cubic-bezier(0.4, 0, 0.2, 1) 200ms forwards;
+}
+@keyframes pablo-s05-line-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Blue filled area - clip-path reveals from left to right in sync
+   with the line. transform-origin not relevant for clip-path. */
+.pablo-s05-area {
+  clip-path: inset(0 100% 0 0);
+}
+.pablo-s05.is-in .pablo-s05-area {
+  animation: pablo-s05-area-reveal 2000ms cubic-bezier(0.4, 0, 0.2, 1) 200ms forwards;
+}
+@keyframes pablo-s05-area-reveal {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* Pink dashed payback marker - the line scales vertically from 0,
+   the label fades in. Both timed to land roughly as the blue line
+   crosses the £0 baseline (~750ms after the line starts drawing).
+   transform-origin set to the chart's £0 baseline (y=542.11 in the
+   SVG, which is bottom-half of the chart area). */
+.pablo-s05-payback-line {
+  transform-box: fill-box;
+  transform-origin: center center;
+  transform: scaleY(0);
+}
+.pablo-s05.is-in .pablo-s05-payback-line {
+  animation: pablo-s05-payback-scale 300ms cubic-bezier(0.34, 1.56, 0.64, 1) 750ms forwards;
+}
+@keyframes pablo-s05-payback-scale {
+  to { transform: scaleY(1); }
+}
+.pablo-s05-payback-label {
+  opacity: 0;
+}
+.pablo-s05.is-in .pablo-s05-payback-label {
+  animation: pablo-s05-payback-label-fade 300ms cubic-bezier(0.16, 1, 0.3, 1) 850ms forwards;
+}
+@keyframes pablo-s05-payback-label-fade {
+  to { opacity: 1; }
+}
+
+/* 25 dot markers - each fades in at its inline animation-delay
+   (1500 + i * 28 ms from the start of the section). */
+.pablo-s05-dot {
+  opacity: 0;
+  animation: pablo-s05-dot-fade 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* The component sets animation-play-state initially to paused so
+     the delayed animations don't fire until .is-in. */
+  animation-play-state: paused;
+}
+.pablo-s05.is-in .pablo-s05-dot {
+  animation-play-state: running;
+}
+@keyframes pablo-s05-dot-fade {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pablo-s05-state-dot { animation: none; }
+  .pablo-s05-svg,
+  .pablo-s05-state-label,
+  .pablo-s05-line,
+  .pablo-s05-area,
+  .pablo-s05-payback-line,
+  .pablo-s05-payback-label,
+  .pablo-s05-dot {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+    clip-path: none !important;
+    transform: none !important;
   }
 }
 

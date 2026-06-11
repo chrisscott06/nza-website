@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  BarChart,
   Bar,
   ComposedChart,
   Line,
@@ -12,98 +11,54 @@ import {
 } from 'recharts'
 
 /**
- * PABLO Section 03 ("See what's actually driving cost").
+ * PABLO Section 03 ("Find the cost drivers") - BAU Trajectory.
  *
- * AUTO-LOOPING ANIMATION per Chris's June 2026 round 8 direction.
- * Two-phase composition (Phase A comparison + Phase B 15yr
- * projection) - now driven by a timed loop instead of scroll.
+ * Per nza-pablo-sections-03-04-05-brief.md (which SUPERSEDES the
+ * earlier Section 03 brief): the Phase A "Your Bill vs Your
+ * Breakdown" comparison is DROPPED. Section 03 is now JUST the
+ * 15-year projection chart. The "your rate isn't one number"
+ * claim lives in the body copy alone.
  *
- *   t=0     comparison  Phase A bars grow up (Recharts ~600ms
- *                       per Bar + small staggered animationBegin)
- *   t=3500  projection  Phase A fades out, Phase B fades in +
- *                       bars grow ~1500ms + dashed line draws
- *                       in ~800ms + 2040 endpoint dot pops
- *   t=7500  outro       chart fades out
- *   t=8000  pre         invisible / reset
- *   t=8600  comparison  loop restarts
+ * Single play on viewport entry (NOT a loop - unlike Sections 01
+ * and 02 which Chris asked to loop). Timeline:
  *
- * prefers-reduced-motion holds the 'projection' state with no loop.
+ *   t=0      bars         15 stacked bars (2026-2040) grow up
+ *                          from baseline simultaneously
+ *   t=1500   line drawn    coral dashed total-trajectory line
+ *                          draws in left-to-right via Recharts
+ *                          (animationDuration 800, animationBegin
+ *                          1500)
+ *   t=2100   dot pop       2040 endpoint marker scales in
+ *                          (CSS keyframe at 2100ms)
+ *   t=2400   held          final state, holds forever
+ *
+ * Y-axis ticks are HARDCODED round multiples (per the brief's
+ * "round axis values, always" rule): £0, £500k, £1M, £1.5M, £2M,
+ * £2.5M, £3M, £3.5M.
+ *
+ * The chart shows what PABLO does, not "Hartpury's data" - no
+ * client name appears anywhere per the brief's universal rule.
+ *
+ * prefers-reduced-motion skips to the final state with no animation.
  */
 
-type Phase = 'pre' | 'comparison' | 'projection' | 'outro'
+/* === DATA ============================================================
+   Shape reference: pablo-bau-trajectory-data.json (Hartpury 2026-2040
+   reconstructed view). Values rounded slightly for visual cleanness;
+   exact pounds aren't part of the message. Cost Gap is a synthetic
+   ~5% layer on top per the brief - the source data doesn't include
+   it but the visual is richer with it. */
 
-const CYCLE = {
-  comparison_at: 0,
-  projection_at: 3500,
-  outro_at:      7500,
-  pre_at:        8000,
-  next_loop_at:  8600,
-} as const
-
-/* === DATA ============================================================ */
-
-/* The 6-component cost stack, plus the simpler Retail-Tariff-only view
-   that the visitor THINKS they have. Order in the array sets the stack
-   order in the chart (first = bottom). */
 const COMPONENTS = [
-  { key: 'Wholesale',    fill: '#ECB01F', fillOpacity: 1 },
-  { key: 'DUoS',         fill: '#E84393', fillOpacity: 1 },
-  { key: 'TNUoS',        fill: '#9B59B6', fillOpacity: 1 },
-  { key: 'Levies',       fill: '#27AE60', fillOpacity: 1 },
-  { key: 'Other',        fill: '#E67E22', fillOpacity: 1 },
-  { key: 'Cost Gap',     fill: '#ED6359', fillOpacity: 0.65 },
+  { key: 'Wholesale', fill: '#ECB01F', fillOpacity: 1 },
+  { key: 'DUoS',      fill: '#E84393', fillOpacity: 1 },
+  { key: 'TNUoS',     fill: '#9B59B6', fillOpacity: 1 },
+  { key: 'Levies',    fill: '#27AE60', fillOpacity: 1 },
+  { key: 'Other',     fill: '#E67E22', fillOpacity: 1 },
+  { key: 'Cost Gap',  fill: '#ED6359', fillOpacity: 0.65 },
 ] as const
-const RETAIL_TARIFF = { key: 'Retail Tariff', fill: '#3498DB', fillOpacity: 1 }
 
-/* Phase A: two stacked bars. "Your Bill" only has Retail Tariff +
-   DUoS populated; "Your Breakdown" only has the six components. Both
-   sum to approximately the same total (~£83,977). */
-const COMPARISON_DATA = [
-  {
-    name: 'Your Bill',
-    'Retail Tariff': 58220,
-    DUoS:            25065,
-    Wholesale:           0,
-    TNUoS:               0,
-    Levies:              0,
-    Other:               0,
-    'Cost Gap':          0,
-  },
-  {
-    name: 'Your Breakdown',
-    'Retail Tariff':     0,
-    Wholesale:       24074,
-    DUoS:            19557,
-    TNUoS:           16634,
-    Levies:           7876,
-    Other:            3751,
-    'Cost Gap':      11392,
-  },
-]
-
-/* Phase B: 15-year projection. Each component starts at its 2026
-   baseline and compounds at its own escalation rate. */
-const BASE_2026 = {
-  Wholesale:  24074,
-  DUoS:       19557,
-  TNUoS:      16634,
-  Levies:      7876,
-  Other:       3751,
-  'Cost Gap': 11392,
-} as const
-const ESCALATION_RATES = {
-  Wholesale:  0.015, /* relatively stable */
-  DUoS:       0.030, /* rising fastest */
-  TNUoS:      0.030, /* rising fastest */
-  Levies:     0.010, /* stable */
-  Other:      0.015,
-  'Cost Gap': 0.012,
-} as const
-
-/* Pre-compute the projection at module load. 15 rows = 2026..2040
-   inclusive. Each row also gets a `total` field used by the dashed
-   trajectory line at the top of the stack. */
-type ProjectionRow = {
+type Row = {
   year: number
   Wholesale: number
   DUoS: number
@@ -113,28 +68,48 @@ type ProjectionRow = {
   'Cost Gap': number
   total: number
 }
-const PROJECTION_DATA: ProjectionRow[] = Array.from(
-  { length: 15 },
-  (_, i) => {
-    const year = 2026 + i
-    const row: Record<string, number> = { year }
-    ;(Object.keys(BASE_2026) as Array<keyof typeof BASE_2026>).forEach((key) => {
-      row[key] = Math.round(
-        BASE_2026[key] * Math.pow(1 + ESCALATION_RATES[key], i),
-      )
-    })
-    row.total =
-      row.Wholesale +
-      row.DUoS +
-      row.TNUoS +
-      row.Levies +
-      row.Other +
-      row['Cost Gap']
-    return row as ProjectionRow
-  },
-)
+
+/* Per-year breakdown (rounded to k). Wholesale/DUoS/TNUoS/Levies/Other
+   follow the BAU shape from the data file; Cost Gap is a flat ~5% of
+   the year's running subtotal so it grows in step. */
+const RAW: Array<Omit<Row, 'Cost Gap' | 'total'>> = [
+  { year: 2026, Wholesale: 432, DUoS: 184, TNUoS: 245, Levies: 561, Other: 177 },
+  { year: 2027, Wholesale: 470, DUoS: 200, TNUoS: 267, Levies: 610, Other: 192 },
+  { year: 2028, Wholesale: 521, DUoS: 222, TNUoS: 296, Levies: 677, Other: 213 },
+  { year: 2029, Wholesale: 553, DUoS: 236, TNUoS: 314, Levies: 717, Other: 226 },
+  { year: 2030, Wholesale: 588, DUoS: 251, TNUoS: 334, Levies: 764, Other: 241 },
+  { year: 2031, Wholesale: 616, DUoS: 263, TNUoS: 350, Levies: 800, Other: 252 },
+  { year: 2032, Wholesale: 645, DUoS: 275, TNUoS: 366, Levies: 837, Other: 264 },
+  { year: 2033, Wholesale: 674, DUoS: 287, TNUoS: 383, Levies: 875, Other: 276 },
+  { year: 2034, Wholesale: 705, DUoS: 300, TNUoS: 400, Levies: 915, Other: 288 },
+  { year: 2035, Wholesale: 736, DUoS: 314, TNUoS: 418, Levies: 955, Other: 301 },
+  { year: 2036, Wholesale: 768, DUoS: 327, TNUoS: 436, Levies: 997, Other: 314 },
+  { year: 2037, Wholesale: 801, DUoS: 341, TNUoS: 455, Levies: 1040, Other: 328 },
+  { year: 2038, Wholesale: 835, DUoS: 356, TNUoS: 474, Levies: 1084, Other: 342 },
+  { year: 2039, Wholesale: 870, DUoS: 371, TNUoS: 494, Levies: 1130, Other: 356 },
+  { year: 2040, Wholesale: 907, DUoS: 386, TNUoS: 515, Levies: 1177, Other: 371 },
+]
+
+const PROJECTION_DATA: Row[] = RAW.map((r) => {
+  const subtotal = r.Wholesale + r.DUoS + r.TNUoS + r.Levies + r.Other
+  const costGap = Math.round(subtotal * 0.05)
+  const total = subtotal + costGap
+  return {
+    ...r,
+    'Cost Gap': costGap,
+    total,
+  }
+})
 
 const TOTAL_2040 = PROJECTION_DATA[PROJECTION_DATA.length - 1].total
+
+/* Y-axis is in thousands of pounds (the data values are k). Round
+   ticks every £500k from £0 to £3.5M. */
+const Y_TICKS_K = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500]
+const formatYTick = (v: number) =>
+  v === 0 ? '£0' : v >= 1000 ? `£${v / 1000}M` : `£${v}k`
+
+const X_TICKS = [2026, 2028, 2030, 2032, 2034, 2036, 2038, 2040]
 
 const AXIS_TICK = {
   fontSize: 10,
@@ -142,11 +117,6 @@ const AXIS_TICK = {
   fontFamily: 'Stolzl, system-ui, sans-serif',
   fontWeight: 300,
 }
-const AXIS_LINE = {
-  stroke: 'rgba(26, 37, 64, 0.45)',
-  strokeWidth: 1,
-}
-const formatPounds = (v: number) => '£' + Math.round(v / 1000) + 'k'
 
 /* === COMPONENT ======================================================= */
 
@@ -155,10 +125,9 @@ export function PabloSection03Animation({
 }: {
   stepIndex: number
 }) {
-  const [phase, setPhase] = useState<Phase>('pre')
+  const [entered, setEntered] = useState(false)
   const [reduced, setReduced] = useState(false)
-  const loopStarted = useRef(false)
-  const cycleTimers = useRef<number[]>([])
+  const ioFired = useRef(false)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -168,10 +137,10 @@ export function PabloSection03Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Entry trigger + auto-loop. */
+  /* IO trigger - single play on first viewport entry. No loop. */
   useEffect(() => {
     if (reduced) {
-      setPhase('projection')
+      setEntered(true)
       return
     }
     const blocks = document.querySelectorAll<HTMLElement>(
@@ -180,161 +149,45 @@ export function PabloSection03Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
-    let cancelled = false
-
-    const clearCycleTimers = () => {
-      cycleTimers.current.forEach((t) => window.clearTimeout(t))
-      cycleTimers.current = []
-    }
-
-    const schedule = (cb: () => void, delay: number) => {
-      const t = window.setTimeout(() => {
-        if (!cancelled) cb()
-      }, delay)
-      cycleTimers.current.push(t)
-    }
-
-    const runCycle = () => {
-      if (cancelled) return
-      clearCycleTimers()
-
-      setPhase('comparison')
-      schedule(() => setPhase('projection'), CYCLE.projection_at)
-      schedule(() => setPhase('outro'),      CYCLE.outro_at)
-      schedule(() => setPhase('pre'),        CYCLE.pre_at)
-      schedule(runCycle,                     CYCLE.next_loop_at)
-    }
-
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !loopStarted.current) {
-          loopStarted.current = true
+        if (entry.isIntersecting && !ioFired.current) {
+          ioFired.current = true
           io.disconnect()
-          runCycle()
+          setEntered(true)
         }
       },
       { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
     )
     io.observe(block)
-    return () => {
-      cancelled = true
-      io.disconnect()
-      clearCycleTimers()
-    }
+    return () => io.disconnect()
   }, [stepIndex, reduced])
 
-  /* Both charts mount only when their phase is the active one, so
-     Recharts replays its bar animations every time the user crosses
-     into that phase (forward OR backward). */
-  const showA = phase === 'comparison'
-  const showB = phase === 'projection'
-  const labelText =
-    phase === 'comparison'
-      ? 'ONE BILL · MANY CHARGES'
-      : phase === 'projection' || phase === 'outro'
-        ? 'PROJECTED · 2026 — 2040'
-        : ''
-  const labelIsIn = phase !== 'pre' && phase !== 'outro'
-  const isOutro = phase === 'outro'
-
-  /* Memoize the projection so the references stay stable across
-     renders (avoids spurious Recharts animation restarts). */
   const projectionData = useMemo(() => PROJECTION_DATA, [])
 
   return (
-    <div className={'pablo-s03' + (isOutro ? ' is-outro' : '')}>
-      {/* State label - top-right of the frame, mono micro-typography
-          matching Sections 01 + 02. */}
+    <div className={'pablo-s03' + (entered ? ' is-in' : '')}>
+      {/* State label - top-right of frame. */}
       <div
         className={
-          'pablo-s03-state-label' + (labelIsIn ? ' is-in' : '')
+          'pablo-s03-state-label' + (entered ? ' is-in' : '')
         }
         aria-hidden="true"
       >
         <span className="pablo-s03-state-dot" />
-        <span className="pablo-s03-state-text" key={phase}>
-          {labelText}
+        <span className="pablo-s03-state-text">
+          PROJECTED · 2026 — 2040
         </span>
       </div>
 
-      {/* Phase A: comparison bars */}
       <div
         className={
-          'pablo-s03-chart pablo-s03-chart--a' +
-          (showA ? ' is-in' : '')
+          'pablo-s03-chart pablo-s03-chart--projection' +
+          (entered ? ' is-in' : '')
         }
         aria-hidden="true"
       >
-        {showA && (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={COMPARISON_DATA}
-              margin={{ top: 28, right: 24, bottom: 18, left: 0 }}
-              barCategoryGap="32%"
-            >
-              <CartesianGrid
-                strokeDasharray="2 4"
-                stroke="rgba(26, 37, 64, 0.12)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="name"
-                tick={AXIS_TICK}
-                axisLine={AXIS_LINE}
-                tickLine={false}
-                tickMargin={10}
-              />
-              <YAxis
-                domain={[0, 100000]}
-                ticks={[0, 20000, 40000, 60000, 80000, 100000]}
-                tickFormatter={formatPounds}
-                tick={AXIS_TICK}
-                axisLine={AXIS_LINE}
-                tickLine={false}
-                width={56}
-                tickMargin={6}
-              />
-              {/* Bottom layer first. Retail Tariff is only used by
-                  Your Bill; the six PABLO components are only used
-                  by Your Breakdown. Each row puts zero in the slots
-                  it doesn't fill, so the stacks render cleanly. */}
-              <Bar
-                dataKey={RETAIL_TARIFF.key}
-                stackId="bill"
-                fill={RETAIL_TARIFF.fill}
-                isAnimationActive
-                animationDuration={600}
-                animationBegin={0}
-                animationEasing="ease-out"
-              />
-              {COMPONENTS.map((c, idx) => (
-                <Bar
-                  key={c.key}
-                  dataKey={c.key}
-                  stackId="bill"
-                  fill={c.fill}
-                  fillOpacity={c.fillOpacity}
-                  isAnimationActive
-                  animationDuration={600}
-                  animationBegin={idx * 60}
-                  animationEasing="ease-out"
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-
-      {/* Phase B: 15-year projection with dashed total line + 2040
-          endpoint dot. */}
-      <div
-        className={
-          'pablo-s03-chart pablo-s03-chart--b' +
-          (showB ? ' is-in' : '')
-        }
-        aria-hidden="true"
-      >
-        {showB && (
+        {entered && (
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={projectionData}
@@ -349,23 +202,30 @@ export function PabloSection03Animation({
                 dataKey="year"
                 type="number"
                 domain={[2026, 2040]}
-                ticks={[2026, 2028, 2030, 2032, 2034, 2036, 2038, 2040]}
+                ticks={X_TICKS}
                 tick={AXIS_TICK}
-                axisLine={AXIS_LINE}
+                axisLine={false}
                 tickLine={false}
                 tickMargin={8}
                 interval={0}
               />
               <YAxis
-                domain={[0, 150000]}
-                ticks={[0, 50000, 100000, 150000]}
-                tickFormatter={formatPounds}
+                /* Values in this dataset are already in thousands -
+                   the domain + ticks are kept in those units and
+                   the formatter pretties them up to £0/£500k/£1M
+                   etc. */
+                domain={[0, 3500]}
+                ticks={Y_TICKS_K}
+                tickFormatter={formatYTick}
                 tick={AXIS_TICK}
-                axisLine={AXIS_LINE}
+                axisLine={false}
                 tickLine={false}
                 width={56}
                 tickMargin={6}
               />
+              {/* Stacked components - bottom-up Wholesale, DUoS,
+                  TNUoS, Levies, Other, Cost Gap. All animate
+                  together in the first 1500ms. */}
               {COMPONENTS.map((c) => (
                 <Bar
                   key={c.key}
@@ -373,27 +233,29 @@ export function PabloSection03Animation({
                   stackId="proj"
                   fill={c.fill}
                   fillOpacity={c.fillOpacity}
-                  isAnimationActive
+                  isAnimationActive={!reduced}
                   animationDuration={1500}
                   animationBegin={0}
                   animationEasing="ease-out"
                 />
               ))}
-              {/* Dashed total-trajectory line - draws across the top
-                  of each stack once the bars have finished growing. */}
+              {/* Dashed coral total-trajectory line - draws in after
+                  the bars settle. animationBegin 1500ms means it
+                  starts the moment the bar growth finishes. */}
               <Line
                 dataKey="total"
                 stroke="#ED6359"
                 strokeWidth={1.8}
                 strokeDasharray="5 5"
                 dot={false}
-                isAnimationActive
+                isAnimationActive={!reduced}
                 animationDuration={800}
                 animationBegin={1500}
                 animationEasing="ease-out"
               />
-              {/* 2040 endpoint marker - filled coral circle with
-                  white outline, sits at the very top of the line. */}
+              {/* 2040 endpoint marker - hairline white-outlined
+                  coral dot. CSS keyframe pops it in around 2100ms
+                  via the .pablo-s03 .recharts-reference-dot rule. */}
               <ReferenceDot
                 x={2040}
                 y={TOTAL_2040}
@@ -407,7 +269,6 @@ export function PabloSection03Animation({
           </ResponsiveContainer>
         )}
       </div>
-
     </div>
   )
 }
