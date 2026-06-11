@@ -794,9 +794,12 @@
   /* Above the sticky hero in the stack so the coral covers the navy
      as it rises. */
   z-index: 1;
-  /* Sets the highlight underline colour for white-on-coral. The
-     .highlight-coral rule pulls --underline-color via fallback. */
-  --underline-color: #fff;
+  /* Highlight underline colour - dark navy per Chris ("can we make
+     the three underlined words ... have dark blue underlines to
+     make them stand out a bit more"). Was #fff which read as a
+     quiet white-on-coral; --ink-navy is the deep brand navy and
+     reads as a confident dark-blue mark on coral. */
+  --underline-color: var(--ink-navy);
 }
 
 /* ===== HERO + CORAL PARALLAX STACK =====
@@ -963,17 +966,23 @@
    Per Chris: "just have this as a tiny bit above to then make the
    graphic make sense." Reduced bottom-margin so the line lives close
    to block 1 (not separated by the column's 64px gap). */
+/* Centered above the three phase blocks, Stolzl Book at a confident
+   size in solid white. Was Inter body 14px at 70% opacity (a small
+   left-aligned caption); Chris bumped it: "make it a bit larger and
+   white" and "centred above the three icons". Matches the main
+   paragraph's typographic voice on the left. */
 .how-we-work-page-phases-intro {
-  margin: 0 0 -32px;
-  font-family: var(--font-body);
+  margin: 0 0 -16px;
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: 14px;
-  line-height: 1.5;
-  letter-spacing: 0;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: #fff;
+  text-align: center;
 }
 @media (max-width: 1023px) {
-  .how-we-work-page-phases-intro { margin: 0 0 -24px; }
+  .how-we-work-page-phases-intro { margin: 0 0 -8px; }
 }
 
 /* Each block opens with TWO staged moments per Chris's "nice way to

@@ -361,8 +361,9 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
               className="product-closer-cases"
               delay={500}
             >
-              {config.closer.caseStudies.map((cs) => {
+              {config.closer.caseStudies.map((cs, i) => {
                 const isOpen = expandedCaseId === cs.id
+                const caseNum = String(i + 1).padStart(2, '0')
                 return (
                   <button
                     key={cs.id}
@@ -388,6 +389,22 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
                       alt={cs.alt}
                       className="product-closer-case-logo"
                     />
+                    {/* Click affordance cue - small mono micro-label
+                        beneath the logo that explicitly says "there's
+                        a story here, click to read." Quiet at rest,
+                        brightens + arrow nudges on hover. Replaces
+                        having to guess at the interaction the
+                        chevron used to (badly) hint at. */}
+                    <span className="product-closer-case-cue" aria-hidden="true">
+                      <span className="product-closer-case-cue-num">{caseNum}</span>
+                      <span className="product-closer-case-cue-sep"> · </span>
+                      <span className="product-closer-case-cue-label">
+                        {isOpen ? 'Hide case study' : 'Read case study'}
+                      </span>
+                      <span className="product-closer-case-cue-arrow" aria-hidden="true">
+                        →
+                      </span>
+                    </span>
                     {/* Reveal panel - inner wrapper sits inside so the
                         grid-template-rows: 0fr -> 1fr accordion
                         animates smoothly from the body content's
