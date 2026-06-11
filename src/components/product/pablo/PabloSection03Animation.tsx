@@ -66,6 +66,17 @@ function phaseFromProgress(p: number): Phase {
 
 const ENTRY_LOCK_MS = 1500
 
+/* Phase B (projection) is a 2-3 second build: Phase A fades out
+   ~420ms, Phase B fades in ~420ms, stacked bars grow ~1500ms,
+   dashed total line draws in ~800ms, 2040 dot pops in. Lock for
+   2500ms so the full build plays out before scroll can push the
+   user to outro. */
+const ANIMATION_LOCK_MS: Partial<Record<Phase, number>> = {
+  projection: 2500,
+}
+
+const PHASE_ORDER: Phase[] = ['pre', 'comparison', 'projection', 'outro']
+
 /* === DATA ============================================================ */
 
 /* The 6-component cost stack, plus the simpler Retail-Tariff-only view
@@ -193,6 +204,7 @@ export function PabloSection03Animation({
   const entryFired = useRef(false)
   const entryUnlocked = useRef(false)
   const entryTimers = useRef<number[]>([])
+  const animationLockedPhase = useRef<Phase | null>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -267,7 +279,18 @@ export function PabloSection03Animation({
             if (progress > maxProgressRef.current) {
               maxProgressRef.current = progress
             }
-            setPhase(phaseFromProgress(maxProgressRef.current))
+            /* One-step + animation lock guard. */
+            const computedPhase = phaseFromProgress(maxProgressRef.current)
+            setPhase((curr) => {
+              if (computedPhase === curr) return curr
+              if (animationLockedPhase.current !== null) return curr
+              const currIdx = PHASE_ORDER.indexOf(curr)
+              const targetIdx = PHASE_ORDER.indexOf(computedPhase)
+              if (targetIdx > currIdx + 1) {
+                return PHASE_ORDER[currIdx + 1]
+              }
+              return computedPhase
+            })
           }
         }
       }
@@ -286,6 +309,23 @@ export function PabloSection03Animation({
       entryTimers.current = []
     }
   }, [])
+
+  /* Animation lock per phase. */
+  useEffect(() => {
+    const lockMs = ANIMATION_LOCK_MS[phase]
+    if (lockMs && lockMs > 0) {
+      animationLockedPhase.current = phase
+      const t = window.setTimeout(() => {
+        animationLockedPhase.current = null
+      }, lockMs)
+      return () => {
+        window.clearTimeout(t)
+        animationLockedPhase.current = null
+      }
+    }
+    animationLockedPhase.current = null
+    return undefined
+  }, [phase])
 
   const onPillClick = (target: 'comparison' | 'projection') => {
     pillOverride.current = target

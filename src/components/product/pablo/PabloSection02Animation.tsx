@@ -67,6 +67,20 @@ function phaseFromProgress(p: number): Phase {
 /* Entry timing - same pattern as Section 01. */
 const ENTRY_LOCK_MS = 1500
 
+/* Per-phase animation lock. When phase enters 'month' or 'week'
+   the Recharts <Line> is mid-morph (squashes-and-stretches over
+   900ms via isAnimationActive). If we let scroll advance the
+   phase again during that window the morph never completes -
+   Chris's exact complaint. Locking for ~1100ms (Recharts 900ms +
+   small buffer) lets each morph finish before scroll can push to
+   the next time-window. */
+const ANIMATION_LOCK_MS: Partial<Record<Phase, number>> = {
+  month: 1100,
+  week: 1100,
+}
+
+const PHASE_ORDER: Phase[] = ['pre', 'year', 'month', 'week', 'outro']
+
 /* Source data starts 2025-01-01T00:00 hourly. March 1 sits at hour
    (31 + 28) * 24 = 1416. 10 March is 9 days into March = 1416 + 9*24
    = 1632. */
@@ -168,6 +182,8 @@ export function PabloSection02Animation({
   const entryFired = useRef(false)
   const entryUnlocked = useRef(false)
   const entryTimers = useRef<number[]>([])
+  /* Per-phase morph lock. */
+  const animationLockedPhase = useRef<Phase | null>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -259,7 +275,19 @@ export function PabloSection02Animation({
             if (progress > maxProgressRef.current) {
               maxProgressRef.current = progress
             }
-            setPhase(phaseFromProgress(maxProgressRef.current))
+            /* Same one-step + lock guard as Section 01. Locks make
+               sure each morph completes before the next can start. */
+            const computedPhase = phaseFromProgress(maxProgressRef.current)
+            setPhase((curr) => {
+              if (computedPhase === curr) return curr
+              if (animationLockedPhase.current !== null) return curr
+              const currIdx = PHASE_ORDER.indexOf(curr)
+              const targetIdx = PHASE_ORDER.indexOf(computedPhase)
+              if (targetIdx > currIdx + 1) {
+                return PHASE_ORDER[currIdx + 1]
+              }
+              return computedPhase
+            })
           }
         }
       }
@@ -278,6 +306,23 @@ export function PabloSection02Animation({
       entryTimers.current = []
     }
   }, [])
+
+  /* Animation lock per phase. */
+  useEffect(() => {
+    const lockMs = ANIMATION_LOCK_MS[phase]
+    if (lockMs && lockMs > 0) {
+      animationLockedPhase.current = phase
+      const t = window.setTimeout(() => {
+        animationLockedPhase.current = null
+      }, lockMs)
+      return () => {
+        window.clearTimeout(t)
+        animationLockedPhase.current = null
+      }
+    }
+    animationLockedPhase.current = null
+    return undefined
+  }, [phase])
 
   /* Pill click - snap to that phase. Scroll overwrites this on the
      next wheel event. */

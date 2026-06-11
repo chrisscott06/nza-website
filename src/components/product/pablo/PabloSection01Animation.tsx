@@ -152,6 +152,35 @@ const SEGMENT_STAGGER_MS = 320
 const A_IN_DURATION_MS = 700
 const ENTRY_LOCK_MS = 1500
 
+/* Per-phase animation locks. When phase enters a key with a non-
+   zero value, the RAF tick refuses to advance past it for the
+   given duration - even if the user's scroll progress is way past.
+   This is what gives Chris the "you can't fast-forward past the
+   donut build" feel. Combined with the one-step-at-a-time
+   advancement below, fast scroll plays each transition out at its
+   own pace instead of skipping straight to the end. */
+const ANIMATION_LOCK_MS: Partial<Record<Phase, number>> = {
+  b_swipe: 700,      /* inputs swipe off + donut starts sliding in */
+  b_donut_in: 900,   /* donut settles centred in the frame */
+  b_segments: 2200,  /* 6-segment cascade + small buffer */
+}
+
+/* Phase ordering used by the RAF tick to enforce "advance only ONE
+   step per tick" - if computed phase is many steps ahead of current
+   (fast scroll), we step ONE forward instead of jumping. Combined
+   with ANIMATION_LOCK_MS above, fast scroll still walks through
+   every transition rather than skipping them. */
+const PHASE_ORDER: Phase[] = [
+  'pre',
+  'a_in',
+  'a_hold',
+  'b_swipe',
+  'b_donut_in',
+  'b_segments',
+  'done',
+  'outro',
+]
+
 export function PabloSection01Animation({
   stepIndex,
 }: {
@@ -177,6 +206,11 @@ export function PabloSection01Animation({
   const entryFired = useRef(false)
   const entryUnlocked = useRef(false)
   const entryTimers = useRef<number[]>([])
+  /* Per-phase animation lock. When phase enters a state listed in
+     ANIMATION_LOCK_MS, this ref is set to that phase and cleared
+     after the lock duration. RAF tick refuses to advance past
+     the locked phase while it's set. */
+  const animationLockedPhase = useRef<Phase | null>(null)
   /* How many segments have popped in so far (0 -> 6). Driven by a
      time-based cascade triggered when phase first enters b_segments. */
   const [visibleSegments, setVisibleSegments] = useState(0)
@@ -278,7 +312,28 @@ export function PabloSection01Animation({
             if (progress > maxProgressRef.current) {
               maxProgressRef.current = progress
             }
-            setPhase(phaseFromProgress(maxProgressRef.current))
+            /* Phase advancement is gated:
+               1. If an animation lock is active, refuse to advance
+                  past the locked phase (keep current).
+               2. Else allow only ONE step forward per tick - even
+                  if max progress is way past, we step one and pick
+                  up a fresh lock for that step's animation. The
+                  next tick can advance one more. This is what
+                  enforces "you can't fast-forward past the build"
+                  on fast scrolls. */
+            const computedPhase = phaseFromProgress(maxProgressRef.current)
+            setPhase((curr) => {
+              if (computedPhase === curr) return curr
+              if (animationLockedPhase.current !== null) {
+                return curr
+              }
+              const currIdx = PHASE_ORDER.indexOf(curr)
+              const targetIdx = PHASE_ORDER.indexOf(computedPhase)
+              if (targetIdx > currIdx + 1) {
+                return PHASE_ORDER[currIdx + 1]
+              }
+              return computedPhase
+            })
           }
           /* While the entry lock is active, scroll moves but the
              phase stays at a_hold (or a_in mid-transition). The
@@ -301,6 +356,25 @@ export function PabloSection01Animation({
       entryTimers.current = []
     }
   }, [])
+
+  /* Animation lock - when phase enters a state with an
+     ANIMATION_LOCK_MS entry, set the lock and clear it after the
+     duration so phase advancement can resume. */
+  useEffect(() => {
+    const lockMs = ANIMATION_LOCK_MS[phase]
+    if (lockMs && lockMs > 0) {
+      animationLockedPhase.current = phase
+      const t = window.setTimeout(() => {
+        animationLockedPhase.current = null
+      }, lockMs)
+      return () => {
+        window.clearTimeout(t)
+        animationLockedPhase.current = null
+      }
+    }
+    animationLockedPhase.current = null
+    return undefined
+  }, [phase])
 
   /* Pill click - snap to a representative phase for that view.
      Scroll will overwrite this on the next wheel event. */
