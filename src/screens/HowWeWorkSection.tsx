@@ -141,7 +141,7 @@ export function HowWeWorkSection() {
               . We cut through the complexity of decarbonisation - and build
               the tools your people need to act on it.
             </MaskReveal>
-            <MaskReveal as="p" className="how-we-work-page-para how-we-work-page-para--tagline" delay={2200}>
+            <MaskReveal as="p" className="how-we-work-page-para" delay={2200}>
               Every engagement follows three phases - decode, build, partner.
             </MaskReveal>
           </div>
@@ -154,10 +154,13 @@ export function HowWeWorkSection() {
                 className="how-we-work-phase-block"
                 style={
                   {
-                    /* Stagger blocks 3300 / 3950 / 4600 - after both
-                       paragraphs have arrived. 650ms apart so they
-                       cascade top-to-bottom one at a time. */
-                    '--reveal-delay': `${3300 + i * 650}ms`,
+                    /* Stagger blocks 3300 / 4100 / 4900. 800ms apart -
+                       the new separator-led reveal takes ~880ms per
+                       block (separator 0-420ms + content rise
+                       320-880ms within each block's slot), so the
+                       wider stagger keeps each block's "open" gesture
+                       distinct rather than overlapping. */
+                    '--reveal-delay': `${3300 + i * 800}ms`,
                   } as React.CSSProperties
                 }
               >

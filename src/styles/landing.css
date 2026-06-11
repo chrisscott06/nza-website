@@ -845,9 +845,12 @@
   display: grid;
   grid-template-columns: 1.05fr 1fr;
   gap: 96px;
-  max-width: 1180px;
+  /* Matched to .site-nav-inner (max-width 1280, padding 0 48) so the
+     left edge of the body text lines up exactly with the NZA logo's
+     left edge in the nav above. */
+  max-width: 1280px;
   width: 100%;
-  padding: 0 56px;
+  padding: 0 48px;
   box-sizing: border-box;
   align-items: center;
 }
@@ -881,14 +884,10 @@
   letter-spacing: -0.01em;
   color: #fff;
 }
-/* The follow-up "Every engagement follows..." line gets a slightly
-   smaller size + a touch of opacity so it reads as a second voice
-   beneath the headline statement rather than competing with it. */
-.how-we-work-page-para--tagline {
-  font-size: clamp(18px, 1.7vw, 22px);
-  line-height: 1.4;
-  opacity: 0.85;
-}
+/* Tagline kept at the same size as paragraph 1 per Chris - "can we
+   make that the same size as the one above it." Modifier class
+   stays on the element for semantic purposes but no overrides; both
+   paragraphs share the .how-we-work-page-para treatment. */
 
 /* ---------- HIGHLIGHT-CORAL: per-word coral underline ----------
    The three words "buildings", "energy", "climate" inside paragraph 1
@@ -935,42 +934,78 @@
 
 /* RIGHT column - three phase blocks STACKED VERTICALLY. Each block is
    a horizontal row: heading + body text on the left, small (60px)
-   SVG visual on the right. Per Chris "the icons don't need to be so
-   huge" - smaller visual lets the heading carry the weight. */
+   SVG visual on the right. More vertical breathing room per Chris
+   ("a bit more breathing space vertically and separate them a bit
+   more"): gap bumped from 36 -> 64. */
 .how-we-work-page-right {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 64px;
   max-width: 460px;
 }
 @media (max-width: 1023px) {
-  .how-we-work-page-right { gap: 32px; max-width: none; }
+  .how-we-work-page-right { gap: 56px; max-width: none; }
 }
+
+/* Each block opens with TWO staged moments per Chris's "nice way to
+   reveal them" ask:
+     1) The hairline separator draws L->R like a stage curtain
+        (~420ms, scaleX 0 -> 1). Same gesture as the highlight
+        underlines on the left so the motion language is consistent.
+     2) The content (text + small icon) rises up from below with a
+        soft fade (~560ms, opacity 0->1 + translateY 14->0), starting
+        ~320ms after the separator begins.
+   The hairline is now a pseudo-element so it can be animated
+   independently of the block; was previously a border-top which can't
+   transform. */
 .how-we-work-phase-block {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 24px;
   align-items: center;
-  /* Subtle separator above each block (except the first) so the three
-     read as a numbered list rather than a stack of floating cards. */
-  padding-top: 24px;
-  border-top: 0.5px solid rgba(255, 255, 255, 0.25);
-  /* Block fades in as one unit. Stagger driven by inline
-     --reveal-delay per block (3300 / 3950 / 4600 ms) so the three
-     blocks cascade top-to-bottom one at a time after the paragraphs
-     have arrived. */
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
-              transform 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+  padding-top: 28px;
+  position: relative;
 }
 .how-we-work-phase-block:first-child {
   padding-top: 0;
-  border-top: 0;
 }
-.how-we-work-page.is-revealed .how-we-work-phase-block {
-  opacity: 1;
-  transform: translateY(0);
+.how-we-work-phase-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.how-we-work-phase-block:first-child::before { display: none; }
+
+/* Content (text + icon) starts hidden + pushed down 14px; reveal
+   slides up & fades in together as one block, just after the
+   separator finishes drawing. */
+.how-we-work-phase-text,
+.how-we-work-phase-visual {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.how-we-work-page.is-revealed .how-we-work-phase-block::before {
+  animation: phase-separator-draw 420ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+.how-we-work-page.is-revealed .how-we-work-phase-text,
+.how-we-work-page.is-revealed .how-we-work-phase-visual {
+  animation: phase-content-rise 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 320ms);
+}
+
+@keyframes phase-separator-draw {
+  to { transform: scaleX(1); }
+}
+@keyframes phase-content-rise {
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .how-we-work-phase-text {
@@ -1157,10 +1192,18 @@
     opacity: 1;
     transform: none;
   }
-  .how-we-work-phase-block { transition: none; }
-  .how-we-work-page.is-revealed .how-we-work-phase-block {
+  /* New separator-led reveal: skip both stages, show the block in
+     its final state immediately. */
+  .how-we-work-phase-block::before { transform: scaleX(1); }
+  .how-we-work-phase-text,
+  .how-we-work-phase-visual {
     opacity: 1;
     transform: none;
+  }
+  .how-we-work-page.is-revealed .how-we-work-phase-block::before,
+  .how-we-work-page.is-revealed .how-we-work-phase-text,
+  .how-we-work-page.is-revealed .how-we-work-phase-visual {
+    animation: none;
   }
 }
 
