@@ -107,18 +107,22 @@ type Phase =
   | 'outro'
 
 /* Cycle timeline - absolute ms offsets from the start of each loop.
-   Tweak these to retime the animation. */
+   Tweak these to retime the animation. b_donut_in overlaps the
+   inputs swipe-out (donut starts arriving 200ms into the swipe per
+   the original brief's "clean handoff while the inputs are still
+   mid-swipe") so there isn't a dead gap between the inputs
+   disappearing and the donut populating - Chris's June 2026 ask. */
 const CYCLE = {
   a_in_at:        0,     /* inputs rise */
   a_hold_at:      700,
-  b_swipe_at:     2200,  /* inputs swipe off, donut starts arriving */
-  b_donut_in_at:  2900,  /* donut fully landed */
-  b_segments_at:  3800,  /* cascade begins */
+  b_swipe_at:     2200,  /* inputs swipe off */
+  b_donut_in_at:  2400,  /* donut starts sliding in - overlaps swipe */
+  b_segments_at:  3100,  /* cascade begins as donut lands */
   segments_initial_delay: 80,
   segments_stagger:       320,  /* each segment takes 320ms more */
-  outro_at:       6980,  /* fade out everything */
-  pre_at:         7480,  /* invisible / reset */
-  next_loop_at:   8080,  /* restart */
+  outro_at:       6280,  /* fade out everything */
+  pre_at:         6780,  /* invisible / reset */
+  next_loop_at:   7380,  /* restart */
 } as const
 
 export function PabloSection01Animation({
