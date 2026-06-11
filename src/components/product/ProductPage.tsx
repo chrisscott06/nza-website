@@ -384,22 +384,34 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
                       )
                     }
                   >
-                    <img
-                      src={cs.logoSrc}
-                      alt={cs.alt}
-                      className="product-closer-case-logo"
-                    />
+                    {/* Logo stage is a FIXED-HEIGHT wrapper around the
+                        img so the three logos (which have different
+                        intrinsic aspect ratios) all consume the same
+                        vertical slot. That means everything BELOW the
+                        stage - the underline + the cue label - sits
+                        at the exact same Y across all three cards.
+                        The image itself scales to fit via
+                        max-height/max-width + object-fit:contain. */}
+                    <div className="product-closer-case-logo-stage">
+                      <img
+                        src={cs.logoSrc}
+                        alt={cs.alt}
+                        className="product-closer-case-logo"
+                      />
+                    </div>
                     {/* Click affordance cue - small mono micro-label
-                        beneath the logo that explicitly says "there's
-                        a story here, click to read." Quiet at rest,
-                        brightens + arrow nudges on hover. Replaces
-                        having to guess at the interaction the
-                        chevron used to (badly) hint at. */}
+                        beneath the logo + underline. Per Chris ("it's
+                        not a full case study; it's just a bit of
+                        information ... 'Read more' or even just a
+                        little arrow") - copy now "01 · READ MORE →"
+                        rather than promising a full case study.
+                        Quiet at rest, brightens + arrow nudges on
+                        hover; arrow rotates 90deg down when open. */}
                     <span className="product-closer-case-cue" aria-hidden="true">
                       <span className="product-closer-case-cue-num">{caseNum}</span>
                       <span className="product-closer-case-cue-sep"> · </span>
                       <span className="product-closer-case-cue-label">
-                        {isOpen ? 'Hide case study' : 'Read case study'}
+                        {isOpen ? 'Hide' : 'Read more'}
                       </span>
                       <span className="product-closer-case-cue-arrow" aria-hidden="true">
                         →

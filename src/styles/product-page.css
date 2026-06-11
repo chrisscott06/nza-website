@@ -1205,23 +1205,39 @@
    intrinsic aspect ratio. The active logo lifts to full opacity and
    gets a coral underline that doubles as the "this is open" cue
    in the absence of any other chrome. */
+/* Logo STAGE - fixed-height slot the logo image sits inside. ALL
+   three cards share the same stage height, so the underline + cue
+   below it land on the same Y line across the row regardless of how
+   tall each individual logo renders. Chris flagged the previous
+   per-logo heights as "higgledy-piggledy" - this is the structural
+   fix, not just a per-logo nudge. */
+.product-closer-case-logo-stage {
+  height: 140px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 767px) {
+  .product-closer-case-logo-stage { height: 110px; }
+}
+
+/* Logo image - scales to fit within the stage (max-height: 100%)
+   while keeping its intrinsic aspect ratio via object-fit: contain.
+   Per-alt max-width lets Hartpury display wider than the other two
+   (its SVG has more empty viewBox padding so a uniform max-width
+   would make it visually smaller than IVG / RWGC). */
 .product-closer-case-logo {
-  height: 110px;
+  max-height: 100%;
   max-width: 200px;
   width: auto;
+  height: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
   opacity: 0.78;
   transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-/* Hartpury's SVG has more empty viewBox padding than IVG / RWGC so
-   at the shared 110x200 box it visually reads smaller than the
-   other two. Chris: "Can we just make the Hartpury logo a bit
-   bigger, please, so it kind of matches the height of the others?
-   It's okay if it goes a bit wider." Targeting by alt attribute
-   keeps the override data-driven (no nth-child reliance). */
 .product-closer-case-logo[alt="Hartpury University"] {
-  height: 130px;
   max-width: 260px;
 }
 .product-closer-case:hover .product-closer-case-logo,
@@ -1229,11 +1245,8 @@
   opacity: 1;
 }
 @media (max-width: 767px) {
-  .product-closer-case-logo { height: 88px; max-width: 170px; }
-  .product-closer-case-logo[alt="Hartpury University"] {
-    height: 104px;
-    max-width: 220px;
-  }
+  .product-closer-case-logo { max-width: 170px; }
+  .product-closer-case-logo[alt="Hartpury University"] { max-width: 220px; }
 }
 
 /* Hairline coral underline under the logo. Two states:
