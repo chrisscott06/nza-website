@@ -991,14 +991,18 @@
   transform: translateY(14px);
 }
 
-.how-we-work-page.is-revealed .how-we-work-phase-block::before {
+/* Each block's reveal is now SCROLL-DRIVEN - it flips to .is-revealed
+   in HowWeWorkSection.tsx when the user scrolls past its threshold
+   inside the pinned section. Animations run immediately on that
+   class landing (no --reveal-delay var any more) - the "delay
+   between blocks" is no longer a timer, it's the user's scroll
+   position passing each threshold. */
+.how-we-work-phase-block.is-revealed::before {
   animation: phase-separator-draw 420ms cubic-bezier(0.7, 0, 0.3, 1) forwards;
-  animation-delay: var(--reveal-delay, 0ms);
 }
-.how-we-work-page.is-revealed .how-we-work-phase-text,
-.how-we-work-page.is-revealed .how-we-work-phase-visual {
-  animation: phase-content-rise 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 320ms);
+.how-we-work-phase-block.is-revealed .how-we-work-phase-text,
+.how-we-work-phase-block.is-revealed .how-we-work-phase-visual {
+  animation: phase-content-rise 560ms cubic-bezier(0.16, 1, 0.3, 1) 320ms forwards;
 }
 
 @keyframes phase-separator-draw {
@@ -1083,9 +1087,14 @@
 .decode-dot {
   opacity: 0;
 }
-.how-we-work-page.is-revealed .decode-dot {
+/* Visual animations now key off the per-block .is-revealed (set by
+   the scroll-driven reveal in HowWeWorkSection.tsx) rather than the
+   parent page's class plus a --reveal-delay var. The 600ms base
+   offset is the wait for the block's separator + content-rise to
+   land before the SVG starts animating inside it. */
+.how-we-work-phase-block.is-revealed .decode-dot {
   animation: decode-dot-appear 180ms linear forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 600ms + var(--dot-index, 0) * 35ms);
+  animation-delay: calc(600ms + var(--dot-index, 0) * 35ms);
 }
 @keyframes decode-dot-appear {
   from { opacity: 0; }
@@ -1098,22 +1107,19 @@
 .build-line {
   opacity: 0;
 }
-.how-we-work-page.is-revealed .build-dot-outline {
-  animation: build-outline-appear 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 600ms);
+.how-we-work-phase-block.is-revealed .build-dot-outline {
+  animation: build-outline-appear 280ms cubic-bezier(0.16, 1, 0.3, 1) 600ms forwards;
 }
-.how-we-work-page.is-revealed .build-dot-fill {
-  animation: build-fill-appear 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 900ms);
+.how-we-work-phase-block.is-revealed .build-dot-fill {
+  animation: build-fill-appear 400ms cubic-bezier(0.16, 1, 0.3, 1) 900ms forwards;
 }
-.how-we-work-page.is-revealed .build-line {
+.how-we-work-phase-block.is-revealed .build-line {
   /* Perimeter = 4 sides x 150 SVG units = 600. Start with the full
      dash gap exposed (offset = 600) and animate down to 0 so the
      stroke "draws" clockwise from the top-left corner. */
   stroke-dasharray: 600;
   stroke-dashoffset: 600;
-  animation: build-line-draw 1000ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 1250ms);
+  animation: build-line-draw 1000ms cubic-bezier(0.4, 0, 0.2, 1) 1250ms forwards;
 }
 @keyframes build-outline-appear {
   from { opacity: 0; }
@@ -1140,17 +1146,14 @@
 .partner-overlap {
   opacity: 0;
 }
-.how-we-work-page.is-revealed .partner-square--tl {
-  animation: partner-fly-tl 1000ms cubic-bezier(0.34, 1.40, 0.64, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 600ms);
+.how-we-work-phase-block.is-revealed .partner-square--tl {
+  animation: partner-fly-tl 1000ms cubic-bezier(0.34, 1.40, 0.64, 1) 600ms forwards;
 }
-.how-we-work-page.is-revealed .partner-square--br {
-  animation: partner-fly-br 1000ms cubic-bezier(0.34, 1.40, 0.64, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 680ms);
+.how-we-work-phase-block.is-revealed .partner-square--br {
+  animation: partner-fly-br 1000ms cubic-bezier(0.34, 1.40, 0.64, 1) 680ms forwards;
 }
-.how-we-work-page.is-revealed .partner-overlap {
-  animation: partner-overlap-in 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--reveal-delay, 0ms) + 1500ms);
+.how-we-work-phase-block.is-revealed .partner-overlap {
+  animation: partner-overlap-in 600ms cubic-bezier(0.16, 1, 0.3, 1) 1500ms forwards;
 }
 /* The two keyframes are direction-specific. The 70% bump pushes the
    square slightly past its final position (overshoot - "almost
@@ -1174,35 +1177,34 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* Skip all visual sequences - jump straight to the final state. */
-  .how-we-work-page.is-revealed .decode-dot,
-  .how-we-work-page.is-revealed .build-dot-outline,
-  .how-we-work-page.is-revealed .build-dot-fill,
-  .how-we-work-page.is-revealed .partner-overlap {
+  .how-we-work-phase-block.is-revealed .decode-dot,
+  .how-we-work-phase-block.is-revealed .build-dot-outline,
+  .how-we-work-phase-block.is-revealed .build-dot-fill,
+  .how-we-work-phase-block.is-revealed .partner-overlap {
     animation: none;
     opacity: 1;
   }
-  .how-we-work-page.is-revealed .build-line {
+  .how-we-work-phase-block.is-revealed .build-line {
     animation: none;
     opacity: 1;
     stroke-dashoffset: 0;
   }
-  .how-we-work-page.is-revealed .partner-square--tl,
-  .how-we-work-page.is-revealed .partner-square--br {
+  .how-we-work-phase-block.is-revealed .partner-square--tl,
+  .how-we-work-phase-block.is-revealed .partner-square--br {
     animation: none;
     opacity: 1;
     transform: none;
   }
-  /* New separator-led reveal: skip both stages, show the block in
-     its final state immediately. */
+  /* Separator-led block reveal also skips - show final state. */
   .how-we-work-phase-block::before { transform: scaleX(1); }
   .how-we-work-phase-text,
   .how-we-work-phase-visual {
     opacity: 1;
     transform: none;
   }
-  .how-we-work-page.is-revealed .how-we-work-phase-block::before,
-  .how-we-work-page.is-revealed .how-we-work-phase-text,
-  .how-we-work-page.is-revealed .how-we-work-phase-visual {
+  .how-we-work-phase-block.is-revealed::before,
+  .how-we-work-phase-block.is-revealed .how-we-work-phase-text,
+  .how-we-work-phase-block.is-revealed .how-we-work-phase-visual {
     animation: none;
   }
 }
@@ -1807,16 +1809,25 @@
     margin-top: 0;
     overflow: hidden;
     opacity: 0;
-    transform: none;
+    transform: translateY(6px);
+    /* Opacity + transform extended to match the box growth so the
+       content arrives in step with the expanding container instead
+       of snapping in halfway through. Per Chris: "Can we have a bit
+       more, just a slower movement, to match the speed of the
+       growth of the box?" Was opacity 280ms@120ms delay (ended ~140
+       before the box did). Now opacity + transform run for the full
+       460ms with a tiny 40ms head-start so the fade is just barely
+       trailing the height. */
     transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
                 margin-top 460ms cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 280ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
+                opacity 460ms cubic-bezier(0.16, 1, 0.3, 1) 40ms,
+                transform 460ms cubic-bezier(0.16, 1, 0.3, 1) 40ms;
   }
   .product-card.is-active .product-card-reveal {
     max-height: 380px; /* generous to fit the longest copy */
     margin-top: 12px;
     opacity: 1;
-    transform: none;
+    transform: translateY(0);
   }
   /* The triptych grid keeps the per-card gap visually tight so all
      three cards land within the first viewport on phones. */

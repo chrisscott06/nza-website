@@ -80,9 +80,27 @@ const PHASES: Array<{
   },
 ]
 
+/* Scroll thresholds (as fraction of progress through the 300vh
+   section) at which each phase block reveals. Tuned so the user
+   sees block 1 just after the pin engages, then blocks 2 + 3 over
+   the next stretch of scroll. Per Chris: "have them come up as part
+   of the scroll" rather than fire on a timer the user can outrun. */
+const BLOCK_REVEAL_THRESHOLDS = [0.30, 0.48, 0.66] as const
+
 export function HowWeWorkSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
+  /* `revealed` still tracks the section-level IO trigger - paragraphs
+     and underlines use it (their MaskReveal + .highlight-coral
+     animations fire on a timeline once the section enters view, and
+     Chris said "the animation on the text with the underlinings is
+     good"). */
   const [revealed, setRevealed] = useState(false)
+  /* The three phase blocks are now SCROLL-DRIVEN - each block flips
+     to true as the user passes its threshold within the pinned
+     section. They reveal IN STEP with the scroll instead of waiting
+     on the old time-based --reveal-delay cascade, so the user can
+     never scroll past them before they've shown. */
+  const [blocksRevealed, setBlocksRevealed] = useState<boolean[]>([false, false, false])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -101,6 +119,51 @@ export function HowWeWorkSection() {
     )
     obs.observe(section)
     return () => obs.disconnect()
+  }, [])
+
+  /* Scroll listener for the per-block reveals. Runs from mount;
+     RAF-throttled so we don't thrash on fast scrolls. Progress is
+     measured against the section's full scrollable range (its height
+     minus the viewport), so 0 = section's top at viewport top,
+     1 = section's bottom at viewport bottom. */
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    let rafPending = false
+    const onScroll = () => {
+      if (rafPending) return
+      rafPending = true
+      window.requestAnimationFrame(() => {
+        rafPending = false
+        const rect = section.getBoundingClientRect()
+        const scrollRange = rect.height - window.innerHeight
+        if (scrollRange <= 0) return
+        const scrolled = -rect.top
+        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
+        setBlocksRevealed((curr) => {
+          /* Monotonic: blocks only go false -> true. Once a block has
+             revealed it STAYS revealed even if the user scrolls back
+             up past its threshold - prevents the animation from
+             playing in reverse and matches expected UX. */
+          const next = BLOCK_REVEAL_THRESHOLDS.map(
+            (t, i) => curr[i] || progress >= t,
+          )
+          if (curr[0] === next[0] && curr[1] === next[1] && curr[2] === next[2]) {
+            return curr
+          }
+          return next
+        })
+      })
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [])
 
   return (
@@ -151,17 +214,9 @@ export function HowWeWorkSection() {
             {PHASES.map((phase, i) => (
               <article
                 key={phase.id}
-                className="how-we-work-phase-block"
-                style={
-                  {
-                    /* Stagger blocks 3300 / 4100 / 4900. 800ms apart -
-                       the new separator-led reveal takes ~880ms per
-                       block (separator 0-420ms + content rise
-                       320-880ms within each block's slot), so the
-                       wider stagger keeps each block's "open" gesture
-                       distinct rather than overlapping. */
-                    '--reveal-delay': `${3300 + i * 800}ms`,
-                  } as React.CSSProperties
+                className={
+                  'how-we-work-phase-block' +
+                  (blocksRevealed[i] ? ' is-revealed' : '')
                 }
               >
                 <div className="how-we-work-phase-text">

@@ -38,9 +38,16 @@ const WORDS = [
   'the energy transition',
 ] as const
 
-const CYCLE_MS = 2500
-const WIDTH_OFFSET_MS = 1800
-const INITIAL_HOLD_MS = 2500
+/* Cycle timing tightened per Chris - rotation kicks off as
+   "for your organisation." appears (its MaskReveal fires at
+   1600ms after the preloader dismisses) and each subsequent
+   word cycles a bit quicker.
+     INITIAL_HOLD_MS 2500 -> 1600   start as line 3 reveals
+     CYCLE_MS        2500 -> 2000   ~20% quicker per cycle
+     WIDTH_OFFSET_MS 1800 -> 1400   braces follow proportionally */
+const CYCLE_MS = 2000
+const WIDTH_OFFSET_MS = 1400
+const INITIAL_HOLD_MS = 1600
 
 export function SlotMachineWord() {
   const measureRef = useRef<HTMLSpanElement>(null)
