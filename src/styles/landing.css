@@ -970,13 +970,18 @@
    size in solid white. Was Inter body 14px at 70% opacity (a small
    left-aligned caption); Chris bumped it: "make it a bit larger and
    white" and "centred above the three icons". Matches the main
-   paragraph's typographic voice on the left. */
+   paragraph's typographic voice on the left.
+   Size trimmed (was clamp 18/1.6vw/22) per Chris's latest: at 22 the
+   sentence "Every engagement follows three phases." was wrapping at
+   the right column's 460 max-width; the new clamp 16/1.35vw/18 lets
+   it sit on one line at desktop while staying readable on smaller
+   viewports. */
 .how-we-work-page-phases-intro {
   margin: 0 0 -16px;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(18px, 1.6vw, 22px);
-  line-height: 1.4;
+  font-size: clamp(16px, 1.35vw, 18px);
+  line-height: 1.3;
   letter-spacing: -0.005em;
   color: #fff;
   text-align: center;
