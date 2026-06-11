@@ -112,21 +112,20 @@ type Phase =
   | 'done'
   | 'outro'
 
-/* Scroll-progress phase thresholds (upper bound of each phase). */
+/* Scroll-progress phase thresholds (upper bound of each phase).
+   The 'pre' and 'a_in' phases are NOT scroll-driven - they fire on
+   viewport entry via the IO effect, before scroll progression takes
+   over. From a_hold onwards, scroll advances the phase. */
 const PHASE_BOUNDS = {
-  preEnd:        0.08,
-  aInEnd:        0.22,
-  aHoldEnd:      0.40,
-  bSwipeEnd:     0.50,
-  bDonutInEnd:   0.60,
-  bSegmentsEnd:  0.82,
-  doneEnd:       0.90,
+  aHoldEnd:     0.30,
+  bSwipeEnd:    0.42,
+  bDonutInEnd:  0.54,
+  bSegmentsEnd: 0.80,
+  doneEnd:      0.92,
   /* >= doneEnd -> outro */
 } as const
 
 function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.preEnd) return 'pre'
-  if (p < PHASE_BOUNDS.aInEnd) return 'a_in'
   if (p < PHASE_BOUNDS.aHoldEnd) return 'a_hold'
   if (p < PHASE_BOUNDS.bSwipeEnd) return 'b_swipe'
   if (p < PHASE_BOUNDS.bDonutInEnd) return 'b_donut_in'
@@ -144,6 +143,15 @@ function phaseFromProgress(p: number): Phase {
    regardless of how fast the user scrolls past the segments phase. */
 const SEGMENT_STAGGER_MS = 320
 
+/* Entry timing. The animation auto-plays its first content state
+   (a_in) the moment the step's text-block enters the active band -
+   the user shouldn't have to scroll AGAIN to see anything. Then a
+   soft lock holds the phase at a_hold for ENTRY_LOCK_MS so a fast
+   wheel push can't blow past the inputs. After the lock, monotonic
+   scroll takes over and the user can advance to the donut. */
+const A_IN_DURATION_MS = 700
+const ENTRY_LOCK_MS = 1500
+
 export function PabloSection01Animation({
   stepIndex,
 }: {
@@ -160,6 +168,15 @@ export function PabloSection01Animation({
      reached. Per Chris: "on the way back up, it just leaves it
      on whatever the final bit of the graphic was". */
   const maxProgressRef = useRef(0)
+  /* Entry state machine - fired once when the step's text-block
+     enters the active band. While !entryFired the RAF tick doesn't
+     touch phase (phase stays 'pre'). While !entryUnlocked the RAF
+     tick still doesn't advance phase via scroll - lets the entry
+     animation play AND keeps the user pinned on the first content
+     state for a beat so a fast wheel push can't skip past it. */
+  const entryFired = useRef(false)
+  const entryUnlocked = useRef(false)
+  const entryTimers = useRef<number[]>([])
   /* How many segments have popped in so far (0 -> 6). Driven by a
      time-based cascade triggered when phase first enters b_segments. */
   const [visibleSegments, setVisibleSegments] = useState(0)
@@ -175,17 +192,69 @@ export function PabloSection01Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* MONOTONIC scroll-driven phase. RAF polls the text-block's
-     viewport position; we keep a running max of progress so a
-     scroll-back doesn't drag the animation back through earlier
-     phases. The first scroll event after a pill click clears the
-     pill override and scroll takes over. */
+  /* Entry trigger - when the step's text-block enters the active
+     band (same rootMargin as ProductStepsSection's active-step IO),
+     the user has "landed" on this step. Auto-play a_in (inputs
+     rise) then advance to a_hold; soft-lock scroll progression for
+     ENTRY_LOCK_MS so the user actually SEES the inputs before scroll
+     can advance to the donut. Per Chris: "as soon as the text lands
+     and the pages are there, the bill plus load shape needs to pop
+     up. Then you scroll, and then it's the donut chart." */
   useEffect(() => {
     if (reduced) {
+      entryFired.current = true
+      entryUnlocked.current = true
       setPhase('done')
       setVisibleSegments(DONUT_DATA.length)
       return
     }
+    const blocks = document.querySelectorAll<HTMLElement>(
+      '.product-step-text-block',
+    )
+    const block = blocks[stepIndex]
+    if (!block) return
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !entryFired.current) {
+          entryFired.current = true
+          io.disconnect()
+          /* Play the inputs-rise. */
+          setPhase('a_in')
+          /* a_in finishes -> a_hold. */
+          const t1 = window.setTimeout(() => {
+            setPhase('a_hold')
+          }, A_IN_DURATION_MS)
+          entryTimers.current.push(t1)
+          /* Unlock - scroll can now drive phases. Reset
+             maxProgress to at LEAST aHoldEnd so we don't
+             regress to a_in if the user immediately scrolls
+             forward. */
+          const t2 = window.setTimeout(() => {
+            entryUnlocked.current = true
+            maxProgressRef.current = Math.max(
+              maxProgressRef.current,
+              PHASE_BOUNDS.aHoldEnd - 0.001,
+            )
+          }, ENTRY_LOCK_MS)
+          entryTimers.current.push(t2)
+        }
+      },
+      { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
+    )
+    io.observe(block)
+    return () => io.disconnect()
+  }, [stepIndex, reduced])
+
+  /* MONOTONIC scroll-driven phase. RAF polls the text-block's
+     viewport position; we keep a running max of progress so a
+     scroll-back doesn't drag the animation back through earlier
+     phases. While the entry lock is active (entryUnlocked still
+     false), the tick observes scroll but doesn't push phase past
+     a_hold - that's the "you can't scroll past the first one"
+     guard Chris asked for. */
+  useEffect(() => {
+    if (reduced) return
     const blocks = document.querySelectorAll<HTMLElement>(
       '.product-step-text-block',
     )
@@ -202,13 +271,19 @@ export function PabloSection01Animation({
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
           lastProgress = progress
-          /* Monotonic - track the furthest scroll progress reached. */
-          if (progress > maxProgressRef.current) {
-            maxProgressRef.current = progress
-          }
           /* Scroll moved -> clear any pill override so scroll wins. */
           if (pillOverride.current !== null) pillOverride.current = null
-          setPhase(phaseFromProgress(maxProgressRef.current))
+          if (entryFired.current && entryUnlocked.current) {
+            /* Monotonic - track the furthest scroll progress reached. */
+            if (progress > maxProgressRef.current) {
+              maxProgressRef.current = progress
+            }
+            setPhase(phaseFromProgress(maxProgressRef.current))
+          }
+          /* While the entry lock is active, scroll moves but the
+             phase stays at a_hold (or a_in mid-transition). The
+             entry timers handle the phase changes during this
+             period; we just observe scroll. */
         }
       }
       frameId = window.requestAnimationFrame(tick)
@@ -218,6 +293,14 @@ export function PabloSection01Animation({
       if (frameId) window.cancelAnimationFrame(frameId)
     }
   }, [stepIndex, reduced])
+
+  /* Clear any pending entry timers on unmount. */
+  useEffect(() => {
+    return () => {
+      entryTimers.current.forEach((t) => window.clearTimeout(t))
+      entryTimers.current = []
+    }
+  }, [])
 
   /* Pill click - snap to a representative phase for that view.
      Scroll will overwrite this on the next wheel event. */

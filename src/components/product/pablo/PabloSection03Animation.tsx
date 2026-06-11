@@ -49,19 +49,22 @@ import {
 
 type Phase = 'pre' | 'comparison' | 'projection' | 'outro'
 
+/* 'pre' fires on initial mount; 'comparison' is set by the IO
+   entry trigger when the step's text-block enters the active band.
+   From comparisonEnd onwards, scroll advances. */
 const PHASE_BOUNDS = {
-  preEnd:        0.10,
-  comparisonEnd: 0.45,
-  projectionEnd: 0.85,
+  comparisonEnd: 0.42,
+  projectionEnd: 0.86,
   /* >= projectionEnd -> outro */
 } as const
 
 function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.preEnd) return 'pre'
   if (p < PHASE_BOUNDS.comparisonEnd) return 'comparison'
   if (p < PHASE_BOUNDS.projectionEnd) return 'projection'
   return 'outro'
 }
+
+const ENTRY_LOCK_MS = 1500
 
 /* === DATA ============================================================ */
 
@@ -184,6 +187,12 @@ export function PabloSection03Animation({
   /* Monotonic - highest progress reached. Scroll-back leaves the
      graphic at whichever phase the user got the furthest into. */
   const maxProgressRef = useRef(0)
+  /* Entry state - phase becomes 'comparison' the moment the
+     text-block crosses the active band; soft lock for
+     ENTRY_LOCK_MS so scroll can't immediately skip to projection. */
+  const entryFired = useRef(false)
+  const entryUnlocked = useRef(false)
+  const entryTimers = useRef<number[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -193,13 +202,50 @@ export function PabloSection03Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Scroll-driven phase. RAF polling on the matching text-block,
-     bidirectional, pill overrides cleared on next scroll. */
+  /* Entry trigger - fires once when the step's text-block crosses
+     the active band. Sets phase to 'comparison' so Phase A fades
+     in IMMEDIATELY. Soft lock for ENTRY_LOCK_MS so the user can
+     compare the bars before scroll fast-forwards to the projection. */
   useEffect(() => {
     if (reduced) {
+      entryFired.current = true
+      entryUnlocked.current = true
       setPhase('projection')
       return
     }
+    const blocks = document.querySelectorAll<HTMLElement>(
+      '.product-step-text-block',
+    )
+    const block = blocks[stepIndex]
+    if (!block) return
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !entryFired.current) {
+          entryFired.current = true
+          io.disconnect()
+          setPhase('comparison')
+          const t = window.setTimeout(() => {
+            entryUnlocked.current = true
+            maxProgressRef.current = Math.max(
+              maxProgressRef.current,
+              PHASE_BOUNDS.comparisonEnd - 0.001,
+            )
+          }, ENTRY_LOCK_MS)
+          entryTimers.current.push(t)
+        }
+      },
+      { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
+    )
+    io.observe(block)
+    return () => io.disconnect()
+  }, [stepIndex, reduced])
+
+  /* Monotonic scroll-driven phase. RAF polling on the matching
+     text-block. While the entry lock is active scroll moves but
+     the phase stays at 'comparison'. */
+  useEffect(() => {
+    if (reduced) return
     const blocks = document.querySelectorAll<HTMLElement>(
       '.product-step-text-block',
     )
@@ -216,11 +262,13 @@ export function PabloSection03Animation({
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
           lastProgress = progress
-          if (progress > maxProgressRef.current) {
-            maxProgressRef.current = progress
-          }
           if (pillOverride.current !== null) pillOverride.current = null
-          setPhase(phaseFromProgress(maxProgressRef.current))
+          if (entryFired.current && entryUnlocked.current) {
+            if (progress > maxProgressRef.current) {
+              maxProgressRef.current = progress
+            }
+            setPhase(phaseFromProgress(maxProgressRef.current))
+          }
         }
       }
       frameId = window.requestAnimationFrame(tick)
@@ -230,6 +278,14 @@ export function PabloSection03Animation({
       if (frameId) window.cancelAnimationFrame(frameId)
     }
   }, [stepIndex, reduced])
+
+  /* Clear entry timers on unmount. */
+  useEffect(() => {
+    return () => {
+      entryTimers.current.forEach((t) => window.clearTimeout(t))
+      entryTimers.current = []
+    }
+  }, [])
 
   const onPillClick = (target: 'comparison' | 'projection') => {
     pillOverride.current = target

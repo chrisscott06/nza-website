@@ -45,22 +45,27 @@ type Phase = 'pre' | 'year' | 'month' | 'week' | 'outro'
    the year + month views get downsampled to fit. */
 const N_POINTS = 168
 
-/* Scroll-progress phase thresholds (upper bound of each phase). */
+/* Scroll-progress phase thresholds (upper bound of each phase).
+   'pre' fires on initial mount; 'year' is set by the IO entry
+   trigger when the step's text-block enters the active band -
+   user shouldn't have to scroll AGAIN to see the chart. From
+   yearEnd onwards, scroll drives the morph between time-windows. */
 const PHASE_BOUNDS = {
-  preEnd:   0.15,
-  yearEnd:  0.40,
-  monthEnd: 0.60,
-  weekEnd:  0.85,
+  yearEnd:  0.35,
+  monthEnd: 0.62,
+  weekEnd:  0.88,
   /* >= weekEnd -> outro */
 } as const
 
 function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.preEnd) return 'pre'
   if (p < PHASE_BOUNDS.yearEnd) return 'year'
   if (p < PHASE_BOUNDS.monthEnd) return 'month'
   if (p < PHASE_BOUNDS.weekEnd) return 'week'
   return 'outro'
 }
+
+/* Entry timing - same pattern as Section 01. */
+const ENTRY_LOCK_MS = 1500
 
 /* Source data starts 2025-01-01T00:00 hourly. March 1 sits at hour
    (31 + 28) * 24 = 1416. 10 March is 9 days into March = 1416 + 9*24
@@ -157,6 +162,12 @@ export function PabloSection02Animation({
      "on the way back up, it just leaves it on whatever the final
      bit of the graphic was". */
   const maxProgressRef = useRef(0)
+  /* Entry state - phase becomes 'year' (chart fades in) the moment
+     the text-block crosses the active band; soft lock for
+     ENTRY_LOCK_MS so scroll can't immediately blow past it. */
+  const entryFired = useRef(false)
+  const entryUnlocked = useRef(false)
+  const entryTimers = useRef<number[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -181,17 +192,52 @@ export function PabloSection02Animation({
     }
   }, [])
 
-  /* Scroll-driven phase. Polls the matching text-block's viewport
-     position via RAF and recomputes phase on each frame.
-     Bidirectional - no monotonic guard - scrolling back walks
-     phases in reverse and the line morphs back. Pill clicks set
-     pillOverride which short-circuits scroll until the next scroll
-     event clears it. */
+  /* Entry trigger - fires once when the step's text-block crosses
+     the active band. Sets phase to 'year' so the chart fades in
+     IMMEDIATELY when the user lands on the step (no extra scroll
+     needed). Soft lock for ENTRY_LOCK_MS so a fast wheel push
+     can't morph straight to month/week before the user has even
+     seen the 1-year shape. */
   useEffect(() => {
     if (reduced) {
+      entryFired.current = true
+      entryUnlocked.current = true
       setPhase('week')
       return
     }
+    const blocks = document.querySelectorAll<HTMLElement>(
+      '.product-step-text-block',
+    )
+    const block = blocks[stepIndex]
+    if (!block) return
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !entryFired.current) {
+          entryFired.current = true
+          io.disconnect()
+          setPhase('year')
+          const t = window.setTimeout(() => {
+            entryUnlocked.current = true
+            maxProgressRef.current = Math.max(
+              maxProgressRef.current,
+              PHASE_BOUNDS.yearEnd - 0.001,
+            )
+          }, ENTRY_LOCK_MS)
+          entryTimers.current.push(t)
+        }
+      },
+      { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
+    )
+    io.observe(block)
+    return () => io.disconnect()
+  }, [stepIndex, reduced])
+
+  /* Monotonic scroll-driven phase. RAF polls the text-block.
+     While the entry lock is active scroll moves but the phase
+     stays at 'year'. */
+  useEffect(() => {
+    if (reduced) return
     const blocks = document.querySelectorAll<HTMLElement>(
       '.product-step-text-block',
     )
@@ -208,11 +254,13 @@ export function PabloSection02Animation({
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
           lastProgress = progress
-          if (progress > maxProgressRef.current) {
-            maxProgressRef.current = progress
-          }
           if (pillOverride.current !== null) pillOverride.current = null
-          setPhase(phaseFromProgress(maxProgressRef.current))
+          if (entryFired.current && entryUnlocked.current) {
+            if (progress > maxProgressRef.current) {
+              maxProgressRef.current = progress
+            }
+            setPhase(phaseFromProgress(maxProgressRef.current))
+          }
         }
       }
       frameId = window.requestAnimationFrame(tick)
@@ -222,6 +270,14 @@ export function PabloSection02Animation({
       if (frameId) window.cancelAnimationFrame(frameId)
     }
   }, [stepIndex, reduced])
+
+  /* Clear entry timers on unmount. */
+  useEffect(() => {
+    return () => {
+      entryTimers.current.forEach((t) => window.clearTimeout(t))
+      entryTimers.current = []
+    }
+  }, [])
 
   /* Pill click - snap to that phase. Scroll overwrites this on the
      next wheel event. */
