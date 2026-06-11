@@ -1115,27 +1115,22 @@
 .product-closer-cases {
   /* Wider than the closer-inner per Chris ("make the boxes for the
      three case studies at the bottom Make them wider Use the full
-     width of the page"). The closer-inner caps at 920px (a reading
-     measure for the headline + body); the cases break out of that to
-     fill the full 1184px content frame (matches .frame inner width
-     = 1280 - 48*2 padding). Achieved with position: relative +
-     left: 50% + transform: translateX(-50%) so the wider container
-     centres on the viewport regardless of its parent's width. */
-  position: relative;
+     width of the page"). The closer-inner caps at 920px (reading
+     measure for the headline + body); the cases break out of that
+     to fill the full 1184px content frame.
+     The parent .product-closer-inner is a flex column with
+     align-items: center, which centres OVERFLOWING children
+     horizontally for free - no left/transform trick needed. The
+     earlier position:relative + left:50% + transform:-50% was
+     stacking on top of that flex centering and pushing the row 57px
+     to the left at 1440. */
   width: calc(min(100vw - 96px, 1184px));
-  left: 50%;
-  transform: translateX(-50%);
   margin-top: 40px;
   margin-bottom: 48px;
 }
 @media (max-width: 1023px) {
-  /* On smaller screens the closer-inner already takes ~full width,
-     so reset to flow-positioning. */
   .product-closer-cases {
-    position: static;
     width: 100%;
-    left: auto;
-    transform: none;
     margin-top: 32px;
     margin-bottom: 32px;
   }
@@ -1168,133 +1163,117 @@
   .product-closer-cases { margin: 24px 0 32px; }
 }
 
-/* The card itself is a button so the whole surface is clickable +
-   keyboard-accessible. Reset button chrome, then apply the card spec. */
+/* CASE STUDY "CARD" - now an editorial composition rather than a
+   bordered card. Per Chris's review: "Maybe we don't even need a
+   bounding box for them. Maybe we just have the icon, and they
+   should all be roughly the same size, quite big, and just allow
+   text to drop out of them."
+     - Box / background / chrome dropped entirely.
+     - Logo sits big and centred at the top of each column.
+     - Body copy drops down BELOW the logo when active (smooth grid
+       accordion).
+     - All three logos already include their wordmark - the separate
+       company-name line that used to sit above the body is gone
+       (the RWGC logo Chris swapped in now matches Hartpury and IVG
+       in carrying its own name). */
 .product-closer-case {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  /* Bumped from 180 -> 220 to give the larger logo (80px from 56px)
-     room to breathe without crowding the chevron. */
-  min-height: 220px;
-  padding: 36px 32px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 0.5px solid rgba(237, 229, 216, 0.12);
-  border-radius: 16px;
+  justify-content: flex-start;
+  /* Reset button defaults to render as a clickable text-and-image
+     column without any chrome. */
+  background: transparent;
+  border: none;
+  padding: 0 16px;
   cursor: pointer;
   color: inherit;
   font: inherit;
   text-align: center;
-  /* Default = closed-card height (matches min-height 220); open
-     state lifts to a generous ceiling so the content's natural height
-     decides where the card actually ends. */
-  max-height: 220px;
-  overflow: hidden;
-  transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
-              background-color 400ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 400ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.product-closer-case:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(237, 229, 216, 0.20);
+  /* No max-height: the body's grid-row trick handles smooth growth
+     without any container height interpolation. */
 }
 .product-closer-case:focus-visible {
   outline: 2px solid var(--product-accent-light);
-  outline-offset: 4px;
-}
-.product-closer-case.is-open {
-  background: rgba(255, 255, 255, 0.08);
-  /* Coral hairline marks the active card. */
-  border-color: rgba(247, 90, 85, 0.30);
-  /* Generous ceiling so the body copy decides actual height. */
-  max-height: 600px;
+  outline-offset: 8px;
+  border-radius: 4px;
 }
 
-/* Logo - centred when card is closed; anchored to top when open so
-   the company name + body have room beneath. Logo size bumped per
-   Chris ("make the logo bigger, and I think it will read better"):
-   56px height -> 80px desktop / 64px mobile, max-width up to match. */
+/* Logo - big, centred. Each logo is sized to a uniform display box
+   (180x110) so the three sit on the same baseline regardless of
+   intrinsic aspect ratio. The active logo lifts to full opacity and
+   gets a coral underline that doubles as the "this is open" cue
+   in the absence of any other chrome. */
 .product-closer-case-logo {
-  height: 80px;
-  max-width: 180px;
+  height: 110px;
+  max-width: 200px;
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  opacity: 0.85;
+  opacity: 0.78;
   transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.product-closer-case:hover .product-closer-case-logo {
+.product-closer-case:hover .product-closer-case-logo,
+.product-closer-case.is-open .product-closer-case-logo {
   opacity: 1;
 }
 @media (max-width: 767px) {
-  .product-closer-case-logo { height: 64px; max-width: 150px; }
+  .product-closer-case-logo { height: 88px; max-width: 170px; }
 }
 
-/* Chevron-down at bottom-right, drawn from CSS borders so we don't
-   pull in another icon dependency. Rotates 180deg when the card is
-   open per the brief. */
-.product-closer-case-chevron {
-  position: absolute;
-  right: 18px;
-  bottom: 16px;
-  width: 9px;
-  height: 9px;
-  border-right: 1.5px solid #EDE5D8;
-  border-bottom: 1.5px solid #EDE5D8;
-  transform: rotate(45deg);
-  opacity: 0.4;
-  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+/* Hairline coral underline under the logo when the card is open -
+   the only visual affordance replacing the dropped border. Sits
+   beneath the logo via margin and animates in. */
+.product-closer-case::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 1.5px;
+  margin: 12px auto 0;
+  background: var(--product-accent-light);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 320ms cubic-bezier(0.7, 0, 0.3, 1);
 }
-.product-closer-case:hover .product-closer-case-chevron {
-  opacity: 0.8;
-}
-.product-closer-case.is-open .product-closer-case-chevron {
-  /* Flip the chevron: original rotate(45) points down; rotate(-135)
-     (= 45 - 180) points up. */
-  transform: rotate(-135deg);
-  opacity: 0.85;
+.product-closer-case.is-open::after {
+  transform: scaleX(1);
 }
 
-/* Reveal panel - lives in the DOM always so the parent's max-height
-   transition has content to size to, but opacity 0 at rest so it's
-   invisible until is-open lands. Per brief: body fades in with a
-   ~150ms delay AFTER the card starts expanding. */
+/* Reveal panel - smooth grid accordion. grid-template-rows: 0fr
+   collapses to zero height at rest; on .is-open it animates to 1fr
+   and the body's natural height decides where the column ends. */
 .product-closer-case-reveal {
   width: 100%;
+  display: grid;
+  grid-template-rows: 0fr;
   margin-top: 0;
   opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              margin-top 460ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: grid-template-rows 460ms cubic-bezier(0.16, 1, 0.3, 1),
+              margin-top 460ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 360ms cubic-bezier(0.16, 1, 0.3, 1) 60ms;
+}
+.product-closer-case-reveal-inner {
+  overflow: hidden;
+  min-height: 0;
 }
 .product-closer-case.is-open .product-closer-case-reveal {
+  grid-template-rows: 1fr;
+  margin-top: 18px;
   opacity: 1;
-  transform: translateY(0);
-  margin-top: 24px;
-  /* Opacity + transform delayed so the height transition leads. */
-  transition-delay: 150ms;
 }
 
-.product-closer-case-name {
-  margin: 0 0 12px;
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 16px;
-  letter-spacing: -0.005em;
-  color: rgba(237, 229, 216, 0.95);
-}
 .product-closer-case-body {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.65;
-  /* Was cream at 0.7 - bumped to solid white per Chris's site-wide
-     body-text rule (cards sit on the dark aubergine canvas). */
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  /* Solid white on coloured surfaces per the site-wide body rule;
+     .is-light flips to dark grey on decodED's cream canvas. */
   color: #fff;
 }
 .is-light .product-closer-case-body {

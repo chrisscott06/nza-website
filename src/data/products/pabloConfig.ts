@@ -176,7 +176,12 @@ export const pabloConfig: ProductPageConfig = {
       },
       {
         id: 'royal-wimbledon',
-        logoSrc: `${CLIENT_LOGO_BASE}/royal-wimbledon-golf-club.svg`,
+        /* Swapped to the -2 variant Chris added which includes the
+           wordmark alongside the crest, so the case-studies row
+           reads consistently (all three logos now include their
+           company name and we no longer need to render the name
+           separately beneath each). */
+        logoSrc: `${CLIENT_LOGO_BASE}/royal-wimbledon-golf-club-2.svg`,
         alt: 'Royal Wimbledon Golf Club',
         companyName: 'Royal Wimbledon Golf Club',
         body:

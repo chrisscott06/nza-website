@@ -388,20 +388,20 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
                       alt={cs.alt}
                       className="product-closer-case-logo"
                     />
-                    {/* Chevron rotates 180deg when open via CSS. */}
-                    <span
-                      className="product-closer-case-chevron"
-                      aria-hidden="true"
-                    />
-                    {/* Reveal panel - rendered in the DOM always so
-                        the max-height transition has content to size
-                        to; opacity + max-height animate together. */}
+                    {/* Reveal panel - inner wrapper sits inside so the
+                        grid-template-rows: 0fr -> 1fr accordion
+                        animates smoothly from the body content's
+                        natural height (no max-height interpolation
+                        jitter). Company name dropped per Chris - all
+                        three logos already include the wordmark, so
+                        repeating it underneath was redundant. */}
                     <div
                       className="product-closer-case-reveal"
                       aria-hidden={!isOpen}
                     >
-                      <p className="product-closer-case-name">{cs.companyName}</p>
-                      <p className="product-closer-case-body">{cs.body}</p>
+                      <div className="product-closer-case-reveal-inner">
+                        <p className="product-closer-case-body">{cs.body}</p>
+                      </div>
                     </div>
                   </button>
                 )
