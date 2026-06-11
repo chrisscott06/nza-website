@@ -3,29 +3,31 @@ import { useEffect, useRef, useState } from 'react'
 /**
  * PABLO Section 01 ("Break down your bill") animation.
  *
- * SCROLL-DRIVEN per Chris's June 2026 redesign: the user scrolls
- * through the step's 300vh-tall text-block; phase transitions fire
- * as the user passes scroll thresholds, NOT on a timer.
+ * BIDIRECTIONAL SCROLL-SCRUBBED per Chris's June 2026 round 2:
+ * the animation is a pure function of the user's scroll position
+ * inside the step's 300vh-tall text-block. Scrolling forward plays
+ * the animation; scrolling BACK reverses it. Pausing scroll = the
+ * animation pauses exactly where it is.
  *
- *   Scroll 0 - 25%   pre - text only, frame empty
- *   Scroll 25 - 55%  a   - inputs (bill + plus + load shape) rise up
- *                          + hold (timer-based within the phase)
- *   Scroll 55 - 100% b   - inputs swipe off left, donut slides in
- *                          from right, segments pop in clockwise
- *                          one-by-one (timer-based within the phase)
+ * There is NO timer-based cascade between phases - phase and
+ * visibleSegments are recomputed from scroll progress on every
+ * frame. CSS transitions on the .is-in / .is-out classes carry the
+ * visual interpolation (and they reverse naturally when the class
+ * goes away again).
  *
- * Phase transitions are MONOTONIC: once 'a' fires it stays through
- * 'b', and once 'b' fires it stays. Scrolling back doesn't reverse
- * the animation - matches the "scroll forward through the story"
- * feel Chris described.
+ * Phase distribution across 0..1 of scroll progress (200vh of
+ * effective scroll, since the block is 300vh in a 100vh viewport):
  *
- * Within each phase, the existing time-based cascade still runs:
- *   a_in (700ms scale-in) -> a_hold
- *   b_swipe (700ms full swipe off) -> b_donut_in (700ms slide) ->
- *     b_segments (6 x 220ms segment+label pops) -> done
+ *   0.00 - 0.12  pre          (~24vh)  text only, frame empty
+ *   0.12 - 0.28  a_in         (~32vh)  inputs rise from below
+ *   0.28 - 0.48  a_hold       (~40vh)  inputs in place, holding
+ *   0.48 - 0.58  b_swipe      (~20vh)  inputs swipe off left
+ *   0.58 - 0.70  b_donut_in   (~24vh)  donut slides in from right
+ *   0.70 - 0.92  b_segments   (~44vh)  6 segments pop in clockwise,
+ *                                       one segment per ~3.7% of progress
+ *   0.92 - 1.00  done         (~16vh)  full donut, hold to next step
  *
- * prefers-reduced-motion jumps straight to 'done' with all segments
- * visible immediately.
+ * prefers-reduced-motion jumps straight to 'done'.
  */
 
 const DONUT_DATA = [
@@ -39,7 +41,7 @@ const DONUT_DATA = [
 
 /* SVG donut geometry. ViewBox 0..200 in both axes; donut centred at
    (100, 100) with inner radius 38 and outer radius 64 (= 38% and 64%
-   of the half-viewBox). Labels sit at radius 84 (just outside outer)
+   of the half-viewBox). Labels sit at radius 86 (just outside outer)
    in the polar calc. */
 const VIEWBOX = 200
 const CENTER = VIEWBOX / 2
@@ -96,39 +98,50 @@ const SEGMENTS = (() => {
 })()
 
 type Phase =
-  | 'pre' /* before IO trip */
+  | 'pre' /* before scroll trips into the section */
   | 'a_in' /* inputs rising up */
   | 'a_hold' /* inputs holding */
-  | 'b_swipe' /* inputs fully sliding off left */
+  | 'b_swipe' /* inputs sliding off left */
   | 'b_donut_in' /* donut sliding in from right */
   | 'b_segments' /* segments + labels popping in one by one */
   | 'done' /* final state */
 
-/* Within-phase timer transitions only. Phase-LEVEL transitions
-   (pre -> a_in, a_hold -> b_swipe) are now scroll-driven below. */
-const PHASE_TIMINGS: Partial<Record<Phase, { next: Phase; afterMs: number }>> = {
-  a_in: { next: 'a_hold', afterMs: 700 },
-  /* Donut starts sliding in 100ms after inputs begin swiping off -
-     overlap for a clean handoff while the inputs are still mid-swipe. */
-  b_swipe: { next: 'b_donut_in', afterMs: 100 },
-  /* Once the donut is fully slid in, the segment cascade takes over -
-     handled by a separate effect below (NOT a phase timeout) since we
-     need to step through 6 children, not just wait one duration. */
-  b_donut_in: { next: 'b_segments', afterMs: 700 },
+/* Scroll-progress phase thresholds. Each is the UPPER bound of the
+   phase named in its key. See the file header for the full breakdown
+   + the rationale for the spacing. */
+const PHASE_BOUNDS = {
+  preEnd:       0.12,
+  aInEnd:       0.28,
+  aHoldEnd:     0.48,
+  bSwipeEnd:    0.58,
+  bDonutInEnd:  0.70,
+  bSegmentsEnd: 0.92,
+} as const
+
+function phaseFromProgress(p: number): Phase {
+  if (p < PHASE_BOUNDS.preEnd) return 'pre'
+  if (p < PHASE_BOUNDS.aInEnd) return 'a_in'
+  if (p < PHASE_BOUNDS.aHoldEnd) return 'a_hold'
+  if (p < PHASE_BOUNDS.bSwipeEnd) return 'b_swipe'
+  if (p < PHASE_BOUNDS.bDonutInEnd) return 'b_donut_in'
+  if (p < PHASE_BOUNDS.bSegmentsEnd) return 'b_segments'
+  return 'done'
 }
 
-/* Scroll-progress thresholds (as fraction of progress through the
-   parent text-block's scroll runway) at which each phase fires.
-   Below 0.25 -> 'pre'. At >= 0.25 -> kick into 'a_in'. At >= 0.55
-   -> kick into 'b_swipe' (and from there the timer cascade carries
-   it through b_donut_in -> b_segments -> done). */
-const SCROLL_PHASE_A_AT = 0.25
-const SCROLL_PHASE_B_AT = 0.55
-
-/* Stagger between consecutive segments popping in. 220ms feels like a
-   confident clockwise build - quick enough to keep momentum, slow
-   enough that each pop reads as its own moment. */
-const SEGMENT_STAGGER_MS = 220
+/* Count of segments that should be visible at the given progress.
+   Linear distribution between bDonutInEnd (0 segs) and bSegmentsEnd
+   (6 segs); below the donut-in end means no segments yet; above the
+   segments end means all 6. */
+function segmentsFromProgress(p: number): number {
+  if (p < PHASE_BOUNDS.bDonutInEnd) return 0
+  if (p >= PHASE_BOUNDS.bSegmentsEnd) return DONUT_DATA.length
+  const range = PHASE_BOUNDS.bSegmentsEnd - PHASE_BOUNDS.bDonutInEnd
+  const step = range / DONUT_DATA.length
+  return Math.min(
+    DONUT_DATA.length,
+    Math.floor((p - PHASE_BOUNDS.bDonutInEnd) / step) + 1,
+  )
+}
 
 export function PabloSection01Animation({
   stepIndex,
@@ -150,14 +163,19 @@ export function PabloSection01Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Scroll-driven phase trigger. Polls the corresponding text-block's
-     viewport position via requestAnimationFrame and advances the
-     phase as the user crosses thresholds. Monotonic - never
-     reverses. RAF polling instead of a scroll-event listener
-     because body { overflow-x: hidden } makes the scroll target
-     awkward (events fire inconsistently across host vs iframe
-     contexts) - polling is reliable in all cases at a flat ~60Hz
-     cost while the component is mounted. */
+  /* Scroll-driven phase + segment count. Polls the matching
+     .product-step-text-block's viewport position via RAF and
+     recomputes phase + segment count on every frame.
+
+     BIDIRECTIONAL: there's no monotonic guard or memo here, so
+     scrolling back unwinds the animation by simply re-reading the
+     current progress. The CSS transitions on .is-in / .is-out then
+     animate in reverse.
+
+     Note this won't fire while the page is in a hidden tab (the
+     browser pauses RAF), which is fine - when the user comes back
+     to the tab the animation snaps to whatever progress matches
+     their current scroll position. */
   useEffect(() => {
     if (reduced) {
       setPhase('done')
@@ -178,23 +196,10 @@ export function PabloSection01Animation({
       if (scrollRange > 0) {
         const scrolled = -rect.top
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
-        /* Only call setPhase when progress crosses a threshold;
-           keeps React renders down. */
         if (Math.abs(progress - lastProgress) > 0.002) {
           lastProgress = progress
-          setPhase((curr) => {
-            if (progress >= SCROLL_PHASE_B_AT) {
-              if (curr === 'pre' || curr === 'a_in' || curr === 'a_hold') {
-                return 'b_swipe'
-              }
-              return curr
-            }
-            if (progress >= SCROLL_PHASE_A_AT) {
-              if (curr === 'pre') return 'a_in'
-              return curr
-            }
-            return curr
-          })
+          setPhase(phaseFromProgress(progress))
+          setVisibleSegments(segmentsFromProgress(progress))
         }
       }
       frameId = window.requestAnimationFrame(tick)
@@ -205,45 +210,19 @@ export function PabloSection01Animation({
     }
   }, [stepIndex, reduced])
 
-  /* Cascade timer - each phase schedules its successor per
-     PHASE_TIMINGS. b_segments has its own effect below. */
-  useEffect(() => {
-    const timing = PHASE_TIMINGS[phase]
-    if (!timing) return
-    const t = window.setTimeout(() => setPhase(timing.next), timing.afterMs)
-    return () => window.clearTimeout(t)
-  }, [phase])
-
-  /* Segment-by-segment cascade. When phase becomes 'b_segments', kick
-     off a chain of setTimeouts that increment visibleSegments by one
-     every SEGMENT_STAGGER_MS until all six are in, then mark 'done'. */
-  useEffect(() => {
-    if (phase !== 'b_segments') return
-    let timer: number | null = null
-    let count = 0
-    const tick = () => {
-      count += 1
-      setVisibleSegments(count)
-      if (count < DONUT_DATA.length) {
-        timer = window.setTimeout(tick, SEGMENT_STAGGER_MS)
-      } else {
-        setPhase('done')
-      }
-    }
-    /* Small head-start so the first segment doesn't pop the instant
-       the donut frame lands - 60ms breathing room. */
-    timer = window.setTimeout(tick, 60)
-    return () => {
-      if (timer !== null) window.clearTimeout(timer)
-    }
-  }, [phase])
-
-  /* Derived visibility flags. */
+  /* Derived visibility flags - inputs are "in" during phase A,
+     "swiping out" during phase B (and onward), donut is "in" once
+     phase B starts the donut-in slide. */
   const inputsVisible = phase === 'a_in' || phase === 'a_hold'
-  const inputsSwipingOut = phase === 'b_swipe' || phase === 'b_donut_in' ||
-                            phase === 'b_segments' || phase === 'done'
+  const inputsSwipingOut =
+    phase === 'b_swipe' ||
+    phase === 'b_donut_in' ||
+    phase === 'b_segments' ||
+    phase === 'done'
   const donutVisible =
-    phase === 'b_donut_in' || phase === 'b_segments' || phase === 'done'
+    phase === 'b_donut_in' ||
+    phase === 'b_segments' ||
+    phase === 'done'
 
   return (
     <div ref={rootRef} className="pablo-s01">
@@ -366,7 +345,7 @@ function InputsSvg() {
       </g>
       <path
         className="ipt-curve"
-        d="M449.05,411.17c.33-1.67.67-3.33,1-3.33s.67,3.85,1,5.53c.33,1.68.67,4.54,1,4.54s.67-1.98,1-5.92c.33-3.95.67-10.79,1-19.87.33-9.08.67-25.93,1-34.61.33-8.68.67-13.17,1-17.45.33-4.28.67-4.47,1-8.24s.67-12.57,1-14.42c.33-1.84.67-1.82,1-2.76.33-.94.67-2.89,1-2.89s.67,12.7,1,13.58c.33.87.67.44,1,1.31.33.87.67,8.62,1,11.92.33,3.3.67,6.31,1,7.87.33,1.56.67,1.93,1,2.34.33.41.67.62,1,.62s.67-3.7,1-3.7.67,14.39,1,21.25c.33,6.87.67,14.55,1,19.94.33,5.39.67,7.07,1,12.42.33,5.35.67,19.67,1,19.67s.67-.32,1-.96c.33-.64.67-7.73,1-7.73s.67,1,1,1.33c.33.33.67.21,1,.64.33.43.67,7.63,1,7.63s.67-1.16,1-3.48c.33-2.32.67-15.87,1-25.3.33-9.43.67-23.73,1-31.3.33-7.57.67-10.51,1-14.14.33-3.64.67-4.95,1-7.68.33-2.73.67-6.02,1-8.69.33-2.67.67-5.71,1-7.36s.67-2.52,1-2.52.67,3.62,1,6c.33,2.38.67,5.87,1,8.27.33,2.4.67,3.95,1,6.15.33,2.2.67,7.03,1,7.03s.67-3.18,1-3.18.67,4.64,1,4.64.67-.3,1-.3.67,11.54,1,18.44.67,16.23,1,22.98c.33,6.76.67,12.1,1,17.55.33,5.45.67,15.13,1,15.13s.67-.2,1-.59c.33-.4.67-11.45,1-11.53.33-.08.67-.12,1-.12s.67,2.6,1,3.46c.33.86.67,1.7,1,1.7s.67-.56,1-1.68c.33-1.12.67-11.29,1-20.29.33-9,.67-25.82,1-33.72.33-7.9.67-9.82,1-13.68.33-3.85.67-5.8,1-9.45.33-3.66.67-12.49,1-12.49s.67.43,1,.67c.33.24.67.25,1,.77.33.51.67,4.22,1,6.1.33,1.87.67,3.35,1,5.13.33,1.78.67,5.55,1,5.55s.67-.91,1-.91.67.77,1,.77.67-4.3,1-4.3.67,1.27,1,3.8c.33,2.53.67,8.48,1,16.22.33,7.73.67,21.44,1,30.19.33,8.75.67,15.92,1,22.29.33,6.37.67,15.92,1,15.92s.67-3.8,1-5.83c.33-2.03.67-4.42,1-6.34.33-1.92.67-5.18,1-5.18s.67,1.44,1,2.67c.33,1.23.67,4.69,1,4.69s.67-2.34,1-7.03c.33-4.69.67-12.75,1-21.25.33-8.5.67-21.95,1-29.77.33-7.82.67-11.56,1-17.16.33-5.6.67-14.61,1-16.44.33-1.83.67-2.74,1-2.74s.67,1.37,1,3.16c.33,1.79.67,5.84,1,7.6.33,1.76.67,1,1,2.99.33,1.99.67,13.63,1,13.63s.67-1.23,1-1.23.67,9.87,1,9.87.67-.45,1-1.36c.33-.91.67-4.52,1-4.52s.67,1.54,1,4.62c.33,3.08.67,13.7,1,20.59.33,6.89.67,14.79,1,20.76.33,5.97.67,9.95,1,15.03.33,5.09.67,15.48,1,15.48s.67-2.04,1-3.85c.33-1.81.67-5.21,1-6.99.33-1.77.67-3.65,1-3.65s.67.25,1,.76c.33.51.67,7.75,1,7.75s.67-1.75,1-5.26c.33-3.51.67-17.88,1-25.1.33-7.22.67-11.76,1-18.24.33-6.48.67-18.66,1-20.64.33-1.97.67-2.18,1-2.96.33-.78.67-1.18,1-1.73.33-.55.67-.63,1-1.58.33-.95.67-4.1,1-4.1s.67,5.73,1,7.63c.33,1.9.67,3.78,1,3.78s.67-.89,1-.89.67,1.93,1,3.13c.33,1.21.67,4.12,1,4.12s.67-7.16,1-7.16.67,3.83,1,9.4c.33,5.57.67,17.46,1,24.02.33,6.56.67,9.26,1,15.35.33,6.09.67,16.39,1,21.2.33,4.81.67,7.65,1,7.65s.67-2.5,1-5.68c.33-3.18.67-13.4,1-13.4s.67.14,1,.42c.33.28.67.78,1,2.34.33,1.56.67,9.85,1,9.85s.67-1.06,1-3.18c.33-2.12.67-5.9,1-10.54.33-4.64.67-12.21,1-17.33.33-5.12.67-13.38,1-13.38s.67,3.16,1,3.16.67-.1,1-.3c.33-.2.67-1.76,1-3.01.33-1.26.67-4.52,1-4.52s.67,3.01,1,3.01.67-3.25,1-5.6c.33-2.35.67-7.06,1-8.49.33-1.43.67-2.15,1-2.15s.67.26,1,.79c.33.53.67,1.04,1,3.13.33,2.09.67,8.01,1,13.58.33,5.56.67,14.32,1,19.8.33,5.48.67,9.94,1,13.08.33,3.14.67,4.2,1,5.78.33,1.58.67,3.68,1,3.68s.67-.28,1-.84c.33-.56.67-21.18,1-21.18s.67,8.09,1,10.47c.33,2.38.67,2.02,1,3.8.33,1.78.67,6.11,1,6.89.33.77.67,1.16,1,1.16s.67-11.02,1-18.66c.33-7.64.67-19.97,1-27.18.33-7.2.67-15.29,1-16.05.33-.76.67-.38,1-1.14.33-.76.67-5.46,1-5.46s.67.05,1,.05.67-6.47,1-6.47.67.59,1,.59.67-1.97,1-1.97.67.07,1,.2c.33.13.67.79,1,.79s.67-4.96,1-4.96.67,4.76,1,4.76.67-.64,1-.64.67,10.75,1,16.44c.33,5.69.67,13.51,1,17.67.33,4.16.67,4.79,1,7.28.33,2.49.67,5.06,1,7.68.33,2.62.67,8.02,1,8.02s.67-4.25,1-4.25.67,1.55,1,2.71c.33,1.16.67,2.83,1,4.25s.67,4.27,1,4.27.67-.93,1-2.79c.33-1.86.67-16.44,1-26.41.33-9.97.67-24.18,1-33.42.33-9.24.67-14.73,1-22.02.33-7.29.67-16.44,1-21.7.33-5.26.67-9.85,1-9.85s.67,4.27,1,4.27.67-2.89,1-2.89.67.73,1,2.1c.33,1.37.67,4.19,1,6.12.33,1.93.67,3.95,1,5.46.33,1.51.67,3.41,1,3.58.33.16.67.08,1,.25.33.16.67.35,1,1.04.33.69.67,6.48,1,11.9.33,5.41.67,13.19,1,20.59.33,7.4.67,17.38,1,23.82.33,6.44.67,9.52,1,14.84.33,5.31.67,13.97,1,17.03.33,3.06.67,4.59,1,4.59s.67-1.52,1-2.17c.33-.65.67-1.73,1-1.73s.67.76,1,2.27c.33,1.51.67,7.53,1,7.53s.67-1.13,1-3.38c.33-2.25.67-21.9,1-31.67.33-9.77.67-20.23,1-26.93.33-6.7.67-8.15,1-13.26.33-5.1.67-12.28,1-17.35.33-5.08.67-10.15,1-13.11.33-2.96.67-4.64,1-4.64s.67,1.01,1,1.01.67-.62,1-.62.67,1.58,1,2.89c.33,1.31.67,4.99,1,4.99s.67-4.81,1-4.81.67,2.99,1,3.48c.33.49.67.25,1,.74.33.49.67,2.02,1,6.05.33,4.03.67,12.44,1,21.45.33,9.01.67,24.12,1,32.61.33,8.49.67,12.72,1,18.32.33,5.6.67,13.85,1,15.28.33,1.43.67,2.15,1,2.15s.67-7.01,1-7.01.67,1.44,1,2.79c.33,1.35.67,3.66,1,5.33.33,1.67.67,4.71,1,4.71s.67-.72,1-2.17c.33-1.45.67-21.32,1-31.52.33-10.21.67-21.9,1-29.72.33-7.82.67-11.87,1-17.21.33-5.34.67-9.76,1-14.84.33-5.07.67-15.6,1-15.6s.67,4.81,1,4.81.67-2.69,1-2.69.67.91,1,2.25c.33,1.33.67,3.54,1,5.75.33,2.21.67,7.5,1,7.5s.67-6.71,1-6.71.67.52,1,.52.67-.44,1-.44.67,5.64,1,11.06c.33,5.41.67,12.97,1,21.43.33,8.45.67,21.6,1,29.3.33,7.7.67,10.88,1,16.88s.67,19.16,1,19.16.67-3.32,1-4.71c.33-1.39.67-3.65,1-3.65s.67.22,1,.67c.33.44.67.81,1,2.12.33,1.31.67,5.73,1,5.73s.67-1.71,1-5.13c.33-3.42.67-17.75,1-27.77.33-10.02.67-23.13,1-32.36.33-9.24.67-15.84,1-23.06.33-7.22.67-18.28,1-20.24.33-1.96.67-2.94,1-2.94s.67,5.97,1,5.97.67-5.8,1-5.8.67.05,1,.15c.33.1.67,9.71,1,10.91.33,1.2.67.6,1,1.8.33,1.2.67,19.6,1,19.6s.67-8.11,1-9.33c.33-1.22.67-1.83,1-1.83s.67,6.95,1,12.89c.33,5.93.67,14.81,1,22.71.33,7.9.67,17.59,1,24.66.33,7.07.67,12.82,1,17.77.33,4.95.67,11.11,1,11.95.33.84.67,1.26,1,1.26s.67-11.13,1-11.13.67,4.35,1,4.35.67-.62,1-.62.67,5.36,1,5.36.67-2.35,1-7.06c.33-4.71.67-18.38,1-26.51.33-8.13.67-15.26,1-22.29.33-7.03.67-18.27,1-19.87s.67-.95,1-2.39c.33-1.44.67-4.54,1-6.25.33-1.7.67-3.97,1-3.97s.67,6,1,6,.67-1.31,1-1.31.67,9.7,1,9.7.67-2.14,1-3.23c.33-1.09.67-1.89,1-3.33.33-1.44.67-2.88,1-5.31.33-2.43.67-9.26,1-9.26s.67,14.41,1,22.56c.33,8.15.67,19.37,1,26.36.33,6.99.67,11.33,1,15.58.33,4.25.67,5.22,1,9.9.33,4.68.67,17.3,1,18.17.33.87.67,1.31,1,1.31s.67-10.39,1-10.39.67,1.32,1,2.05c.33.73.67.78,1,2.34.33,1.56.67,9.55,1,9.55"
+        d="M449.05,411.17c.33-1.67.67-3.33,1-3.33s.67,3.85,1,5.53c.33,1.68.67,4.54,1,4.54s.67-1.98,1-5.92c.33-3.95.67-10.79,1-19.87.33-9.08.67-25.93,1-34.61.33-8.68.67-13.17,1-17.45.33-4.28.67-4.47,1-8.24s.67-12.57,1-14.42c.33-1.84.67-1.82,1-2.76.33-.94.67-2.89,1-2.89s.67,12.7,1,13.58c.33.87.67.44,1,1.31.33.87.67,8.62,1,11.92.33,3.3.67,6.31,1,7.87.33,1.56.67,1.93,1,2.34.33.41.67.62,1,.62s.67-3.7,1-3.7.67,14.39,1,21.25c.33,6.87.67,14.55,1,19.94.33,5.39.67,7.07,1,12.42.33,5.35.67,19.67,1,19.67s.67-.32,1-.96c.33-.64.67-7.73,1-7.73s.67,1,1,1.33c.33.33.67.21,1,.64.33.43.67,7.63,1,7.63s.67-1.16,1-3.48c.33-2.32.67-15.87,1-25.3.33-9.43.67-23.73,1-31.3.33-7.57.67-10.51,1-14.14.33-3.64.67-4.95,1-7.68.33-2.73.67-6.02,1-8.69.33-2.67.67-5.71,1-7.36s.67-2.52,1-2.52.67,3.62,1,6c.33,2.38.67,5.87,1,8.27.33,2.4.67,3.95,1,6.15.33,2.2.67,7.03,1,7.03s.67-3.18,1-3.18.67,4.64,1,4.64.67-.3,1-.3.67,11.54,1,18.44.67,16.23,1,22.98c.33,6.76.67,12.1,1,17.55.33,5.45.67,15.13,1,15.13s.67-.2,1-.59c.33-.4.67-11.45,1-11.53.33-.08.67-.12,1-.12s.67,2.6,1,3.46c.33.86.67,1.7,1,1.7s.67-.56,1-1.68c.33-1.12.67-11.29,1-20.29.33-9,.67-25.82,1-33.72.33-7.9.67-9.82,1-13.68.33-3.85.67-5.8,1-9.45.33-3.66.67-12.49,1-12.49s.67.43,1,.67c.33.24.67.25,1,.77.33.51.67,4.22,1,6.1.33,1.87.67,3.35,1,5.13.33,1.78.67,5.55,1,5.55s.67-.91,1-.91.67.77,1,.77.67-4.3,1-4.3.67,1.27,1,3.8c.33,2.53.67,8.48,1,16.22.33,7.73.67,21.44,1,30.19.33,8.75.67,15.92,1,22.29.33,6.37.67,15.92,1,15.92s.67-3.8,1-5.83c.33-2.03.67-4.42,1-6.34.33-1.92.67-5.18,1-5.18s.67,1.44,1,2.67c.33,1.23.67,4.69,1,4.69s.67-2.34,1-7.03c.33-4.69.67-12.75,1-21.25.33-8.5.67-21.95,1-29.77.33-7.82.67-11.56,1-17.16.33-5.6.67-14.61,1-16.44.33-1.83.67-2.74,1-2.74s.67,1.37,1,3.16c.33,1.79.67,5.84,1,7.6.33,1.76.67,1,1,2.99.33,1.99.67,13.63,1,13.63s.67-1.23,1-1.23.67,9.87,1,9.87.67-.45,1-1.36c.33-.91.67-4.52,1-4.52s.67,1.54,1,4.62c.33,3.08.67,13.7,1,20.59.33,6.89.67,14.79,1,20.76.33,5.97.67,9.95,1,15.03.33,5.09.67,15.48,1,15.48s.67-2.04,1-3.85c.33-1.81.67-5.21,1-6.99.33-1.77.67-3.65,1-3.65s.67.25,1,.76c.33.51.67,7.75,1,7.75s.67-1.75,1-5.26c.33-3.51.67-17.88,1-25.1.33-7.22.67-11.76,1-18.24.33-6.48.67-18.66,1-20.64.33-1.97.67-2.18,1-2.96.33-.78.67-1.18,1-1.73.33-.55.67-.63,1-1.58.33-.95.67-4.1,1-4.1s.67,5.73,1,7.63c.33,1.9.67,3.78,1,3.78s.67-.89,1-.89.67,1.93,1,3.13c.33,1.21.67,4.12,1,4.12s.67-7.16,1-7.16.67,3.83,1,9.4c.33,5.57.67,17.46,1,24.02.33,6.56.67,9.26,1,15.35.33,6.09.67,16.39,1,21.2.33,4.81.67,7.65,1,7.65s.67-2.5,1-5.68c.33-3.18.67-13.4,1-13.4s.67.14,1,.42c.33.28.67.78,1,2.34.33,1.56.67,9.85,1,9.85s.67-1.06,1-3.18c.33-2.12.67-5.9,1-10.54.33-4.64.67-12.21,1-17.33.33-5.12.67-13.38,1-13.38s.67,3.16,1,3.16.67-.1,1-.3c.33-.2.67-1.76,1-3.01.33-1.26.67-4.52,1-4.52s.67,3.01,1,3.01.67-3.25,1-5.6c.33-2.35.67-7.06,1-8.49.33-1.43.67-2.15,1-2.15s.67.26,1,.79c.33.53.67,1.04,1,3.13.33,2.09.67,8.01,1,13.58.33,5.56.67,14.32,1,19.8.33,5.48.67,9.94,1,13.08.33,3.14.67,4.2,1,5.78.33,1.58.67,3.68,1,3.68s.67-.28,1-.84c.33-.56.67-21.18,1-21.18s.67,8.09,1,10.47c.33,2.38.67,2.02,1,3.8.33,1.78.67,6.11,1,6.89.33.77.67,1.16,1,1.16s.67-11.02,1-18.66c.33-7.64.67-19.97,1-27.18.33-7.20.67-15.29,1-16.05.33-.76.67-.38,1-1.14.33-.76.67-5.46,1-5.46s.67.05,1,.05.67-6.47,1-6.47.67.59,1,.59.67-1.97,1-1.97.67.07,1,.2c.33.13.67.79,1,.79s.67-4.96,1-4.96.67,4.76,1,4.76.67-.64,1-.64.67,10.75,1,16.44c.33,5.69.67,13.51,1,17.67.33,4.16.67,4.79,1,7.28.33,2.49.67,5.06,1,7.68.33,2.62.67,8.02,1,8.02s.67-4.25,1-4.25.67,1.55,1,2.71c.33,1.16.67,2.83,1,4.25s.67,4.27,1,4.27.67-.93,1-2.79c.33-1.86.67-16.44,1-26.41.33-9.97.67-24.18,1-33.42.33-9.24.67-14.73,1-22.02.33-7.29.67-16.44,1-21.70.33-5.26.67-9.85,1-9.85s.67,4.27,1,4.27.67-2.89,1-2.89.67.73,1,2.1c.33,1.37.67,4.19,1,6.12.33,1.93.67,3.95,1,5.46.33,1.51.67,3.41,1,3.58.33.16.67.08,1,.25.33.16.67.35,1,1.04.33.69.67,6.48,1,11.9.33,5.41.67,13.19,1,20.59.33,7.40.67,17.38,1,23.82.33,6.44.67,9.52,1,14.84.33,5.31.67,13.97,1,17.03.33,3.06.67,4.59,1,4.59s.67-1.52,1-2.17c.33-.65.67-1.73,1-1.73s.67.76,1,2.27c.33,1.51.67,7.53,1,7.53s.67-1.13,1-3.38c.33-2.25.67-21.90,1-31.67.33-9.77.67-20.23,1-26.93.33-6.70.67-8.15,1-13.26.33-5.10.67-12.28,1-17.35.33-5.08.67-10.15,1-13.11.33-2.96.67-4.64,1-4.64s.67,1.01,1,1.01.67-.62,1-.62.67,1.58,1,2.89c.33,1.31.67,4.99,1,4.99s.67-4.81,1-4.81.67,2.99,1,3.48c.33.49.67.25,1,.74.33.49.67,2.02,1,6.05.33,4.03.67,12.44,1,21.45.33,9.01.67,24.12,1,32.61.33,8.49.67,12.72,1,18.32.33,5.60.67,13.85,1,15.28.33,1.43.67,2.15,1,2.15s.67-7.01,1-7.01.67,1.44,1,2.79c.33,1.35.67,3.66,1,5.33.33,1.67.67,4.71,1,4.71s.67-.72,1-2.17c.33-1.45.67-21.32,1-31.52.33-10.21.67-21.90,1-29.72.33-7.82.67-11.87,1-17.21.33-5.34.67-9.76,1-14.84.33-5.07.67-15.60,1-15.60s.67,4.81,1,4.81.67-2.69,1-2.69.67.91,1,2.25c.33,1.33.67,3.54,1,5.75.33,2.21.67,7.50,1,7.50s.67-6.71,1-6.71.67.52,1,.52.67-.44,1-.44.67,5.64,1,11.06c.33,5.41.67,12.97,1,21.43.33,8.45.67,21.60,1,29.30.33,7.70.67,10.88,1,16.88s.67,19.16,1,19.16.67-3.32,1-4.71c.33-1.39.67-3.65,1-3.65s.67.22,1,.67c.33.44.67.81,1,2.12.33,1.31.67,5.73,1,5.73s.67-1.71,1-5.13c.33-3.42.67-17.75,1-27.77.33-10.02.67-23.13,1-32.36.33-9.24.67-15.84,1-23.06.33-7.22.67-18.28,1-20.24.33-1.96.67-2.94,1-2.94s.67,5.97,1,5.97.67-5.80,1-5.80.67.05,1,.15c.33.10.67,9.71,1,10.91.33,1.20.67.6,1,1.80.33,1.20.67,19.60,1,19.60s.67-8.11,1-9.33c.33-1.22.67-1.83,1-1.83s.67,6.95,1,12.89c.33,5.93.67,14.81,1,22.71.33,7.90.67,17.59,1,24.66.33,7.07.67,12.82,1,17.77.33,4.95.67,11.11,1,11.95.33.84.67,1.26,1,1.26s.67-11.13,1-11.13.67,4.35,1,4.35.67-.62,1-.62.67,5.36,1,5.36.67-2.35,1-7.06c.33-4.71.67-18.38,1-26.51.33-8.13.67-15.26,1-22.29.33-7.03.67-18.27,1-19.87s.67-.95,1-2.39c.33-1.44.67-4.54,1-6.25.33-1.70.67-3.97,1-3.97s.67,6,1,6,.67-1.31,1-1.31.67,9.70,1,9.70.67-2.14,1-3.23c.33-1.09.67-1.89,1-3.33.33-1.44.67-2.88,1-5.31.33-2.43.67-9.26,1-9.26s.67,14.41,1,22.56c.33,8.15.67,19.37,1,26.36.33,6.99.67,11.33,1,15.58.33,4.25.67,5.22,1,9.90.33,4.68.67,17.30,1,18.17.33.87.67,1.31,1,1.31s.67-10.39,1-10.39.67,1.32,1,2.05c.33.73.67.78,1,2.34.33,1.56.67,9.55,1,9.55"
       />
       <g>
         <line className="ipt-axis" x1="449.05" y1="228.16" x2="449.05" y2="524.38" />

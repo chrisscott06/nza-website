@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   LineChart,
   Line,
@@ -11,49 +11,139 @@ import {
 /**
  * PABLO Section 02 ("Understand your demand") animation.
  *
- * SCROLL-DRIVEN per the parent brief + Chris's June 2026 redesign.
- * Same three-scroll-trigger model as Section 01:
+ * BIDIRECTIONAL SCROLL-SCRUBBED morph between three load-shape
+ * states. Same scroll-as-control model as Section 01: phase is a
+ * pure function of the user's scroll position inside the step's
+ * 300vh-tall text-block.
  *
- *   Scroll 0 - 25%   pre   - text only, frame empty
- *   Scroll 25 - 55%  year  - chart appears with 1 year of hourly data
- *   Scroll 55 - 80%  month - line morphs to MARCH (744 hours)
- *   Scroll 80 - 100% week  - line morphs to WEEK OF 10 MAR (168 hrs)
+ *   0.00 - 0.20  pre    text only, frame empty
+ *   0.20 - 0.45  year   chart shows a full year of hourly data
+ *   0.45 - 0.70  month  line MORPHS to MARCH (in place, no redraw)
+ *   0.70 - 1.00  week   line MORPHS to WEEK OF 10 MAR
  *
- * Phase transitions are MONOTONIC. The Recharts <Line> internal
- * animation (1200ms ease-in-out) handles the morph between data sets
- * - point-to-point interpolation. The Y domain is fixed at [0, 80]
- * across all three states so the kW scale stays consistent.
+ * The morph (Chris's key request) is achieved by:
+ *   1. Resampling all three source slices (year=8760 pts,
+ *      month=744 pts, week=168 pts) to the SAME length (N_POINTS).
+ *   2. Indexing the X axis on the integer 0..N_POINTS-1, not on
+ *      timestamps - so all three datasets share the same X domain.
+ *   3. Removing the key={phase} from <Line> so Recharts does NOT
+ *      remount the line element when phase changes - instead its
+ *      internal isAnimationActive interpolates each point's y value
+ *      from the previous dataset to the new one over 900ms. Visually
+ *      the line "squashes and stretches" between the shapes rather
+ *      than redrawing left-to-right.
  *
- * State label (top-right of the chart): "1 YEAR" / "1 MONTH · MARCH"
- * / "1 WEEK · 10 MAR" in IBM Plex Mono-style micro-typography, with
- * a pulsing coral dot.
+ * Y domain is LOCKED at [0, 80] across all three states so the kW
+ * scale stays consistent and peaks aren't normalised - you see the
+ * actual kW values as we zoom in.
+ *
+ * Tick labels are formatted from index based on the active phase:
+ *   year  -> month name  (Jan / Feb / ...)
+ *   month -> day of march (1, 5, 10, 15, 20, 25, 30)
+ *   week  -> weekday short (Mon / Tue / ...)
  *
  * Data loaded via fetch from /assets/data/pablo-load-data.json
- * (42KB; lazy-fetched so it doesn't slow first paint of the PABLO
- * hero - Section 02 is the second step, not above the fold).
+ * (~42KB; lazy-fetched since Section 02 is not above the fold).
  *
  * prefers-reduced-motion jumps straight to the week view.
  */
 
-type DataPoint = { t: number; kw: number }
 type Phase = 'pre' | 'year' | 'month' | 'week'
 
-/* Scroll thresholds (fraction of progress through the parent
-   text-block's scroll runway) at which each phase fires. */
-const SCROLL_PHASE_YEAR_AT = 0.25
-const SCROLL_PHASE_MONTH_AT = 0.55
-const SCROLL_PHASE_WEEK_AT = 0.8
+/* Scroll-progress phase thresholds. */
+const PHASE_BOUNDS = {
+  preEnd: 0.2,
+  yearEnd: 0.45,
+  monthEnd: 0.7,
+  /* >= monthEnd -> week */
+} as const
 
-/* Date / index constants. Source data starts 2025-01-01T00:00 with
-   hourly granularity (8760 points). March 1 is at the (31+28)*24 =
-   1416th hour. 10 March is 9 days into March = 1416 + 9*24 = 1632nd
-   hour. */
-const START_OF_YEAR_MS = new Date('2025-01-01T00:00:00').getTime()
-const MS_PER_HOUR = 60 * 60 * 1000
+function phaseFromProgress(p: number): Phase {
+  if (p < PHASE_BOUNDS.preEnd) return 'pre'
+  if (p < PHASE_BOUNDS.yearEnd) return 'year'
+  if (p < PHASE_BOUNDS.monthEnd) return 'month'
+  return 'week'
+}
+
+/* Common length for all three datasets - chosen so the week view
+   (168 points = one point per hour) stays at full resolution and
+   the year + month views get downsampled to fit. */
+const N_POINTS = 168
+
+/* Source data starts 2025-01-01T00:00 hourly. March 1 sits at hour
+   (31 + 28) * 24 = 1416. 10 March is 9 days into March = 1416 + 9*24
+   = 1632. */
 const HOURS_JAN_FEB = (31 + 28) * 24
 const MARCH_HOURS = 31 * 24
 const WEEK_HOURS = 7 * 24
 const MARCH_10_HOUR_INDEX = HOURS_JAN_FEB + 9 * 24
+
+/** Average-downsample an array to exactly targetN points. Each
+ *  output bucket is the mean of the source values that fall in
+ *  its range. */
+function resample(arr: number[], targetN: number): number[] {
+  if (arr.length === targetN) return arr.slice()
+  const result: number[] = []
+  const step = arr.length / targetN
+  for (let i = 0; i < targetN; i++) {
+    const start = Math.floor(i * step)
+    const end = Math.max(start + 1, Math.floor((i + 1) * step))
+    let sum = 0
+    let count = 0
+    for (let j = start; j < end && j < arr.length; j++) {
+      sum += arr[j]
+      count++
+    }
+    result.push(count > 0 ? sum / count : 0)
+  }
+  return result
+}
+
+/** Format a tick (index 0..N_POINTS-1) into a human label based on
+ *  the active phase. */
+function formatTick(index: number, phase: Phase): string {
+  if (phase === 'year') {
+    const monthIdx = Math.floor((index / N_POINTS) * 12)
+    return [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ][Math.min(11, monthIdx)]
+  }
+  if (phase === 'month') {
+    const day = Math.floor((index / N_POINTS) * 31) + 1
+    return String(Math.min(31, day))
+  }
+  /* week - 168 points = 7 days * 24h. */
+  const dayIdx = Math.floor(index / 24)
+  return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][
+    Math.min(6, dayIdx)
+  ]
+}
+
+/** Tick positions to show on the X axis per phase. */
+function ticksFor(phase: Phase): number[] {
+  if (phase === 'year') {
+    return Array.from({ length: 12 }, (_, i) =>
+      Math.floor((i * N_POINTS) / 12),
+    )
+  }
+  if (phase === 'month') {
+    return [1, 5, 10, 15, 20, 25, 30].map((d) =>
+      Math.floor(((d - 1) / 31) * N_POINTS),
+    )
+  }
+  return [0, 24, 48, 72, 96, 120, 144]
+}
 
 export function PabloSection02Animation({
   stepIndex,
@@ -72,7 +162,6 @@ export function PabloSection02Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Lazy-fetch the data file. ~42KB, but no need to block the hero. */
   useEffect(() => {
     let cancelled = false
     fetch('/assets/data/pablo-load-data.json')
@@ -88,10 +177,9 @@ export function PabloSection02Animation({
     }
   }, [])
 
-  /* Scroll-driven phase trigger via RAF polling (same as Section 01).
-     Polls the corresponding text-block's viewport position every
-     frame and advances the phase as the user crosses thresholds.
-     Monotonic. */
+  /* Scroll-driven phase. Bidirectional - no monotonic guard, so
+     scrolling back walks the phases in reverse and the Recharts
+     line morphs back to its earlier shape. */
   useEffect(() => {
     if (reduced) {
       setPhase('week')
@@ -113,21 +201,7 @@ export function PabloSection02Animation({
         const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
         if (Math.abs(progress - lastProgress) > 0.002) {
           lastProgress = progress
-          setPhase((curr) => {
-            /* Monotonic - never go back to an earlier phase. */
-            if (progress >= SCROLL_PHASE_WEEK_AT) return 'week'
-            if (progress >= SCROLL_PHASE_MONTH_AT && curr !== 'week') {
-              return 'month'
-            }
-            if (
-              progress >= SCROLL_PHASE_YEAR_AT &&
-              curr !== 'week' &&
-              curr !== 'month'
-            ) {
-              return 'year'
-            }
-            return curr
-          })
+          setPhase(phaseFromProgress(progress))
         }
       }
       frameId = window.requestAnimationFrame(tick)
@@ -138,8 +212,39 @@ export function PabloSection02Animation({
     }
   }, [stepIndex, reduced])
 
-  /* Build the current data subset based on the active phase. */
-  const data = buildChartData(values, phase)
+  /* Pre-compute resampled datasets - all N_POINTS long. */
+  const datasets = useMemo(() => {
+    if (!values) return null
+    const yearSlice = values
+    const monthSlice = values.slice(
+      HOURS_JAN_FEB,
+      HOURS_JAN_FEB + MARCH_HOURS,
+    )
+    const weekSlice = values.slice(
+      MARCH_10_HOUR_INDEX,
+      MARCH_10_HOUR_INDEX + WEEK_HOURS,
+    )
+    return {
+      year: resample(yearSlice, N_POINTS),
+      month: resample(monthSlice, N_POINTS),
+      week: resample(weekSlice, N_POINTS),
+    }
+  }, [values])
+
+  /* Active dataset wrapped as Recharts row objects. All three
+     datasets share the same integer X domain (0..N_POINTS-1) so
+     Recharts morphs the line in place between phases instead of
+     redrawing it from zero. */
+  const data = useMemo(() => {
+    if (!datasets || phase === 'pre') return []
+    const yArr =
+      phase === 'year'
+        ? datasets.year
+        : phase === 'month'
+          ? datasets.month
+          : datasets.week
+    return yArr.map((v, i) => ({ t: i, kw: v }))
+  }, [datasets, phase])
 
   const labelText =
     phase === 'year'
@@ -151,6 +256,7 @@ export function PabloSection02Animation({
           : ''
 
   const chartIsIn = phase !== 'pre'
+  const xTicks = phase !== 'pre' ? ticksFor(phase) : []
 
   return (
     <div className="pablo-s02">
@@ -175,43 +281,67 @@ export function PabloSection02Animation({
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
-              margin={{ top: 28, right: 24, bottom: 32, left: 8 }}
+              margin={{ top: 24, right: 20, bottom: 14, left: 0 }}
             >
+              {/* Dotted horizontal grid lines INSIDE the plot area.
+                  Recharts naturally keeps these clear of the axis
+                  label gutters (YAxis width + bottom margin push
+                  the plot area inward). */}
               <CartesianGrid
                 strokeDasharray="2 4"
-                stroke="rgba(26, 37, 64, 0.08)"
+                stroke="rgba(26, 37, 64, 0.12)"
                 vertical={false}
               />
               <XAxis
                 dataKey="t"
                 type="number"
-                domain={['dataMin', 'dataMax']}
-                tickFormatter={(t: number) => formatXTick(t, phase)}
+                domain={[0, N_POINTS - 1]}
+                ticks={xTicks}
+                tickFormatter={(t: number) => formatTick(t, phase)}
                 tick={{
                   fontSize: 10,
-                  fill: 'rgba(26, 37, 64, 0.55)',
-                  fontFamily:
-                    'Stolzl, system-ui, sans-serif',
+                  fill: 'rgba(26, 37, 64, 0.62)',
+                  fontFamily: 'Stolzl, system-ui, sans-serif',
                   fontWeight: 300,
                 }}
-                axisLine={false}
+                /* SOLID grey axis line, hairline weight. */
+                axisLine={{
+                  stroke: 'rgba(26, 37, 64, 0.45)',
+                  strokeWidth: 1,
+                }}
                 tickLine={false}
-                minTickGap={20}
+                tickMargin={8}
+                interval={0}
               />
               <YAxis
                 domain={[0, 80]}
+                ticks={[0, 20, 40, 60, 80]}
                 tick={{
                   fontSize: 10,
-                  fill: 'rgba(26, 37, 64, 0.55)',
-                  fontFamily:
-                    'Stolzl, system-ui, sans-serif',
+                  fill: 'rgba(26, 37, 64, 0.62)',
+                  fontFamily: 'Stolzl, system-ui, sans-serif',
                   fontWeight: 300,
                 }}
-                axisLine={false}
+                /* SOLID grey axis line on the left edge of the plot. */
+                axisLine={{
+                  stroke: 'rgba(26, 37, 64, 0.45)',
+                  strokeWidth: 1,
+                }}
                 tickLine={false}
-                unit=" kW"
+                /* Wider width gives the labels a clear gutter on the
+                   cream frame background, away from the dotted grid
+                   inside the plot. */
                 width={56}
+                tickMargin={6}
+                unit=" kW"
               />
+              {/* NB: NO key={phase} here. With a stable Line element
+                  and same-length data across phases, Recharts uses
+                  isAnimationActive to interpolate point-by-point from
+                  the previous y values to the new ones - the line
+                  appears to morph (squash + stretch) rather than
+                  redraw from left to right. This is the Chris-PABLO
+                  morph behaviour. */}
               <Line
                 dataKey="kw"
                 stroke="#F75A55"
@@ -219,12 +349,8 @@ export function PabloSection02Animation({
                 dot={false}
                 fill="none"
                 isAnimationActive={true}
-                animationDuration={1200}
+                animationDuration={900}
                 animationEasing="ease-in-out"
-                /* Key change forces Recharts to remount the line when
-                   phase changes, so it animates from its previous y
-                   values to the new ones rather than swapping abruptly. */
-                key={phase}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -232,48 +358,4 @@ export function PabloSection02Animation({
       </div>
     </div>
   )
-}
-
-/** Slice the source values down to whichever subset the current phase
- *  needs, then map each value to a {t, kw} point. */
-function buildChartData(
-  values: number[] | null,
-  phase: Phase,
-): DataPoint[] {
-  if (!values || phase === 'pre') return []
-  const toPoints = (slice: number[], startIndex: number): DataPoint[] =>
-    slice.map((kw, i) => ({
-      t: START_OF_YEAR_MS + (startIndex + i) * MS_PER_HOUR,
-      kw,
-    }))
-  if (phase === 'year') return toPoints(values, 0)
-  if (phase === 'month') {
-    return toPoints(
-      values.slice(HOURS_JAN_FEB, HOURS_JAN_FEB + MARCH_HOURS),
-      HOURS_JAN_FEB,
-    )
-  }
-  // phase === 'week'
-  return toPoints(
-    values.slice(
-      MARCH_10_HOUR_INDEX,
-      MARCH_10_HOUR_INDEX + WEEK_HOURS,
-    ),
-    MARCH_10_HOUR_INDEX,
-  )
-}
-
-/** Per-phase X-axis tick formatter. */
-function formatXTick(t: number, phase: Phase): string {
-  const d = new Date(t)
-  if (phase === 'year') {
-    /* Short month name - Jan / Feb / ... / Dec. */
-    return d.toLocaleString('en-GB', { month: 'short' })
-  }
-  if (phase === 'month') {
-    /* Day of month as integer. */
-    return String(d.getDate())
-  }
-  /* Week view - weekday short name (Mon / Tue / ...). */
-  return d.toLocaleString('en-GB', { weekday: 'short' })
 }
