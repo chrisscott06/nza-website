@@ -44,9 +44,20 @@ const WORDS = [
    word cycles a bit quicker.
      INITIAL_HOLD_MS 2500 -> 1600   start as line 3 reveals
      CYCLE_MS        2500 -> 2000   ~20% quicker per cycle
-     WIDTH_OFFSET_MS 1800 -> 1400   braces follow proportionally */
+     WIDTH_OFFSET_MS 1800 -> 1200   matches the CSS animation
+                                    delay on .slot-stack.is-animating
+                                    (which had to come down too: a
+                                    1800ms CSS delay + 700ms duration
+                                    = 2500ms total no longer fits
+                                    inside the new 2000ms cycle, so
+                                    the rotation was getting hard-
+                                    snapped off mid-translate). Both
+                                    now sit at 1200ms so the CSS
+                                    rotation completes at 1900ms,
+                                    100ms before React swaps in the
+                                    next word. */
 const CYCLE_MS = 2000
-const WIDTH_OFFSET_MS = 1400
+const WIDTH_OFFSET_MS = 1200
 const INITIAL_HOLD_MS = 1600
 
 export function SlotMachineWord() {

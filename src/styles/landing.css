@@ -697,9 +697,14 @@
   display: block;
 }
 .slot-stack.is-animating {
-  /* 1800ms delay coincides with the component's widthIndex tick so
-     box width and text rotation animate together. 700ms duration. */
-  animation: slot-machine-rotate 700ms cubic-bezier(0.7, 0, 0.3, 1) 1800ms forwards;
+  /* Delay must finish + duration must complete BEFORE the React cycle
+     swaps in the next word (CYCLE_MS = 2000ms in SlotMachineWord.tsx),
+     otherwise the rotation gets cut off mid-animation and the user
+     sees a hard snap instead of the slow upward translate.
+     1200ms delay + 700ms duration = 1900ms total, leaves a 100ms
+     safety margin before the next cycle fires. Delay also matches
+     WIDTH_OFFSET_MS so the (hidden) braces width tick coincides. */
+  animation: slot-machine-rotate 700ms cubic-bezier(0.7, 0, 0.3, 1) 1200ms forwards;
 }
 .slot-word {
   display: block;
