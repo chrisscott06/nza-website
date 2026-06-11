@@ -105,7 +105,12 @@ const SEGMENTS = (() => {
 
 type View = 'pre' | 'inputs' | 'donut'
 
-/* Auto-play durations.
+/* Auto-play durations - tuned so a brisk-but-not-frantic scroll
+   lets the user catch the whole sequence. The previous numbers
+   (1500 / 900 / 220) felt rushed when Chris tested - if you give
+   the mouse wheel one good push, you missed half the segments
+   pop in. These give ~5s total which holds the user's attention
+   without dragging.
      INPUTS_HOLD_MS - how long the inputs sit on stage before the
                       transition to donut fires (so the user has
                       time to read the bill + load shape pair)
@@ -113,9 +118,9 @@ type View = 'pre' | 'inputs' | 'donut'
                       the CSS transition + 100ms delay), after
                       which the segment cascade can start
      SEGMENT_STAGGER_MS - delay between consecutive segment pops */
-const INPUTS_HOLD_MS = 1500
-const DONUT_IN_MS = 900
-const SEGMENT_STAGGER_MS = 220
+const INPUTS_HOLD_MS = 2500
+const DONUT_IN_MS = 1000
+const SEGMENT_STAGGER_MS = 280
 
 export function PabloSection01Animation({
   stepIndex,
@@ -306,7 +311,7 @@ export function PabloSection01Animation({
           }
           onClick={() => onPillClick('inputs')}
         >
-          Your bill
+          Your info
         </button>
         <button
           type="button"

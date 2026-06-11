@@ -821,6 +821,13 @@
   transform: scale(0.96);
   transition: opacity 520ms var(--product-ease),
               transform 520ms var(--product-ease);
+  /* All N illustrations are stacked at the same absolute position;
+     only the active one is opacity:1. The inactive ones (opacity:0)
+     still receive pointer events by default, which means whichever
+     is later in DOM order intercepts clicks on the active one's
+     interactive pills below. Disable pointer events while inactive
+     and re-enable only on the active illustration. */
+  pointer-events: none;
 }
 @media (max-width: 1279px) {
   .product-steps-frame-illustration { inset: 48px; }
@@ -828,6 +835,7 @@
 .product-steps-frame-illustration.is-active {
   opacity: 1;
   transform: scale(1);
+  pointer-events: auto;
 }
 .product-steps-frame-illustration svg {
   width: 100%;
