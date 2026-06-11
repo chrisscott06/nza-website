@@ -35,14 +35,6 @@ export type StepData = {
   headlineSuffix: string
   body: string
   illustrationConcept: string
-  /** Opt this step into the scrollytelling pattern: text-block is
-   *  3x viewport tall so the user scrolls through it, and the
-   *  animation's phases advance based on scroll progress (rather
-   *  than firing on a timer). Per Chris's June 2026 direction:
-   *  scroll #1 reveals text, scroll #2 fires the first animation,
-   *  scroll #3 swaps to the next animation, etc. Off by default;
-   *  steps without animations stay 100vh. */
-  scrollytell?: boolean
 }
 
 type Props = {
@@ -61,13 +53,9 @@ export function ProductStepsSection({
   const textRefs = useRef<(HTMLDivElement | null)[]>([])
 
   // IntersectionObserver with a narrow active-band in the middle of
-  // the viewport. The old threshold:0.45 approach broke once we made
-  // scrollytell steps 300vh tall - a 300vh block can never reach 45%
-  // intersection at a 100vh viewport (max possible = 33%). Switching
-  // to rootMargin: -40% top + -40% bottom shrinks the IO root rect
-  // to a 20vh-tall band in the middle of the viewport; a block is
-  // active when its bounding rect intersects that band. Works for
-  // both 100vh and 300vh text-blocks identically.
+  // the viewport. rootMargin -40% top + -40% bottom shrinks the IO
+  // root rect to a 20vh-tall band in the middle of the viewport; a
+  // block is "active" when its bounding rect intersects that band.
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => {
@@ -97,8 +85,7 @@ export function ProductStepsSection({
             }}
             className={
               'product-step-text-block' +
-              (i === activeIndex ? ' is-active' : '') +
-              (step.scrollytell ? ' product-step-text-block--scrollytell' : '')
+              (i === activeIndex ? ' is-active' : '')
             }
           >
             {/* Text content is sticky WITHIN its 100vh-tall block -

@@ -3,31 +3,37 @@ import { useEffect, useRef, useState } from 'react'
 /**
  * PABLO Section 01 ("Break down your bill") animation.
  *
- * BIDIRECTIONAL SCROLL-SCRUBBED per Chris's June 2026 round 2:
- * the animation is a pure function of the user's scroll position
- * inside the step's 300vh-tall text-block. Scrolling forward plays
- * the animation; scrolling BACK reverses it. Pausing scroll = the
- * animation pauses exactly where it is.
+ * AUTO-PLAY ON VIEW + click-through PILLS per Chris's June 2026
+ * round 3. The previous scroll-scrubbed model locked the user
+ * inside the section (300vh runway) which was wrong - he wants
+ * users to be able to scroll past anytime, AND to be able to
+ * replay the transition via a clearly clickable button.
  *
- * There is NO timer-based cascade between phases - phase and
- * visibleSegments are recomputed from scroll progress on every
- * frame. CSS transitions on the .is-in / .is-out classes carry the
- * visual interpolation (and they reverse naturally when the class
- * goes away again).
+ * Mechanic:
+ *   1. The step's text-block enters the viewport (IO threshold 0.4).
+ *   2. Auto-play kicks off:
+ *        view='inputs'   inputs (bill + load shape) slide up,
+ *                        spring-bounce
+ *        +1500ms         view='donut' - inputs swipe off left,
+ *                        donut slides in from the right
+ *        +900ms          segments cascade in clockwise, one per
+ *                        220ms, all 6 visible at the end
+ *   3. After auto-play settles, two pills are visible at the
+ *      bottom of the frame:
+ *        [YOUR BILL]   sets view='inputs'
+ *        [BREAKDOWN]   sets view='donut'
+ *      Clicking either replays the inputs<->donut transition. The
+ *      first user click cancels any in-flight auto-play timers so
+ *      we don't fight the user's input.
  *
- * Phase distribution across 0..1 of scroll progress (200vh of
- * effective scroll, since the block is 300vh in a 100vh viewport):
+ * The donut segments are pre-built and stay built once the cascade
+ * has run - re-entering 'donut' after a pill click shows them all
+ * at once (not a re-cascade). This matches the intent: the segment
+ * pop is part of the FIRST viewing's story, the pills just toggle
+ * which composition is on stage.
  *
- *   0.00 - 0.12  pre          (~24vh)  text only, frame empty
- *   0.12 - 0.28  a_in         (~32vh)  inputs rise from below
- *   0.28 - 0.48  a_hold       (~40vh)  inputs in place, holding
- *   0.48 - 0.58  b_swipe      (~20vh)  inputs swipe off left
- *   0.58 - 0.70  b_donut_in   (~24vh)  donut slides in from right
- *   0.70 - 0.92  b_segments   (~44vh)  6 segments pop in clockwise,
- *                                       one segment per ~3.7% of progress
- *   0.92 - 1.00  done         (~16vh)  full donut, hold to next step
- *
- * prefers-reduced-motion jumps straight to 'done'.
+ * prefers-reduced-motion jumps straight to the final donut+segments
+ * state. Pills are still clickable in that case.
  */
 
 const DONUT_DATA = [
@@ -97,51 +103,19 @@ const SEGMENTS = (() => {
   })
 })()
 
-type Phase =
-  | 'pre' /* before scroll trips into the section */
-  | 'a_in' /* inputs rising up */
-  | 'a_hold' /* inputs holding */
-  | 'b_swipe' /* inputs sliding off left */
-  | 'b_donut_in' /* donut sliding in from right */
-  | 'b_segments' /* segments + labels popping in one by one */
-  | 'done' /* final state */
+type View = 'pre' | 'inputs' | 'donut'
 
-/* Scroll-progress phase thresholds. Each is the UPPER bound of the
-   phase named in its key. See the file header for the full breakdown
-   + the rationale for the spacing. */
-const PHASE_BOUNDS = {
-  preEnd:       0.12,
-  aInEnd:       0.28,
-  aHoldEnd:     0.48,
-  bSwipeEnd:    0.58,
-  bDonutInEnd:  0.70,
-  bSegmentsEnd: 0.92,
-} as const
-
-function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.preEnd) return 'pre'
-  if (p < PHASE_BOUNDS.aInEnd) return 'a_in'
-  if (p < PHASE_BOUNDS.aHoldEnd) return 'a_hold'
-  if (p < PHASE_BOUNDS.bSwipeEnd) return 'b_swipe'
-  if (p < PHASE_BOUNDS.bDonutInEnd) return 'b_donut_in'
-  if (p < PHASE_BOUNDS.bSegmentsEnd) return 'b_segments'
-  return 'done'
-}
-
-/* Count of segments that should be visible at the given progress.
-   Linear distribution between bDonutInEnd (0 segs) and bSegmentsEnd
-   (6 segs); below the donut-in end means no segments yet; above the
-   segments end means all 6. */
-function segmentsFromProgress(p: number): number {
-  if (p < PHASE_BOUNDS.bDonutInEnd) return 0
-  if (p >= PHASE_BOUNDS.bSegmentsEnd) return DONUT_DATA.length
-  const range = PHASE_BOUNDS.bSegmentsEnd - PHASE_BOUNDS.bDonutInEnd
-  const step = range / DONUT_DATA.length
-  return Math.min(
-    DONUT_DATA.length,
-    Math.floor((p - PHASE_BOUNDS.bDonutInEnd) / step) + 1,
-  )
-}
+/* Auto-play durations.
+     INPUTS_HOLD_MS - how long the inputs sit on stage before the
+                      transition to donut fires (so the user has
+                      time to read the bill + load shape pair)
+     DONUT_IN_MS    - how long the donut slide-in takes (matches
+                      the CSS transition + 100ms delay), after
+                      which the segment cascade can start
+     SEGMENT_STAGGER_MS - delay between consecutive segment pops */
+const INPUTS_HOLD_MS = 1500
+const DONUT_IN_MS = 900
+const SEGMENT_STAGGER_MS = 220
 
 export function PabloSection01Animation({
   stepIndex,
@@ -149,11 +123,21 @@ export function PabloSection01Animation({
   stepIndex: number
 }) {
   const rootRef = useRef<HTMLDivElement>(null)
-  const [phase, setPhase] = useState<Phase>('pre')
+  const [view, setView] = useState<View>('pre')
   /* How many segments have popped in so far (0 -> 6). Segments use
      this as a count: segment i is .is-in if visibleSegments > i. */
   const [visibleSegments, setVisibleSegments] = useState(0)
   const [reduced, setReduced] = useState(false)
+
+  /* Has the IO entered the viewport at least once? Auto-play only
+     fires on the first entry; later viewport entries (or pill
+     clicks before the IO fires) shouldn't re-trigger the cascade. */
+  const autoPlayStarted = useRef(false)
+  /* Has the user clicked a pill? Once true, we cancel any pending
+     auto-play timers and let the user drive the view. */
+  const userInteracted = useRef(false)
+  /* Active timer ids so we can clear them on unmount or user click. */
+  const timers = useRef<number[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -163,22 +147,11 @@ export function PabloSection01Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Scroll-driven phase + segment count. Polls the matching
-     .product-step-text-block's viewport position via RAF and
-     recomputes phase + segment count on every frame.
-
-     BIDIRECTIONAL: there's no monotonic guard or memo here, so
-     scrolling back unwinds the animation by simply re-reading the
-     current progress. The CSS transitions on .is-in / .is-out then
-     animate in reverse.
-
-     Note this won't fire while the page is in a hidden tab (the
-     browser pauses RAF), which is fine - when the user comes back
-     to the tab the animation snaps to whatever progress matches
-     their current scroll position. */
+  /* On enter viewport (via IO on the matching text-block), kick off
+     the auto-play timer cascade: inputs -> hold -> donut -> segments. */
   useEffect(() => {
     if (reduced) {
-      setPhase('done')
+      setView('donut')
       setVisibleSegments(DONUT_DATA.length)
       return
     }
@@ -188,41 +161,77 @@ export function PabloSection01Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
-    let frameId = 0
-    let lastProgress = -1
-    const tick = () => {
-      const rect = block.getBoundingClientRect()
-      const scrollRange = rect.height - window.innerHeight
-      if (scrollRange > 0) {
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
-        if (Math.abs(progress - lastProgress) > 0.002) {
-          lastProgress = progress
-          setPhase(phaseFromProgress(progress))
-          setVisibleSegments(segmentsFromProgress(progress))
-        }
-      }
-      frameId = window.requestAnimationFrame(tick)
+    const clearTimers = () => {
+      timers.current.forEach((t) => window.clearTimeout(t))
+      timers.current = []
     }
-    frameId = window.requestAnimationFrame(tick)
+
+    const startAutoPlay = () => {
+      autoPlayStarted.current = true
+      setView('inputs')
+      /* After the inputs have been on stage for INPUTS_HOLD_MS,
+         swap to donut view. */
+      const t1 = window.setTimeout(() => {
+        if (userInteracted.current) return
+        setView('donut')
+        /* After the donut finishes its slide-in (DONUT_IN_MS), kick
+           off the segment cascade. */
+        const t2 = window.setTimeout(() => {
+          if (userInteracted.current) return
+          let i = 0
+          const tickSegment = () => {
+            if (userInteracted.current) return
+            i += 1
+            setVisibleSegments(i)
+            if (i < DONUT_DATA.length) {
+              const tNext = window.setTimeout(tickSegment, SEGMENT_STAGGER_MS)
+              timers.current.push(tNext)
+            }
+          }
+          tickSegment()
+        }, DONUT_IN_MS)
+        timers.current.push(t2)
+      }, INPUTS_HOLD_MS)
+      timers.current.push(t1)
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !autoPlayStarted.current) {
+          startAutoPlay()
+          io.disconnect()
+        }
+      },
+      { threshold: 0.4 },
+    )
+    io.observe(block)
+
     return () => {
-      if (frameId) window.cancelAnimationFrame(frameId)
+      io.disconnect()
+      clearTimers()
     }
   }, [stepIndex, reduced])
 
-  /* Derived visibility flags - inputs are "in" during phase A,
-     "swiping out" during phase B (and onward), donut is "in" once
-     phase B starts the donut-in slide. */
-  const inputsVisible = phase === 'a_in' || phase === 'a_hold'
-  const inputsSwipingOut =
-    phase === 'b_swipe' ||
-    phase === 'b_donut_in' ||
-    phase === 'b_segments' ||
-    phase === 'done'
-  const donutVisible =
-    phase === 'b_donut_in' ||
-    phase === 'b_segments' ||
-    phase === 'done'
+  /* Pill click - user takes over. Cancel pending auto-play timers,
+     jump to the requested view. If jumping to donut from a state
+     where segments haven't all built yet, snap them all visible so
+     the user sees the full breakdown. */
+  const onPillClick = (target: 'inputs' | 'donut') => {
+    userInteracted.current = true
+    autoPlayStarted.current = true
+    timers.current.forEach((t) => window.clearTimeout(t))
+    timers.current = []
+    setView(target)
+    if (target === 'donut') {
+      setVisibleSegments(DONUT_DATA.length)
+    }
+  }
+
+  /* Derived visibility - inputs visible when view==='inputs', swiping
+     out when view==='donut'. Donut visible when view==='donut'. */
+  const inputsVisible = view === 'inputs'
+  const inputsSwipingOut = view === 'donut'
+  const donutVisible = view === 'donut'
 
   return (
     <div ref={rootRef} className="pablo-s01">
@@ -285,6 +294,29 @@ export function PabloSection01Animation({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Tab pills at the bottom of the frame - user can replay the
+          transition any number of times after the auto-play settles. */}
+      <div className="pablo-tab-pills">
+        <button
+          type="button"
+          className={
+            'pablo-tab-pill' + (view === 'inputs' ? ' is-active' : '')
+          }
+          onClick={() => onPillClick('inputs')}
+        >
+          Your bill
+        </button>
+        <button
+          type="button"
+          className={
+            'pablo-tab-pill' + (view === 'donut' ? ' is-active' : '')
+          }
+          onClick={() => onPillClick('donut')}
+        >
+          Breakdown
+        </button>
       </div>
     </div>
   )

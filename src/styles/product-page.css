@@ -689,26 +689,6 @@
   }
 }
 
-/* SCROLLYTELL MODIFIER - steps with their own scroll-driven animation
-   (currently PABLO sections 01 + 02) get a 3x viewport-tall text-block
-   so the user scrolls THROUGH the step to advance the animation's
-   phases. Text stays pinned via .product-step-text-sticky (no change
-   there); the frame stays sticky too; the extra runway is what gives
-   the animation room to play out across the user's scroll input.
-   Per Chris: scroll 1 -> text only, scroll 2 -> first animation,
-   scroll 3 -> second animation, scroll 4 -> next step. */
-.product-step-text-block--scrollytell {
-  min-height: 300vh;
-}
-@media (max-width: 1023px) {
-  /* Mobile drops the shared frame entirely and uses inline-illustration
-     per step - the runway concept doesn't apply, so revert to content
-     height. */
-  .product-step-text-block--scrollytell {
-    min-height: auto;
-  }
-}
-
 /* THE STICKY TEXT - the content that page-locks during a step's
    scroll range. The Impilo mechanic Chris asked for: text stays
    pinned at top: 22vh until the user has scrolled the block's full
@@ -1510,7 +1490,10 @@
 }
 .pablo-s01-stage {
   position: absolute;
-  inset: 0;
+  /* Reserve 56px at the bottom for the tab pills row - the pills
+     are absolutely-positioned siblings, the stages stop short of
+     them so the bill / donut composition isn't visually crowded. */
+  inset: 0 0 56px 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1667,10 +1650,13 @@
   /* Centre the chart vertically inside the frame - the chart itself
      is squashed to ~16:9 so there's whitespace above/below per
      Chris's "too tall, more square" feedback. The absolute-positioned
-     state label still floats top-right regardless. */
+     state label still floats top-right regardless. padding-bottom
+     reserves space for the tab pills row. */
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-bottom: 56px;
+  box-sizing: border-box;
 }
 
 /* State label - top-right of the chart, mono micro-typography. */
@@ -1746,5 +1732,67 @@
   .pablo-s02-state-label,
   .pablo-s02-chart {
     transition: none !important;
+  }
+}
+
+/* =========================================================================
+   PABLO TAB PILLS - shared across Section 01 + Section 02 (and future
+   sections that want a "click to swap state" interaction). Pinned to
+   the bottom-centre of the .pablo-sNN wrapper, sit above the
+   animation chrome via z-index. Each animation reserves space at
+   the bottom of its wrapper so the pills don't crowd the visual.
+   ========================================================================= */
+.pablo-s01 .pablo-tab-pills,
+.pablo-s02 .pablo-tab-pills {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+
+.pablo-tab-pill {
+  appearance: none;
+  background: transparent;
+  color: var(--product-accent);
+  border: 1px solid color-mix(in oklab, var(--product-accent) 38%, transparent);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 240ms var(--product-ease),
+              color 240ms var(--product-ease),
+              border-color 240ms var(--product-ease),
+              transform 180ms var(--product-ease);
+}
+@media (hover: hover) {
+  .pablo-tab-pill:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--product-accent) 70%, transparent);
+  }
+}
+.pablo-tab-pill.is-active {
+  background: var(--product-accent);
+  color: #FFFFFF;
+  border-color: var(--product-accent);
+}
+.pablo-tab-pill:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--product-accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pablo-tab-pill {
+    transition: none;
+  }
+  .pablo-tab-pill:hover {
+    transform: none;
   }
 }

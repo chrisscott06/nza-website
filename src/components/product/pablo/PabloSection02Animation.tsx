@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   LineChart,
   Line,
@@ -11,59 +11,44 @@ import {
 /**
  * PABLO Section 02 ("Understand your demand") animation.
  *
- * BIDIRECTIONAL SCROLL-SCRUBBED morph between three load-shape
- * states. Same scroll-as-control model as Section 01: phase is a
- * pure function of the user's scroll position inside the step's
- * 300vh-tall text-block.
+ * AUTO-PLAY ON VIEW + click-through PILLS per Chris's June 2026
+ * round 3. The previous scroll-scrubbed model locked the user
+ * inside the section. The new model:
  *
- *   0.00 - 0.20  pre    text only, frame empty
- *   0.20 - 0.45  year   chart shows a full year of hourly data
- *   0.45 - 0.70  month  line MORPHS to MARCH (in place, no redraw)
- *   0.70 - 1.00  week   line MORPHS to WEEK OF 10 MAR
+ *   1. The step's text-block enters the viewport (IO threshold 0.4).
+ *   2. phase is set to 'year' - the chart fades in and the 1-year
+ *      load shape draws.
+ *   3. Three pills sit at the bottom of the frame: [1 YEAR],
+ *      [1 MONTH], [1 WEEK]. Click any of them at any time and the
+ *      line MORPHS in place to that shape (squashes and stretches
+ *      rather than redrawing). The morph is achieved by:
  *
- * The morph (Chris's key request) is achieved by:
- *   1. Resampling all three source slices (year=8760 pts,
- *      month=744 pts, week=168 pts) to the SAME length (N_POINTS).
- *   2. Indexing the X axis on the integer 0..N_POINTS-1, not on
- *      timestamps - so all three datasets share the same X domain.
- *   3. Removing the key={phase} from <Line> so Recharts does NOT
- *      remount the line element when phase changes - instead its
- *      internal isAnimationActive interpolates each point's y value
- *      from the previous dataset to the new one over 900ms. Visually
- *      the line "squashes and stretches" between the shapes rather
- *      than redrawing left-to-right.
+ *      a. Resampling all three source slices (year=8760 pts,
+ *         month=744 pts, week=168 pts) to the SAME length (N_POINTS).
+ *      b. Indexing the X axis on the integer 0..N_POINTS-1, not on
+ *         timestamps - so all three datasets share the same X domain.
+ *      c. Keeping the <Line> element stable across phase changes
+ *         (no key={phase}) - Recharts' isAnimationActive then
+ *         interpolates each point's y value from the previous
+ *         dataset to the new one over 900ms.
  *
  * Y domain is LOCKED at [0, 80] across all three states so the kW
  * scale stays consistent and peaks aren't normalised - you see the
- * actual kW values as we zoom in.
+ * actual kW values as the window zooms in.
  *
  * Tick labels are formatted from index based on the active phase:
- *   year  -> month name  (Jan / Feb / ...)
+ *   year  -> month name   (Jan / Feb / ...)
  *   month -> day of march (1, 5, 10, 15, 20, 25, 30)
  *   week  -> weekday short (Mon / Tue / ...)
  *
  * Data loaded via fetch from /assets/data/pablo-load-data.json
  * (~42KB; lazy-fetched since Section 02 is not above the fold).
  *
- * prefers-reduced-motion jumps straight to the week view.
+ * prefers-reduced-motion jumps straight to the week view; pills
+ * remain clickable.
  */
 
 type Phase = 'pre' | 'year' | 'month' | 'week'
-
-/* Scroll-progress phase thresholds. */
-const PHASE_BOUNDS = {
-  preEnd: 0.2,
-  yearEnd: 0.45,
-  monthEnd: 0.7,
-  /* >= monthEnd -> week */
-} as const
-
-function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.preEnd) return 'pre'
-  if (p < PHASE_BOUNDS.yearEnd) return 'year'
-  if (p < PHASE_BOUNDS.monthEnd) return 'month'
-  return 'week'
-}
 
 /* Common length for all three datasets - chosen so the week view
    (168 points = one point per hour) stays at full resolution and
@@ -153,6 +138,7 @@ export function PabloSection02Animation({
   const [values, setValues] = useState<number[] | null>(null)
   const [phase, setPhase] = useState<Phase>('pre')
   const [reduced, setReduced] = useState(false)
+  const autoPlayStarted = useRef(false)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -177,9 +163,10 @@ export function PabloSection02Animation({
     }
   }, [])
 
-  /* Scroll-driven phase. Bidirectional - no monotonic guard, so
-     scrolling back walks the phases in reverse and the Recharts
-     line morphs back to its earlier shape. */
+  /* Auto-play trigger: when the step's text-block enters the viewport
+     (IO threshold 0.4), set phase='year' so the chart fades in with
+     the 1-year shape. After that, the user drives the morphs by
+     clicking the pills - the IO is disconnected. */
   useEffect(() => {
     if (reduced) {
       setPhase('week')
@@ -191,26 +178,27 @@ export function PabloSection02Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
-    let frameId = 0
-    let lastProgress = -1
-    const tick = () => {
-      const rect = block.getBoundingClientRect()
-      const scrollRange = rect.height - window.innerHeight
-      if (scrollRange > 0) {
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
-        if (Math.abs(progress - lastProgress) > 0.002) {
-          lastProgress = progress
-          setPhase(phaseFromProgress(progress))
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !autoPlayStarted.current) {
+          autoPlayStarted.current = true
+          setPhase('year')
+          io.disconnect()
         }
-      }
-      frameId = window.requestAnimationFrame(tick)
-    }
-    frameId = window.requestAnimationFrame(tick)
-    return () => {
-      if (frameId) window.cancelAnimationFrame(frameId)
-    }
+      },
+      { threshold: 0.4 },
+    )
+    io.observe(block)
+    return () => io.disconnect()
   }, [stepIndex, reduced])
+
+  /* Pill click - user takes over. We DON'T need any timer cleanup
+     since there's no cascade for Section 02; just swap the phase
+     and let Recharts animate the line morph. */
+  const onPillClick = (target: 'year' | 'month' | 'week') => {
+    autoPlayStarted.current = true
+    setPhase(target)
+  }
 
   /* Pre-compute resampled datasets - all N_POINTS long. */
   const datasets = useMemo(() => {
@@ -355,6 +343,38 @@ export function PabloSection02Animation({
             </LineChart>
           </ResponsiveContainer>
         )}
+      </div>
+
+      {/* Tab pills at the bottom of the frame - clicking any pill
+          morphs the line in place to that time-window. */}
+      <div className="pablo-tab-pills">
+        <button
+          type="button"
+          className={
+            'pablo-tab-pill' + (phase === 'year' ? ' is-active' : '')
+          }
+          onClick={() => onPillClick('year')}
+        >
+          1 Year
+        </button>
+        <button
+          type="button"
+          className={
+            'pablo-tab-pill' + (phase === 'month' ? ' is-active' : '')
+          }
+          onClick={() => onPillClick('month')}
+        >
+          1 Month
+        </button>
+        <button
+          type="button"
+          className={
+            'pablo-tab-pill' + (phase === 'week' ? ' is-active' : '')
+          }
+          onClick={() => onPillClick('week')}
+        >
+          1 Week
+        </button>
       </div>
     </div>
   )
