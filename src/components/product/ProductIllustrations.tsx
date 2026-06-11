@@ -15,6 +15,7 @@
  */
 
 import type { ReactNode } from 'react'
+import { PabloSection01Animation } from './pablo/PabloSection01Animation'
 
 const ILLUSTRATIONS: Record<string, ReactNode> = {
   // ============================================================
@@ -271,7 +272,18 @@ const ILLUSTRATIONS: Record<string, ReactNode> = {
   ),
 }
 
+/* Concepts that have moved off the static-SVG placeholder pattern
+   and into their own animated React components. The first one is
+   PABLO Section 01 ("Break down your bill") per the June 2026
+   animation brief - the inputs rise up, hold, swipe out, donut
+   slides in and sweeps, labels fade. */
+const ANIMATED_CONCEPTS: Record<string, () => ReactNode> = {
+  'bill-decomposition': () => <PabloSection01Animation />,
+}
+
 export function ProductIllustration({ concept }: { concept: string }) {
+  const animated = ANIMATED_CONCEPTS[concept]
+  if (animated) return animated()
   const illustration = ILLUSTRATIONS[concept]
   if (!illustration) return null
   return illustration

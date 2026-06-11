@@ -742,13 +742,28 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background: #FCF8EE;
+  background-color: #FCF8EE;
+  /* Subtle dot texture per Chris ("could we add a simple bit of
+     texture background, either some gradient faded dots or something
+     that makes it feel a little more interesting"). 24x24 grid of
+     ~1px dots at 5% black - barely there at first glance but adds
+     paper-like depth to the cream surface. */
+  background-image: radial-gradient(
+    circle,
+    rgba(31, 15, 46, 0.07) 0.8px,
+    transparent 1.2px
+  );
+  background-size: 24px 24px;
+  background-position: 0 0;
   border: 0.5px solid color-mix(in oklab, var(--product-accent) 45%, transparent);
   border-radius: 18px;
   padding: 60px;
   box-sizing: border-box;
   /* overflow: visible so the Request Demo pill positioned at the
-     top-right with negative offset isn't clipped at the frame edge. */
+     top-right with negative offset isn't clipped at the frame edge.
+     The .pablo-s01 component (and any other animation that needs
+     clipping) uses its own overflow:hidden inner wrapper to act as
+     the "screen within the window" per Chris's note. */
   overflow: visible;
   box-shadow: 0 30px 60px -30px rgba(31, 51, 71, 0.10);
 }
@@ -1443,6 +1458,147 @@
   .product-closer-case-reveal,
   .product-closer-case-chevron,
   .product-closer-case-logo {
+    transition: none !important;
+  }
+}
+
+/* =========================================================================
+   PABLO SECTION 01 ANIMATION
+   "Break down your bill" - inputs rise up, hold, swipe out, donut
+   slides in, sweeps, labels fade. Implementation lives in
+   src/components/product/pablo/PabloSection01Animation.tsx; this
+   block is the visual + transitions only. State machine in the
+   component drives the .is-in / .is-out classes.
+   ========================================================================= */
+.pablo-s01 {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* "Screen within the window" clipping per Chris - the frame
+     surrounds the animation, anything past its inner padding gets
+     clipped. Combined with the frame's own padding, the inputs
+     rise UP from beyond the bottom edge (clipped) and the donut
+     slides in from the right (clipped) - they appear to emerge
+     from inside the frame rather than from outside the page. */
+  overflow: hidden;
+  /* Match the frame's inner border-radius so the clipping edge
+     curves around the cards instead of presenting sharp corners. */
+  border-radius: 10px;
+}
+.pablo-s01-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ---- INPUTS STAGE ---- */
+.pablo-s01-stage--inputs {
+  /* Phase A starting position - below the frame, invisible. */
+  transform: translateY(120px);
+  opacity: 0;
+  /* Spring-like overshoot bounce for the rise; settled ease for
+     the swipe-out (handled by is-out below). */
+  transition: transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pablo-s01-stage--inputs.is-in {
+  transform: translateY(0);
+  opacity: 1;
+}
+.pablo-s01-stage--inputs.is-out {
+  transform: translateX(-80px);
+  opacity: 0;
+  transition: transform 600ms cubic-bezier(0.65, 0, 0.35, 1),
+              opacity 600ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.pablo-s01-inputs-svg {
+  width: 100%;
+  max-width: 580px;
+  height: auto;
+  /* Override the parent .product-steps-frame-illustration svg rule
+     which sets fill: none / stroke: var(--product-accent) for the
+     placeholder line-art illustrations. Our SVG has explicit fills
+     and strokes per element so we want neutral defaults at the
+     SVG root. */
+  fill: initial;
+  stroke: initial;
+  stroke-width: initial;
+}
+
+/* ---- DONUT STAGE ---- */
+.pablo-s01-stage--donut {
+  /* Phase B starting position - off-stage right, invisible. The
+     100ms transition-delay overlaps with the inputs' swipe-out. */
+  transform: translateX(60px);
+  opacity: 0;
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1) 100ms,
+              opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) 100ms;
+}
+.pablo-s01-stage--donut.is-in {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.pablo-s01-donut-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 480px;
+  max-height: 480px;
+  aspect-ratio: 1 / 1;
+}
+
+/* Recharts puts its SVG into the ResponsiveContainer wrapper; make
+   sure that wrapper takes the full donut-frame box. */
+.pablo-s01-donut-frame .recharts-wrapper,
+.pablo-s01-donut-frame .recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ---- DONUT LABELS ---- */
+.pablo-s01-donut-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pablo-s01-donut-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s01-donut-labels.is-in .pablo-s01-donut-label {
+  opacity: 1;
+}
+
+@media (max-width: 1023px) {
+  /* Steps frame is hidden on mobile (the inline illustration in each
+     step's text block does the work). Belt-and-braces hide the
+     animation chrome too. */
+  .pablo-s01 { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* All transitions skipped - the state machine in the component
+     jumps straight to 'done' in reduced-motion mode, so the
+     stages should already be in their final state. Belt-and-braces
+     transition: none. */
+  .pablo-s01-stage,
+  .pablo-s01-donut-label {
     transition: none !important;
   }
 }
