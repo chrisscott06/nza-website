@@ -72,7 +72,12 @@ export type ProductPageConfig = {
   steps: Array<{
     number: string
     iconName: string
-    /** Full headline. The highlighted verb is wrapped via highlightedVerb. */
+    /** Optional single-string headline (PABLO June 2026 redesign).
+     *  When provided, the renderer uses this directly and skips the
+     *  prefix/verb/suffix highlight pattern below. Other products
+     *  still use the three-part split for the coral-highlighted verb. */
+    headline?: string
+    /** Legacy three-part headline split. */
     headlinePrefix: string
     highlightedVerb: string
     headlineSuffix: string

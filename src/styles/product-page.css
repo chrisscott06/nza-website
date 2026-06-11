@@ -858,6 +858,11 @@
   gap: 20px;
   max-width: 460px;
 }
+/* Impilo-style step header (PABLO June 2026 redesign): icon sits in
+   a soft accent-tinted square on the LEFT, number on the RIGHT in
+   the brand accent, hairline rule across the column below.
+   .product-step-meta keeps justify-content: space-between from before
+   but the children are now restyled into the Impilo treatment. */
 .product-step-meta {
   display: flex;
   align-items: center;
@@ -865,32 +870,51 @@
   gap: 16px;
 }
 .product-step-icon {
-  width: 32px;
-  height: 32px;
-  color: var(--product-text-on-cream);
+  /* Boxed icon - accent-tinted background + soft border, sized to
+     match the Impilo example Chris referenced. */
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--product-accent) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--product-accent) 28%, transparent);
+  border-radius: 12px;
+  color: var(--product-accent);
   flex-shrink: 0;
 }
 .product-step-icon svg {
-  width: 100%;
-  height: 100%;
+  width: 26px;
+  height: 26px;
   stroke: currentColor;
-  stroke-width: 1.5;
+  stroke-width: 1.6;
   fill: none;
 }
 .product-step-number {
-  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 14px;
+  font-family: var(--font-display);
   font-weight: 500;
-  letter-spacing: 0.05em;
-  color: color-mix(in oklab, var(--product-text-on-cream) 60%, transparent);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  /* Accent-tinted number on the right side, matching the Impilo
+     screenshot's light-blue "01." */
+  color: var(--product-accent);
   font-variant-numeric: tabular-nums;
+}
+/* Hairline rule below the meta row, above the headline. Width spans
+   the text column so the meta + rule + headline read as one tightly-
+   composed header block. */
+.product-step-rule {
+  height: 1px;
+  width: 100%;
+  background: color-mix(in oklab, var(--product-text-on-cream) 18%, transparent);
+  margin: 8px 0 4px;
 }
 .product-step-headline {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(28px, 3vw, 38px);
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  font-size: clamp(32px, 3.2vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.018em;
   color: var(--product-text-on-cream);
   margin: 0;
 }
@@ -902,10 +926,15 @@
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 17px;
-  line-height: 1.55;
-  color: var(--product-text-muted-on-cream);
+  line-height: 1.6;
+  /* Darker than before per Chris ("Make the body text darker please,
+     it look dull at the moment like slightly faded"). Was 0.72 opacity
+     of the dark navy ink which read as a soft grey. Bumped to 0.92 so
+     the body sits as a confident reading colour without going solid
+     black-on-cream. */
+  color: color-mix(in oklab, var(--product-text-on-cream) 92%, transparent);
   margin: 0;
-  max-width: 440px;
+  max-width: 460px;
 }
 
 /* COORDINATED ARRIVAL ANIMATION
@@ -1068,8 +1097,32 @@
    verbatim from nza-pablo-page-brief.md Change 2.
    ========================================================================= */
 .product-closer-cases {
-  width: 100%;
-  margin: 32px 0 40px;
+  /* Wider than the closer-inner per Chris ("make the boxes for the
+     three case studies at the bottom Make them wider Use the full
+     width of the page"). The closer-inner caps at 920px (a reading
+     measure for the headline + body); the cases break out of that to
+     fill the full 1184px content frame (matches .frame inner width
+     = 1280 - 48*2 padding). Achieved with position: relative +
+     left: 50% + transform: translateX(-50%) so the wider container
+     centres on the viewport regardless of its parent's width. */
+  position: relative;
+  width: calc(min(100vw - 96px, 1184px));
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 40px;
+  margin-bottom: 48px;
+}
+@media (max-width: 1023px) {
+  /* On smaller screens the closer-inner already takes ~full width,
+     so reset to flow-positioning. */
+  .product-closer-cases {
+    position: static;
+    width: 100%;
+    left: auto;
+    transform: none;
+    margin-top: 32px;
+    margin-bottom: 32px;
+  }
 }
 /* MaskReveal wraps its children in a `<span class="mask-reveal-inner">`
    that does the translateY arrival animation. That inner span ends up
@@ -1106,9 +1159,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 180px;
-  padding: 32px 28px;
+  justify-content: center;
+  /* Bumped from 180 -> 220 to give the larger logo (80px from 56px)
+     room to breathe without crowding the chevron. */
+  min-height: 220px;
+  padding: 36px 32px;
   background: rgba(255, 255, 255, 0.04);
   border: 0.5px solid rgba(237, 229, 216, 0.12);
   border-radius: 16px;
@@ -1116,11 +1171,10 @@
   color: inherit;
   font: inherit;
   text-align: center;
-  /* Max-height is the magic that makes the height transition smooth.
-     Default = the closed-card height (matches min-height 180); open
+  /* Default = closed-card height (matches min-height 220); open
      state lifts to a generous ceiling so the content's natural height
      decides where the card actually ends. */
-  max-height: 180px;
+  max-height: 220px;
   overflow: hidden;
   transition: max-height 460ms cubic-bezier(0.16, 1, 0.3, 1),
               background-color 400ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -1143,11 +1197,12 @@
 }
 
 /* Logo - centred when card is closed; anchored to top when open so
-   the company name + body have room beneath. The logo is rendered in
-   the same cream monochrome treatment as the legacy logo row. */
+   the company name + body have room beneath. Logo size bumped per
+   Chris ("make the logo bigger, and I think it will read better"):
+   56px height -> 80px desktop / 64px mobile, max-width up to match. */
 .product-closer-case-logo {
-  height: 56px;
-  max-width: 140px;
+  height: 80px;
+  max-width: 180px;
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);
@@ -1158,7 +1213,7 @@
   opacity: 1;
 }
 @media (max-width: 767px) {
-  .product-closer-case-logo { height: 48px; max-width: 120px; }
+  .product-closer-case-logo { height: 64px; max-width: 150px; }
 }
 
 /* Chevron-down at bottom-right, drawn from CSS borders so we don't

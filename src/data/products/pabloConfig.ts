@@ -81,13 +81,20 @@ export const pabloConfig: ProductPageConfig = {
      words in each headline; the prefix + suffix render in cream
      around them. Icons are interim placeholders - per the brief, real
      illustrations will be supplied as SVG exports in a follow-up. */
+  /* Step headlines shortened to action phrases per Chris's June 2026
+     review of the rendered page. The legacy headlinePrefix /
+     highlightedVerb / headlineSuffix fields stay populated (empty
+     strings) so the StepData type still satisfies; the new `headline`
+     field is what the renderer uses when present. Bodies are
+     unchanged from the brief's locked copy. */
   steps: [
     {
       number: '01',
       iconName: 'ti-receipt',
-      headlinePrefix: 'First, PABLO ',
-      highlightedVerb: 'breaks down',
-      headlineSuffix: ' your bill.',
+      headline: 'Break down your bill',
+      headlinePrefix: '',
+      highlightedVerb: '',
+      headlineSuffix: '',
       body:
         "All PABLO needs is your load shape and a copy of your electricity bill. From those two inputs, it builds a complete picture of your demand and breaks out your costs into every constituent charge.",
       illustrationConcept: 'bill-decomposition',
@@ -95,9 +102,10 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '02',
       iconName: 'ti-activity',
-      headlinePrefix: 'Then PABLO ',
-      highlightedVerb: 'models',
-      headlineSuffix: ' your demand.',
+      headline: 'Understand your demand',
+      headlinePrefix: '',
+      highlightedVerb: '',
+      headlineSuffix: '',
       body:
         "Explore your building's energy profile at half-hourly resolution. See where your peaks are, how weekdays differ from weekends, where the patterns and anomalies hide. Then play with it - model the impact of electrifying heat, installing EV chargers, or shifting your peaks.",
       illustrationConcept: 'demand-profile-half-hourly',
@@ -105,9 +113,10 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '03',
       iconName: 'ti-currency-pound',
-      headlinePrefix: 'Next, PABLO ',
-      highlightedVerb: 'separates',
-      headlineSuffix: ' every charge.',
+      headline: "See what's actually driving cost",
+      headlinePrefix: '',
+      highlightedVerb: '',
+      headlineSuffix: '',
       body:
         "Your electricity rate isn't one number - it's built from over a dozen separate charges, each escalating at a different rate. PABLO separates every component, shows you which charges are rising fastest, and projects them forward.",
       illustrationConcept: 'charges-stack',
@@ -115,9 +124,10 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '04',
       iconName: 'ti-flask',
-      headlinePrefix: 'Then you ',
-      highlightedVerb: 'test',
-      headlineSuffix: ' every option.',
+      headline: 'Test every option',
+      headlinePrefix: '',
+      highlightedVerb: '',
+      headlineSuffix: '',
       body:
         'Solar, wind, battery storage, peak shaving, tariff arbitrage, flexibility revenue. Change an input and watch everything respond - the energy flows, the cost stack, the financial case. See the battery cycling, the solar feeding in, the picture shifting in real time.',
       illustrationConcept: 'options-sandbox',
@@ -125,9 +135,10 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '05',
       iconName: 'ti-chart-bar',
-      headlinePrefix: 'Finally, PABLO ',
-      highlightedVerb: 'builds',
-      headlineSuffix: ' the investment case.',
+      headline: 'Build the investment case',
+      headlinePrefix: '',
+      highlightedVerb: '',
+      headlineSuffix: '',
       body:
         'Layer interventions together, compare scenarios side by side, and see the full financial case over the asset lifetime. The analytical confidence to recommend a strategy - or to challenge one.',
       illustrationConcept: 'investment-case-stack',

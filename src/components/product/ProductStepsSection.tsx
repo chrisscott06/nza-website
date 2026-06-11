@@ -26,6 +26,10 @@ import { ProductIllustration } from './ProductIllustrations'
 export type StepData = {
   number: string
   iconName: string
+  /** New simple single-string headline (PABLO June 2026 redesign).
+   *  When provided, renders directly without the prefix/verb/suffix
+   *  highlight pattern. Other products still use the three-part split. */
+  headline?: string
   headlinePrefix: string
   highlightedVerb: string
   headlineSuffix: string
@@ -91,16 +95,35 @@ export function ProductStepsSection({
                 then both flip to the next step's content as the
                 block boundary passes (Impilo's page-lock feel). */}
             <div className="product-step-text-sticky">
+              {/* Impilo-style step header (PABLO June 2026 redesign):
+                  ICON on the left, NUMBER on the right (justify-between),
+                  a hairline rule below the meta row, then the headline.
+                  Replaces the inline-stacked icon+number row the steps
+                  used before. */}
               <div className="product-step-meta">
                 <span className="product-step-icon" aria-hidden="true">
                   <ProductIcon name={step.iconName} />
                 </span>
                 <span className="product-step-number">{step.number}.</span>
               </div>
+              <div
+                className="product-step-rule"
+                aria-hidden="true"
+              />
               <h3 className="product-step-headline">
-                {step.headlinePrefix}
-                <span className="step-verb">{step.highlightedVerb}</span>
-                {step.headlineSuffix}
+                {/* When a step provides the new simple `headline` field
+                    we render it directly; otherwise we fall back to the
+                    legacy prefix + highlighted verb + suffix pattern
+                    other products still use. */}
+                {step.headline ? (
+                  step.headline
+                ) : (
+                  <>
+                    {step.headlinePrefix}
+                    <span className="step-verb">{step.highlightedVerb}</span>
+                    {step.headlineSuffix}
+                  </>
+                )}
               </h3>
               <p className="product-step-body">{step.body}</p>
 
