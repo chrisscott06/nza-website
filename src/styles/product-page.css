@@ -1513,10 +1513,16 @@
   opacity: 1;
 }
 .pablo-s01-stage--inputs.is-out {
-  transform: translateX(-80px);
+  /* Full swipe-off per Chris: "show them really sliding off the
+     page, fully swiping out rather than the little movement fade
+     away." translateX(-150%) carries the whole composition off the
+     left edge of the frame; the .pablo-s01 wrapper has
+     overflow:hidden so anything past the edge is clipped (the
+     "screen within the window" feel). */
+  transform: translateX(-150%);
   opacity: 0;
-  transition: transform 600ms cubic-bezier(0.65, 0, 0.35, 1),
-              opacity 600ms cubic-bezier(0.65, 0, 0.35, 1);
+  transition: transform 700ms cubic-bezier(0.7, 0, 0.84, 0),
+              opacity 700ms cubic-bezier(0.7, 0, 0.84, 0);
 }
 
 .pablo-s01-inputs-svg {
@@ -1555,16 +1561,35 @@
   max-height: 480px;
   aspect-ratio: 1 / 1;
 }
-
-/* Recharts puts its SVG into the ResponsiveContainer wrapper; make
-   sure that wrapper takes the full donut-frame box. */
-.pablo-s01-donut-frame .recharts-wrapper,
-.pablo-s01-donut-frame .recharts-surface {
-  width: 100% !important;
-  height: 100% !important;
+.pablo-s01-donut-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-/* ---- DONUT LABELS ---- */
+/* ---- SEGMENTS - per-wedge pop animation ----
+   Each <path> wedge in the donut SVG starts collapsed (scale 0
+   centred on its own bounding box) and pops to scale 1 with a
+   spring-overshoot ease when its parent gets .is-in. Per Chris:
+   "popping up, growing, and shrinking again, something jiggly but
+   not too cheesy." transform-box: fill-box anchors the scale to the
+   wedge's own centre so the pop reads as a discrete "this segment
+   is arriving" gesture rather than the whole donut expanding from
+   the centre. */
+.pablo-s01-donut-seg {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 480ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pablo-s01-donut-seg.is-in {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* ---- DONUT LABELS - Stolzl Light per Chris's font request ---- */
 .pablo-s01-donut-labels {
   position: absolute;
   inset: 0;
@@ -1572,16 +1597,21 @@
 }
 .pablo-s01-donut-label {
   position: absolute;
-  transform: translate(-50%, -50%);
-  font-family: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  transform: translate(-50%, -50%) scale(0.92);
+  font-family: var(--font-display);
+  font-weight: 300; /* Stolzl Light - matches the source SVG's font weight */
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  line-height: 1.1;
+  letter-spacing: 0;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Slight scale-up on entry pairs with the segment pop - both arrive
+     with the same "growing into place" gesture. */
+  transition: transform 480ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.pablo-s01-donut-labels.is-in .pablo-s01-donut-label {
+.pablo-s01-donut-label.is-in {
+  transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
 
@@ -1593,11 +1623,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* All transitions skipped - the state machine in the component
-     jumps straight to 'done' in reduced-motion mode, so the
-     stages should already be in their final state. Belt-and-braces
-     transition: none. */
+  /* Belt-and-braces - the component already jumps to 'done' state
+     with all segments visible, but we also kill transitions on the
+     new per-segment animation so nothing tries to animate in. */
   .pablo-s01-stage,
+  .pablo-s01-donut-seg,
   .pablo-s01-donut-label {
     transition: none !important;
   }
