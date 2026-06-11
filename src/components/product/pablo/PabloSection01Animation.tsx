@@ -3,36 +3,30 @@ import { useEffect, useRef, useState } from 'react'
 /**
  * PABLO Section 01 ("Break down your bill") animation.
  *
- * SCROLL-DRIVEN PHASES per Chris's June 2026 round 4 direction:
+ * AUTO-LOOPING ANIMATION per Chris's June 2026 round 8 direction:
+ * the scroll-driven model became too complex. Switch to a simple
+ * timer-driven loop that plays whenever the step is visible.
  *
- *   - Each step's text-block is 300vh tall. The text + frame are
- *     sticky inside, so visuals stay pinned while the user scrolls.
- *   - The animation has 7 discrete phases distributed across the
- *     scroll progress (0..1 measured by how far through the
- *     text-block's scroll runway the user has come).
- *   - Each phase needs scroll room to BREATHE so a fast wheel
- *     gesture doesn't blow through it - phases get 10-20% of the
- *     runway each.
- *   - Bidirectional - scrolling back unwinds.
- *   - PILLS [Your info] [Breakdown] are also clickable; they snap
- *     the phase to that target. Scroll then takes over again on
- *     the next wheel event.
+ * Cycle timeline (~8 seconds total):
  *
- * Phase distribution (scroll progress is 0..1 across 200vh of
- * effective scroll = 300vh block minus 100vh viewport):
+ *   t=0     a_in        inputs (bill + load shape) rise from below
+ *   t=700   a_hold      inputs settled - reading time
+ *   t=2200  b_swipe     inputs slide off left, donut starts arriving
+ *   t=2900  b_donut_in  donut fully slid in, ready for segments
+ *   t=3800  b_segments  6-segment clockwise cascade starts
+ *           ...         (segments 1..6 at 80ms + i*320ms inside the
+ *                        phase, all 6 visible by ~5480ms)
+ *   t=6980  outro       full breakdown fades out
+ *   t=7480  pre         everything hidden (pause before next loop)
+ *   t=8080  a_in        loop restarts
  *
- *   0.00 - 0.08  pre          (16vh)  frame empty
- *   0.08 - 0.22  a_in         (28vh)  inputs (info) rise from below
- *   0.22 - 0.40  a_hold       (36vh)  inputs in place, holding
- *   0.40 - 0.50  b_swipe      (20vh)  inputs swipe off left
- *   0.50 - 0.60  b_donut_in   (20vh)  donut slides in from right
- *   0.60 - 0.82  b_segments   (44vh)  6 segments pop in clockwise
- *                                      (each ~3.7% = ~7vh of scroll)
- *   0.82 - 0.90  done         (16vh)  full breakdown, hold
- *   0.90 - 1.00  outro        (20vh)  graphic fades out as user
- *                                      scrolls toward next step
+ * The loop fires once the step's text-block enters the active band
+ * (same -40%/-40% rootMargin as ProductStepsSection's active-step
+ * IO), and then runs indefinitely while the component is mounted.
+ * User scrolls naturally between steps - the animation just plays
+ * on repeat in the background.
  *
- * prefers-reduced-motion jumps straight to 'done'.
+ * prefers-reduced-motion holds 'done' state (no loop).
  */
 
 const DONUT_DATA = [
@@ -112,74 +106,20 @@ type Phase =
   | 'done'
   | 'outro'
 
-/* Scroll-progress phase thresholds (upper bound of each phase).
-   The 'pre' and 'a_in' phases are NOT scroll-driven - they fire on
-   viewport entry via the IO effect, before scroll progression takes
-   over. From a_hold onwards, scroll advances the phase. */
-const PHASE_BOUNDS = {
-  aHoldEnd:     0.30,
-  bSwipeEnd:    0.42,
-  bDonutInEnd:  0.54,
-  bSegmentsEnd: 0.80,
-  doneEnd:      0.92,
-  /* >= doneEnd -> outro */
+/* Cycle timeline - absolute ms offsets from the start of each loop.
+   Tweak these to retime the animation. */
+const CYCLE = {
+  a_in_at:        0,     /* inputs rise */
+  a_hold_at:      700,
+  b_swipe_at:     2200,  /* inputs swipe off, donut starts arriving */
+  b_donut_in_at:  2900,  /* donut fully landed */
+  b_segments_at:  3800,  /* cascade begins */
+  segments_initial_delay: 80,
+  segments_stagger:       320,  /* each segment takes 320ms more */
+  outro_at:       6980,  /* fade out everything */
+  pre_at:         7480,  /* invisible / reset */
+  next_loop_at:   8080,  /* restart */
 } as const
-
-function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.aHoldEnd) return 'a_hold'
-  if (p < PHASE_BOUNDS.bSwipeEnd) return 'b_swipe'
-  if (p < PHASE_BOUNDS.bDonutInEnd) return 'b_donut_in'
-  if (p < PHASE_BOUNDS.bSegmentsEnd) return 'b_segments'
-  if (p < PHASE_BOUNDS.doneEnd) return 'done'
-  return 'outro'
-}
-
-/* Segment cascade stagger. Each segment "pops in" with its own CSS
-   animation; the stagger is how long between consecutive pops. 320ms
-   feels like a confident clockwise build - quick enough to keep
-   momentum, slow enough that each pop reads as its own moment. Chris:
-   "the donut chart... popping up nice and slow". Time-based instead
-   of tied to scroll so the cascade always plays at the SAME pace
-   regardless of how fast the user scrolls past the segments phase. */
-const SEGMENT_STAGGER_MS = 320
-
-/* Entry timing. The animation auto-plays its first content state
-   (a_in) the moment the step's text-block enters the active band -
-   the user shouldn't have to scroll AGAIN to see anything. Then a
-   soft lock holds the phase at a_hold for ENTRY_LOCK_MS so a fast
-   wheel push can't blow past the inputs. After the lock, monotonic
-   scroll takes over and the user can advance to the donut. */
-const A_IN_DURATION_MS = 700
-const ENTRY_LOCK_MS = 1500
-
-/* Per-phase animation locks. When phase enters a key with a non-
-   zero value, the RAF tick refuses to advance past it for the
-   given duration - even if the user's scroll progress is way past.
-   This is what gives Chris the "you can't fast-forward past the
-   donut build" feel. Combined with the one-step-at-a-time
-   advancement below, fast scroll plays each transition out at its
-   own pace instead of skipping straight to the end. */
-const ANIMATION_LOCK_MS: Partial<Record<Phase, number>> = {
-  b_swipe: 700,      /* inputs swipe off + donut starts sliding in */
-  b_donut_in: 900,   /* donut settles centred in the frame */
-  b_segments: 2200,  /* 6-segment cascade + small buffer */
-}
-
-/* Phase ordering used by the RAF tick to enforce "advance only ONE
-   step per tick" - if computed phase is many steps ahead of current
-   (fast scroll), we step ONE forward instead of jumping. Combined
-   with ANIMATION_LOCK_MS above, fast scroll still walks through
-   every transition rather than skipping them. */
-const PHASE_ORDER: Phase[] = [
-  'pre',
-  'a_in',
-  'a_hold',
-  'b_swipe',
-  'b_donut_in',
-  'b_segments',
-  'done',
-  'outro',
-]
 
 export function PabloSection01Animation({
   stepIndex,
@@ -188,35 +128,14 @@ export function PabloSection01Animation({
 }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<Phase>('pre')
-  /* Pill override - clicked pill state stays until the next forward
-     scroll event. null = no override, follow scroll. */
-  const pillOverride = useRef<Phase | null>(null)
-  /* Highest scroll progress reached. The phase is computed from
-     THIS, not the current progress. So scrolling back UP doesn't
-     regress the animation - it stays at the furthest state it
-     reached. Per Chris: "on the way back up, it just leaves it
-     on whatever the final bit of the graphic was". */
-  const maxProgressRef = useRef(0)
-  /* Entry state machine - fired once when the step's text-block
-     enters the active band. While !entryFired the RAF tick doesn't
-     touch phase (phase stays 'pre'). While !entryUnlocked the RAF
-     tick still doesn't advance phase via scroll - lets the entry
-     animation play AND keeps the user pinned on the first content
-     state for a beat so a fast wheel push can't skip past it. */
-  const entryFired = useRef(false)
-  const entryUnlocked = useRef(false)
-  const entryTimers = useRef<number[]>([])
-  /* Per-phase animation lock. When phase enters a state listed in
-     ANIMATION_LOCK_MS, this ref is set to that phase and cleared
-     after the lock duration. RAF tick refuses to advance past
-     the locked phase while it's set. */
-  const animationLockedPhase = useRef<Phase | null>(null)
-  /* How many segments have popped in so far (0 -> 6). Driven by a
-     time-based cascade triggered when phase first enters b_segments. */
   const [visibleSegments, setVisibleSegments] = useState(0)
-  const segmentCascadeStarted = useRef(false)
-  const segmentTimers = useRef<number[]>([])
   const [reduced, setReduced] = useState(false)
+  /* Has the IO entry trigger fired? We only start the loop once,
+     when the step first enters the active band. */
+  const loopStarted = useRef(false)
+  /* All pending timers for the current loop iteration - cleared
+     before each new iteration and on unmount. */
+  const cycleTimers = useRef<number[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -226,18 +145,14 @@ export function PabloSection01Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Entry trigger - when the step's text-block enters the active
-     band (same rootMargin as ProductStepsSection's active-step IO),
-     the user has "landed" on this step. Auto-play a_in (inputs
-     rise) then advance to a_hold; soft-lock scroll progression for
-     ENTRY_LOCK_MS so the user actually SEES the inputs before scroll
-     can advance to the donut. Per Chris: "as soon as the text lands
-     and the pages are there, the bill plus load shape needs to pop
-     up. Then you scroll, and then it's the donut chart." */
+  /* Entry trigger + auto-loop. Fires once when the step's text-block
+     enters the active band (same rootMargin as
+     ProductStepsSection's active-step IO). From there the loop
+     runs indefinitely while the component is mounted - each cycle
+     replays the inputs-rise -> swap -> donut-build -> fade-out
+     timeline, with a short pause before restarting. */
   useEffect(() => {
     if (reduced) {
-      entryFired.current = true
-      entryUnlocked.current = true
       setPhase('done')
       setVisibleSegments(DONUT_DATA.length)
       return
@@ -248,191 +163,69 @@ export function PabloSection01Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
+    let cancelled = false
+
+    const clearCycleTimers = () => {
+      cycleTimers.current.forEach((t) => window.clearTimeout(t))
+      cycleTimers.current = []
+    }
+
+    const schedule = (cb: () => void, delay: number) => {
+      const t = window.setTimeout(() => {
+        if (!cancelled) cb()
+      }, delay)
+      cycleTimers.current.push(t)
+    }
+
+    const runCycle = () => {
+      if (cancelled) return
+      clearCycleTimers()
+
+      /* t=0: inputs rise. */
+      setPhase('a_in')
+      setVisibleSegments(0)
+
+      schedule(() => setPhase('a_hold'),     CYCLE.a_hold_at)
+      schedule(() => setPhase('b_swipe'),    CYCLE.b_swipe_at)
+      schedule(() => setPhase('b_donut_in'), CYCLE.b_donut_in_at)
+      schedule(() => setPhase('b_segments'), CYCLE.b_segments_at)
+
+      /* Segment-by-segment cascade inside b_segments. */
+      for (let i = 1; i <= DONUT_DATA.length; i++) {
+        const at =
+          CYCLE.b_segments_at +
+          CYCLE.segments_initial_delay +
+          (i - 1) * CYCLE.segments_stagger
+        const target = i
+        schedule(() => setVisibleSegments(target), at)
+      }
+
+      schedule(() => setPhase('outro'), CYCLE.outro_at)
+      schedule(() => {
+        setPhase('pre')
+        setVisibleSegments(0)
+      }, CYCLE.pre_at)
+
+      schedule(runCycle, CYCLE.next_loop_at)
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !entryFired.current) {
-          entryFired.current = true
+        if (entry.isIntersecting && !loopStarted.current) {
+          loopStarted.current = true
           io.disconnect()
-          /* Play the inputs-rise. */
-          setPhase('a_in')
-          /* a_in finishes -> a_hold. */
-          const t1 = window.setTimeout(() => {
-            setPhase('a_hold')
-          }, A_IN_DURATION_MS)
-          entryTimers.current.push(t1)
-          /* Unlock - scroll can now drive phases. Reset
-             maxProgress to at LEAST aHoldEnd so we don't
-             regress to a_in if the user immediately scrolls
-             forward. */
-          const t2 = window.setTimeout(() => {
-            entryUnlocked.current = true
-            maxProgressRef.current = Math.max(
-              maxProgressRef.current,
-              PHASE_BOUNDS.aHoldEnd - 0.001,
-            )
-          }, ENTRY_LOCK_MS)
-          entryTimers.current.push(t2)
+          runCycle()
         }
       },
       { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
     )
     io.observe(block)
-    return () => io.disconnect()
-  }, [stepIndex, reduced])
-
-  /* MONOTONIC scroll-driven phase. RAF polls the text-block's
-     viewport position; we keep a running max of progress so a
-     scroll-back doesn't drag the animation back through earlier
-     phases. While the entry lock is active (entryUnlocked still
-     false), the tick observes scroll but doesn't push phase past
-     a_hold - that's the "you can't scroll past the first one"
-     guard Chris asked for. */
-  useEffect(() => {
-    if (reduced) return
-    const blocks = document.querySelectorAll<HTMLElement>(
-      '.product-step-text-block',
-    )
-    const block = blocks[stepIndex]
-    if (!block) return
-
-    let frameId = 0
-    let lastProgress = -1
-    const tick = () => {
-      const rect = block.getBoundingClientRect()
-      const scrollRange = rect.height - window.innerHeight
-      if (scrollRange > 0) {
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
-        if (Math.abs(progress - lastProgress) > 0.002) {
-          lastProgress = progress
-          /* Scroll moved -> clear any pill override so scroll wins. */
-          if (pillOverride.current !== null) pillOverride.current = null
-          if (entryFired.current && entryUnlocked.current) {
-            /* Monotonic - track the furthest scroll progress reached. */
-            if (progress > maxProgressRef.current) {
-              maxProgressRef.current = progress
-            }
-            /* Phase advancement is gated:
-               1. If an animation lock is active, refuse to advance
-                  past the locked phase (keep current).
-               2. Else allow only ONE step forward per tick - even
-                  if max progress is way past, we step one and pick
-                  up a fresh lock for that step's animation. The
-                  next tick can advance one more. This is what
-                  enforces "you can't fast-forward past the build"
-                  on fast scrolls. */
-            const computedPhase = phaseFromProgress(maxProgressRef.current)
-            setPhase((curr) => {
-              if (computedPhase === curr) return curr
-              if (animationLockedPhase.current !== null) {
-                return curr
-              }
-              const currIdx = PHASE_ORDER.indexOf(curr)
-              const targetIdx = PHASE_ORDER.indexOf(computedPhase)
-              if (targetIdx > currIdx + 1) {
-                return PHASE_ORDER[currIdx + 1]
-              }
-              return computedPhase
-            })
-          }
-          /* While the entry lock is active, scroll moves but the
-             phase stays at a_hold (or a_in mid-transition). The
-             entry timers handle the phase changes during this
-             period; we just observe scroll. */
-        }
-      }
-      frameId = window.requestAnimationFrame(tick)
-    }
-    frameId = window.requestAnimationFrame(tick)
     return () => {
-      if (frameId) window.cancelAnimationFrame(frameId)
+      cancelled = true
+      io.disconnect()
+      clearCycleTimers()
     }
   }, [stepIndex, reduced])
-
-  /* Clear any pending entry timers on unmount. */
-  useEffect(() => {
-    return () => {
-      entryTimers.current.forEach((t) => window.clearTimeout(t))
-      entryTimers.current = []
-    }
-  }, [])
-
-  /* Animation lock - when phase enters a state with an
-     ANIMATION_LOCK_MS entry, set the lock and clear it after the
-     duration so phase advancement can resume. */
-  useEffect(() => {
-    const lockMs = ANIMATION_LOCK_MS[phase]
-    if (lockMs && lockMs > 0) {
-      animationLockedPhase.current = phase
-      const t = window.setTimeout(() => {
-        animationLockedPhase.current = null
-      }, lockMs)
-      return () => {
-        window.clearTimeout(t)
-        animationLockedPhase.current = null
-      }
-    }
-    animationLockedPhase.current = null
-    return undefined
-  }, [phase])
-
-  /* Pill click - snap to a representative phase for that view.
-     Scroll will overwrite this on the next wheel event. */
-  const onPillClick = (target: 'info' | 'breakdown') => {
-    if (target === 'info') {
-      pillOverride.current = 'a_hold'
-      setPhase('a_hold')
-      setVisibleSegments(0)
-    } else {
-      pillOverride.current = 'done'
-      setPhase('done')
-      setVisibleSegments(DONUT_DATA.length)
-    }
-  }
-
-  /* Time-based segment cascade. Runs ONCE when phase first enters
-     b_segments - each segment pops in at SEGMENT_STAGGER_MS apart,
-     so the build always plays at the slow / confident pace Chris
-     liked, regardless of how fast the user scrolls through that
-     phase. If the user blasts past b_segments into 'done', the
-     effect below snaps all segments visible as a fallback. */
-  useEffect(() => {
-    if (
-      phase === 'b_segments' &&
-      !segmentCascadeStarted.current
-    ) {
-      segmentCascadeStarted.current = true
-      let i = 0
-      const fire = () => {
-        i += 1
-        setVisibleSegments(i)
-        if (i < DONUT_DATA.length) {
-          const t = window.setTimeout(fire, SEGMENT_STAGGER_MS)
-          segmentTimers.current.push(t)
-        }
-      }
-      /* Brief breathing room after the donut frame lands. */
-      const tStart = window.setTimeout(fire, 80)
-      segmentTimers.current.push(tStart)
-    }
-    /* If we've blown past the cascade into 'done' or 'outro' (e.g.
-       fast scroll), force all segments visible. Same as a fast-
-       forward to the cascade's end state. */
-    if (
-      (phase === 'done' || phase === 'outro') &&
-      visibleSegments < DONUT_DATA.length
-    ) {
-      setVisibleSegments(DONUT_DATA.length)
-    }
-  }, [phase, visibleSegments])
-
-  /* Clear any pending segment timers on unmount. */
-  useEffect(() => {
-    return () => {
-      segmentTimers.current.forEach((t) => window.clearTimeout(t))
-      segmentTimers.current = []
-    }
-  }, [])
 
   /* Derived visibility flags. */
   const inputsVisible = phase === 'a_in' || phase === 'a_hold'
@@ -448,13 +241,6 @@ export function PabloSection01Animation({
     phase === 'done' ||
     phase === 'outro'
   const isOutro = phase === 'outro'
-
-  /* Pill highlight - reflect the rough "current view" so the user
-     sees which composition is on stage. */
-  const pillView: 'info' | 'breakdown' =
-    phase === 'pre' || phase === 'a_in' || phase === 'a_hold'
-      ? 'info'
-      : 'breakdown'
 
   return (
     <div
@@ -521,30 +307,6 @@ export function PabloSection01Animation({
         </div>
       </div>
 
-      {/* Pills - clickable snap-to controls. Scroll still drives the
-          phase, so a click is just a momentary jump that gets
-          overridden as soon as the user scrolls again. */}
-      <div className="pablo-tab-pills">
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' + (pillView === 'info' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('info')}
-        >
-          Your info
-        </button>
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' +
-            (pillView === 'breakdown' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('breakdown')}
-        >
-          Breakdown
-        </button>
-      </div>
     </div>
   )
 }

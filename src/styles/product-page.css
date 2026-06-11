@@ -689,23 +689,6 @@
   }
 }
 
-/* SCROLLYTELL RUNWAY - PABLO sections 01/02/03 each get 300vh of
-   scroll runway so the user moves through the animation's phases
-   gradually as they scroll. Text + frame are sticky inside, so the
-   visual stays pinned while progress advances through phases like
-   "info appears -> breakdown appears -> graphic leaves". Chris's
-   June 2026 round 3 ask: each animation should get multiple
-   discrete scroll moments and time to breathe before the next one.
-   Mobile drops the shared frame entirely so the runway concept
-   doesn't apply - revert to content height. */
-.product-step-text-block--scrollytell {
-  min-height: 300vh;
-}
-@media (max-width: 1023px) {
-  .product-step-text-block--scrollytell {
-    min-height: auto;
-  }
-}
 
 /* THE STICKY TEXT - the content that page-locks during a step's
    scroll range. The Impilo mechanic Chris asked for: text stays

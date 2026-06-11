@@ -98,7 +98,6 @@ export const pabloConfig: ProductPageConfig = {
       body:
         "All PABLO needs is your load shape and a copy of your electricity bill. From those two inputs, it builds a complete picture of your demand and breaks out your costs into every constituent charge.",
       illustrationConcept: 'bill-decomposition',
-      scrollytell: true,
     },
     {
       number: '02',
@@ -110,7 +109,6 @@ export const pabloConfig: ProductPageConfig = {
       body:
         "Explore your building's energy profile at half-hourly resolution. See where your peaks are, how weekdays differ from weekends, where the patterns and anomalies hide. Then play with it - model the impact of electrifying heat, installing EV chargers, or shifting your peaks.",
       illustrationConcept: 'demand-profile-half-hourly',
-      scrollytell: true,
     },
     {
       number: '03',
@@ -122,7 +120,6 @@ export const pabloConfig: ProductPageConfig = {
       body:
         "Your electricity rate isn't one number - it's built from over a dozen separate charges, each escalating at a different rate. PABLO separates every component, shows you which charges are rising fastest, and projects them forward.",
       illustrationConcept: 'charges-stack',
-      scrollytell: true,
     },
     {
       number: '04',

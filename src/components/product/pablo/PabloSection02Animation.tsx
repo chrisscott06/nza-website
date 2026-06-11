@@ -11,75 +11,43 @@ import {
 /**
  * PABLO Section 02 ("Understand your demand") animation.
  *
- * SCROLL-DRIVEN PHASES per Chris's June 2026 round 4 direction:
+ * AUTO-LOOPING ANIMATION per Chris's June 2026 round 8 direction.
+ * Scroll-driven approach was abandoned in favour of a simple timed
+ * loop. While the step is visible the line cycles through:
  *
- *   - 300vh runway (block --scrollytell).
- *   - The user scrolls THROUGH the section and the chart progresses
- *     phase by phase. Each phase gets ~25% of the runway = ~50vh of
- *     scroll, so a single firm wheel push doesn't blow through it.
+ *   t=0     year   chart fades in with the 1-year shape
+ *   t=2000  month  line MORPHS to MARCH (Recharts 900ms morph)
+ *   t=4000  week   line MORPHS to WEEK OF 10 MAR
+ *   t=6000  outro  chart fades back out
+ *   t=6500  pre    invisible / reset
+ *   t=7100  year   loop restarts
  *
- *   0.00 - 0.15  pre    chart empty (frame still has its dots)
- *   0.15 - 0.40  year   chart fades in with the 1-year shape
- *   0.40 - 0.60  month  line MORPHS in place to MARCH
- *   0.60 - 0.85  week   line MORPHS in place to WEEK OF 10 MAR
- *   0.85 - 1.00  outro  chart fades back out before next step
- *
- * The morph (squash and stretch) is achieved by resampling all
- * three source slices to the same length (N_POINTS=168) and keeping
- * the <Line> element stable - Recharts' isAnimationActive
+ * The morph (squash and stretch) is still the existing trick:
+ * resample all three source slices to N_POINTS=168 indexed points,
+ * keep the <Line> element stable so Recharts' isAnimationActive
  * interpolates each point's y value over 900ms.
  *
  * Y domain is LOCKED at [0, 80] kW across all three states so the
- * scale stays consistent and peaks aren't normalised.
+ * scale stays consistent.
  *
- * Pills [1 YEAR] [1 MONTH] [1 WEEK] snap the phase to that view.
- * The next wheel event lets scroll take over again.
- *
- * prefers-reduced-motion jumps straight to the week view.
+ * prefers-reduced-motion holds the 'week' state with no loop.
  */
 
 type Phase = 'pre' | 'year' | 'month' | 'week' | 'outro'
 
-/* Common length for all three datasets - chosen so the week view
-   (168 points = one point per hour) stays at full resolution and
-   the year + month views get downsampled to fit. */
+/* Common length for all three datasets - week stays at full hourly
+   resolution (168 points), year + month get downsampled to fit. */
 const N_POINTS = 168
 
-/* Scroll-progress phase thresholds (upper bound of each phase).
-   'pre' fires on initial mount; 'year' is set by the IO entry
-   trigger when the step's text-block enters the active band -
-   user shouldn't have to scroll AGAIN to see the chart. From
-   yearEnd onwards, scroll drives the morph between time-windows. */
-const PHASE_BOUNDS = {
-  yearEnd:  0.35,
-  monthEnd: 0.62,
-  weekEnd:  0.88,
-  /* >= weekEnd -> outro */
+/* Cycle timeline in ms. */
+const CYCLE = {
+  year_at:      0,
+  month_at:     2000,
+  week_at:      4000,
+  outro_at:     6000,
+  pre_at:       6500,
+  next_loop_at: 7100,
 } as const
-
-function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.yearEnd) return 'year'
-  if (p < PHASE_BOUNDS.monthEnd) return 'month'
-  if (p < PHASE_BOUNDS.weekEnd) return 'week'
-  return 'outro'
-}
-
-/* Entry timing - same pattern as Section 01. */
-const ENTRY_LOCK_MS = 1500
-
-/* Per-phase animation lock. When phase enters 'month' or 'week'
-   the Recharts <Line> is mid-morph (squashes-and-stretches over
-   900ms via isAnimationActive). If we let scroll advance the
-   phase again during that window the morph never completes -
-   Chris's exact complaint. Locking for ~1100ms (Recharts 900ms +
-   small buffer) lets each morph finish before scroll can push to
-   the next time-window. */
-const ANIMATION_LOCK_MS: Partial<Record<Phase, number>> = {
-  month: 1100,
-  week: 1100,
-}
-
-const PHASE_ORDER: Phase[] = ['pre', 'year', 'month', 'week', 'outro']
 
 /* Source data starts 2025-01-01T00:00 hourly. March 1 sits at hour
    (31 + 28) * 24 = 1416. 10 March is 9 days into March = 1416 + 9*24
@@ -167,23 +135,8 @@ export function PabloSection02Animation({
   const [values, setValues] = useState<number[] | null>(null)
   const [phase, setPhase] = useState<Phase>('pre')
   const [reduced, setReduced] = useState(false)
-  /* Pill override - takes precedence over the scroll-derived phase
-     until the next scroll event clears it. */
-  const pillOverride = useRef<Phase | null>(null)
-  /* Monotonic - highest scroll progress reached. Scrolling back UP
-     doesn't drag the phase backwards; the chart sits at whichever
-     view the user last reached. Per Chris's June 2026 round 5:
-     "on the way back up, it just leaves it on whatever the final
-     bit of the graphic was". */
-  const maxProgressRef = useRef(0)
-  /* Entry state - phase becomes 'year' (chart fades in) the moment
-     the text-block crosses the active band; soft lock for
-     ENTRY_LOCK_MS so scroll can't immediately blow past it. */
-  const entryFired = useRef(false)
-  const entryUnlocked = useRef(false)
-  const entryTimers = useRef<number[]>([])
-  /* Per-phase morph lock. */
-  const animationLockedPhase = useRef<Phase | null>(null)
+  const loopStarted = useRef(false)
+  const cycleTimers = useRef<number[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -208,16 +161,12 @@ export function PabloSection02Animation({
     }
   }, [])
 
-  /* Entry trigger - fires once when the step's text-block crosses
-     the active band. Sets phase to 'year' so the chart fades in
-     IMMEDIATELY when the user lands on the step (no extra scroll
-     needed). Soft lock for ENTRY_LOCK_MS so a fast wheel push
-     can't morph straight to month/week before the user has even
-     seen the 1-year shape. */
+  /* Entry trigger + auto-loop. Same pattern as Section 01: IO on
+     text-block crossing the active band kicks off a cycle that
+     replays the year -> month -> week -> outro morph sequence
+     indefinitely. */
   useEffect(() => {
     if (reduced) {
-      entryFired.current = true
-      entryUnlocked.current = true
       setPhase('week')
       return
     }
@@ -227,109 +176,49 @@ export function PabloSection02Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
+    let cancelled = false
+
+    const clearCycleTimers = () => {
+      cycleTimers.current.forEach((t) => window.clearTimeout(t))
+      cycleTimers.current = []
+    }
+
+    const schedule = (cb: () => void, delay: number) => {
+      const t = window.setTimeout(() => {
+        if (!cancelled) cb()
+      }, delay)
+      cycleTimers.current.push(t)
+    }
+
+    const runCycle = () => {
+      if (cancelled) return
+      clearCycleTimers()
+
+      setPhase('year')
+      schedule(() => setPhase('month'), CYCLE.month_at)
+      schedule(() => setPhase('week'),  CYCLE.week_at)
+      schedule(() => setPhase('outro'), CYCLE.outro_at)
+      schedule(() => setPhase('pre'),   CYCLE.pre_at)
+      schedule(runCycle,                CYCLE.next_loop_at)
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !entryFired.current) {
-          entryFired.current = true
+        if (entry.isIntersecting && !loopStarted.current) {
+          loopStarted.current = true
           io.disconnect()
-          setPhase('year')
-          const t = window.setTimeout(() => {
-            entryUnlocked.current = true
-            maxProgressRef.current = Math.max(
-              maxProgressRef.current,
-              PHASE_BOUNDS.yearEnd - 0.001,
-            )
-          }, ENTRY_LOCK_MS)
-          entryTimers.current.push(t)
+          runCycle()
         }
       },
       { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
     )
     io.observe(block)
-    return () => io.disconnect()
-  }, [stepIndex, reduced])
-
-  /* Monotonic scroll-driven phase. RAF polls the text-block.
-     While the entry lock is active scroll moves but the phase
-     stays at 'year'. */
-  useEffect(() => {
-    if (reduced) return
-    const blocks = document.querySelectorAll<HTMLElement>(
-      '.product-step-text-block',
-    )
-    const block = blocks[stepIndex]
-    if (!block) return
-
-    let frameId = 0
-    let lastProgress = -1
-    const tick = () => {
-      const rect = block.getBoundingClientRect()
-      const scrollRange = rect.height - window.innerHeight
-      if (scrollRange > 0) {
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
-        if (Math.abs(progress - lastProgress) > 0.002) {
-          lastProgress = progress
-          if (pillOverride.current !== null) pillOverride.current = null
-          if (entryFired.current && entryUnlocked.current) {
-            if (progress > maxProgressRef.current) {
-              maxProgressRef.current = progress
-            }
-            /* Same one-step + lock guard as Section 01. Locks make
-               sure each morph completes before the next can start. */
-            const computedPhase = phaseFromProgress(maxProgressRef.current)
-            setPhase((curr) => {
-              if (computedPhase === curr) return curr
-              if (animationLockedPhase.current !== null) return curr
-              const currIdx = PHASE_ORDER.indexOf(curr)
-              const targetIdx = PHASE_ORDER.indexOf(computedPhase)
-              if (targetIdx > currIdx + 1) {
-                return PHASE_ORDER[currIdx + 1]
-              }
-              return computedPhase
-            })
-          }
-        }
-      }
-      frameId = window.requestAnimationFrame(tick)
-    }
-    frameId = window.requestAnimationFrame(tick)
     return () => {
-      if (frameId) window.cancelAnimationFrame(frameId)
+      cancelled = true
+      io.disconnect()
+      clearCycleTimers()
     }
   }, [stepIndex, reduced])
-
-  /* Clear entry timers on unmount. */
-  useEffect(() => {
-    return () => {
-      entryTimers.current.forEach((t) => window.clearTimeout(t))
-      entryTimers.current = []
-    }
-  }, [])
-
-  /* Animation lock per phase. */
-  useEffect(() => {
-    const lockMs = ANIMATION_LOCK_MS[phase]
-    if (lockMs && lockMs > 0) {
-      animationLockedPhase.current = phase
-      const t = window.setTimeout(() => {
-        animationLockedPhase.current = null
-      }, lockMs)
-      return () => {
-        window.clearTimeout(t)
-        animationLockedPhase.current = null
-      }
-    }
-    animationLockedPhase.current = null
-    return undefined
-  }, [phase])
-
-  /* Pill click - snap to that phase. Scroll overwrites this on the
-     next wheel event. */
-  const onPillClick = (target: 'year' | 'month' | 'week') => {
-    pillOverride.current = target
-    setPhase(target)
-  }
 
   /* Pre-compute resampled datasets - all N_POINTS long. */
   const datasets = useMemo(() => {
@@ -366,9 +255,11 @@ export function PabloSection02Animation({
     return yArr.map((v, i) => ({ t: i, kw: v }))
   }, [datasets, phase])
 
-  /* Pill highlight - 'outro' = "last seen view is week", so we keep
-     [1 Week] active during the fade. */
-  const pillView: 'year' | 'month' | 'week' =
+  /* Whichever named view the chart is currently showing - used for
+     the X-axis tick labels + tick positions. 'outro' keeps showing
+     the week dataset so the line doesn't snap back to year during
+     the fade. */
+  const namedView: 'year' | 'month' | 'week' =
     phase === 'month' ? 'month' : phase === 'year' ? 'year' : 'week'
 
   const labelText =
@@ -384,7 +275,7 @@ export function PabloSection02Animation({
      are the fade-in and fade-out moments. */
   const chartIsIn = phase !== 'pre' && phase !== 'outro'
   const xTicks =
-    phase !== 'pre' && phase !== 'outro' ? ticksFor(pillView) : []
+    phase !== 'pre' && phase !== 'outro' ? ticksFor(namedView) : []
 
   const isOutro = phase === 'outro'
 
@@ -427,7 +318,7 @@ export function PabloSection02Animation({
                 type="number"
                 domain={[0, N_POINTS - 1]}
                 ticks={xTicks}
-                tickFormatter={(t: number) => formatTick(t, pillView)}
+                tickFormatter={(t: number) => formatTick(t, namedView)}
                 tick={{
                   fontSize: 10,
                   fill: 'rgba(26, 37, 64, 0.62)',
@@ -487,37 +378,6 @@ export function PabloSection02Animation({
         )}
       </div>
 
-      {/* Tab pills at the bottom of the frame - snap to a phase.
-          Scroll takes over again on the next wheel event. */}
-      <div className="pablo-tab-pills">
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' + (pillView === 'year' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('year')}
-        >
-          1 Year
-        </button>
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' + (pillView === 'month' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('month')}
-        >
-          1 Month
-        </button>
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' + (pillView === 'week' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('week')}
-        >
-          1 Week
-        </button>
-      </div>
     </div>
   )
 }

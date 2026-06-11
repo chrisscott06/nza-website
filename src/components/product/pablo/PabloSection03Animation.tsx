@@ -14,68 +14,31 @@ import {
 /**
  * PABLO Section 03 ("See what's actually driving cost").
  *
- * Two-phase scroll-driven animation per
- * nza-pablo-section-03-animation-brief.md:
+ * AUTO-LOOPING ANIMATION per Chris's June 2026 round 8 direction.
+ * Two-phase composition (Phase A comparison + Phase B 15yr
+ * projection) - now driven by a timed loop instead of scroll.
  *
- *   Phase A "comparison"  - two stacked bars side by side:
- *                            "Your Bill"      = Retail Tariff + DUoS
- *                                                (the visitor's mental
- *                                                 model of their bill)
- *                            "Your Breakdown" = the actual six-component
- *                                                breakdown PABLO sees
- *                            Both sum to the same total. The point:
- *                            same total, very different inside.
+ *   t=0     comparison  Phase A bars grow up (Recharts ~600ms
+ *                       per Bar + small staggered animationBegin)
+ *   t=3500  projection  Phase A fades out, Phase B fades in +
+ *                       bars grow ~1500ms + dashed line draws
+ *                       in ~800ms + 2040 endpoint dot pops
+ *   t=7500  outro       chart fades out
+ *   t=8000  pre         invisible / reset
+ *   t=8600  comparison  loop restarts
  *
- *   Phase B "projection"  - 15-year stacked bar projection
- *                            (2026 - 2040) with a dashed total-trajectory
- *                            line across the top and a red marker on
- *                            the 2040 endpoint. Each component grows at
- *                            its own escalation rate (DUoS + TNUoS
- *                            rising fastest at 3% pa).
- *
- * Scroll-progress phases (same model as Sections 01 + 02):
- *
- *   0.00 - 0.10  pre          frame empty
- *   0.10 - 0.45  comparison   Phase A visible
- *   0.45 - 0.85  projection   Phase A fades out, Phase B fades in
- *                              + line draws in + endpoint dot pops
- *   0.85 - 1.00  outro        chart fades out before next step
- *
- * Pills [Comparison] [Projection] snap the phase. Scroll takes over
- * on the next wheel event.
- *
- * prefers-reduced-motion jumps straight to the projection state.
+ * prefers-reduced-motion holds the 'projection' state with no loop.
  */
 
 type Phase = 'pre' | 'comparison' | 'projection' | 'outro'
 
-/* 'pre' fires on initial mount; 'comparison' is set by the IO
-   entry trigger when the step's text-block enters the active band.
-   From comparisonEnd onwards, scroll advances. */
-const PHASE_BOUNDS = {
-  comparisonEnd: 0.42,
-  projectionEnd: 0.86,
-  /* >= projectionEnd -> outro */
+const CYCLE = {
+  comparison_at: 0,
+  projection_at: 3500,
+  outro_at:      7500,
+  pre_at:        8000,
+  next_loop_at:  8600,
 } as const
-
-function phaseFromProgress(p: number): Phase {
-  if (p < PHASE_BOUNDS.comparisonEnd) return 'comparison'
-  if (p < PHASE_BOUNDS.projectionEnd) return 'projection'
-  return 'outro'
-}
-
-const ENTRY_LOCK_MS = 1500
-
-/* Phase B (projection) is a 2-3 second build: Phase A fades out
-   ~420ms, Phase B fades in ~420ms, stacked bars grow ~1500ms,
-   dashed total line draws in ~800ms, 2040 dot pops in. Lock for
-   2500ms so the full build plays out before scroll can push the
-   user to outro. */
-const ANIMATION_LOCK_MS: Partial<Record<Phase, number>> = {
-  projection: 2500,
-}
-
-const PHASE_ORDER: Phase[] = ['pre', 'comparison', 'projection', 'outro']
 
 /* === DATA ============================================================ */
 
@@ -194,17 +157,8 @@ export function PabloSection03Animation({
 }) {
   const [phase, setPhase] = useState<Phase>('pre')
   const [reduced, setReduced] = useState(false)
-  const pillOverride = useRef<Phase | null>(null)
-  /* Monotonic - highest progress reached. Scroll-back leaves the
-     graphic at whichever phase the user got the furthest into. */
-  const maxProgressRef = useRef(0)
-  /* Entry state - phase becomes 'comparison' the moment the
-     text-block crosses the active band; soft lock for
-     ENTRY_LOCK_MS so scroll can't immediately skip to projection. */
-  const entryFired = useRef(false)
-  const entryUnlocked = useRef(false)
-  const entryTimers = useRef<number[]>([])
-  const animationLockedPhase = useRef<Phase | null>(null)
+  const loopStarted = useRef(false)
+  const cycleTimers = useRef<number[]>([])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -214,14 +168,9 @@ export function PabloSection03Animation({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
-  /* Entry trigger - fires once when the step's text-block crosses
-     the active band. Sets phase to 'comparison' so Phase A fades
-     in IMMEDIATELY. Soft lock for ENTRY_LOCK_MS so the user can
-     compare the bars before scroll fast-forwards to the projection. */
+  /* Entry trigger + auto-loop. */
   useEffect(() => {
     if (reduced) {
-      entryFired.current = true
-      entryUnlocked.current = true
       setPhase('projection')
       return
     }
@@ -231,112 +180,48 @@ export function PabloSection03Animation({
     const block = blocks[stepIndex]
     if (!block) return
 
+    let cancelled = false
+
+    const clearCycleTimers = () => {
+      cycleTimers.current.forEach((t) => window.clearTimeout(t))
+      cycleTimers.current = []
+    }
+
+    const schedule = (cb: () => void, delay: number) => {
+      const t = window.setTimeout(() => {
+        if (!cancelled) cb()
+      }, delay)
+      cycleTimers.current.push(t)
+    }
+
+    const runCycle = () => {
+      if (cancelled) return
+      clearCycleTimers()
+
+      setPhase('comparison')
+      schedule(() => setPhase('projection'), CYCLE.projection_at)
+      schedule(() => setPhase('outro'),      CYCLE.outro_at)
+      schedule(() => setPhase('pre'),        CYCLE.pre_at)
+      schedule(runCycle,                     CYCLE.next_loop_at)
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !entryFired.current) {
-          entryFired.current = true
+        if (entry.isIntersecting && !loopStarted.current) {
+          loopStarted.current = true
           io.disconnect()
-          setPhase('comparison')
-          const t = window.setTimeout(() => {
-            entryUnlocked.current = true
-            maxProgressRef.current = Math.max(
-              maxProgressRef.current,
-              PHASE_BOUNDS.comparisonEnd - 0.001,
-            )
-          }, ENTRY_LOCK_MS)
-          entryTimers.current.push(t)
+          runCycle()
         }
       },
       { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
     )
     io.observe(block)
-    return () => io.disconnect()
-  }, [stepIndex, reduced])
-
-  /* Monotonic scroll-driven phase. RAF polling on the matching
-     text-block. While the entry lock is active scroll moves but
-     the phase stays at 'comparison'. */
-  useEffect(() => {
-    if (reduced) return
-    const blocks = document.querySelectorAll<HTMLElement>(
-      '.product-step-text-block',
-    )
-    const block = blocks[stepIndex]
-    if (!block) return
-
-    let frameId = 0
-    let lastProgress = -1
-    const tick = () => {
-      const rect = block.getBoundingClientRect()
-      const scrollRange = rect.height - window.innerHeight
-      if (scrollRange > 0) {
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
-        if (Math.abs(progress - lastProgress) > 0.002) {
-          lastProgress = progress
-          if (pillOverride.current !== null) pillOverride.current = null
-          if (entryFired.current && entryUnlocked.current) {
-            if (progress > maxProgressRef.current) {
-              maxProgressRef.current = progress
-            }
-            /* One-step + animation lock guard. */
-            const computedPhase = phaseFromProgress(maxProgressRef.current)
-            setPhase((curr) => {
-              if (computedPhase === curr) return curr
-              if (animationLockedPhase.current !== null) return curr
-              const currIdx = PHASE_ORDER.indexOf(curr)
-              const targetIdx = PHASE_ORDER.indexOf(computedPhase)
-              if (targetIdx > currIdx + 1) {
-                return PHASE_ORDER[currIdx + 1]
-              }
-              return computedPhase
-            })
-          }
-        }
-      }
-      frameId = window.requestAnimationFrame(tick)
-    }
-    frameId = window.requestAnimationFrame(tick)
     return () => {
-      if (frameId) window.cancelAnimationFrame(frameId)
+      cancelled = true
+      io.disconnect()
+      clearCycleTimers()
     }
   }, [stepIndex, reduced])
-
-  /* Clear entry timers on unmount. */
-  useEffect(() => {
-    return () => {
-      entryTimers.current.forEach((t) => window.clearTimeout(t))
-      entryTimers.current = []
-    }
-  }, [])
-
-  /* Animation lock per phase. */
-  useEffect(() => {
-    const lockMs = ANIMATION_LOCK_MS[phase]
-    if (lockMs && lockMs > 0) {
-      animationLockedPhase.current = phase
-      const t = window.setTimeout(() => {
-        animationLockedPhase.current = null
-      }, lockMs)
-      return () => {
-        window.clearTimeout(t)
-        animationLockedPhase.current = null
-      }
-    }
-    animationLockedPhase.current = null
-    return undefined
-  }, [phase])
-
-  const onPillClick = (target: 'comparison' | 'projection') => {
-    pillOverride.current = target
-    setPhase(target)
-  }
-
-  /* Active pill - reflects whichever composition is on stage. Outro
-     keeps showing Projection (it was the last seen view) so the pill
-     doesn't jump back to Comparison during the fade. */
-  const pillView: 'comparison' | 'projection' =
-    phase === 'comparison' ? 'comparison' : 'projection'
 
   /* Both charts mount only when their phase is the active one, so
      Recharts replays its bar animations every time the user crosses
@@ -523,29 +408,6 @@ export function PabloSection03Animation({
         )}
       </div>
 
-      {/* Pills */}
-      <div className="pablo-tab-pills">
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' +
-            (pillView === 'comparison' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('comparison')}
-        >
-          Comparison
-        </button>
-        <button
-          type="button"
-          className={
-            'pablo-tab-pill' +
-            (pillView === 'projection' ? ' is-active' : '')
-          }
-          onClick={() => onPillClick('projection')}
-        >
-          Projection
-        </button>
-      </div>
     </div>
   )
 }
