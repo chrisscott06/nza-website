@@ -63,9 +63,18 @@ export const pabloConfig: ProductPageConfig = {
     ],
   },
 
-  transition: {
+  /* SECTION 2 - Manifesto (full-viewport "why" takeover, replaces the
+     old `transition` two-liner per the manifestos brief Movement 2).
+     Real copy locked in Chunk 3; this is the scaffold copy from the
+     brief verbatim, less italic emphasis tags. */
+  manifesto: {
     microLabel: 'WHY PABLO',
-    headline: 'Allowing you to focus on what matters.',
+    headline: 'Where the energy market, the grid, and your building meet.',
+    body:
+      'Commercial electricity is one of the most complex purchases an organisation makes - dynamic markets, more than a dozen separate charges, regulation that keeps moving. PABLO sits at the intersection where the market, the grid, and what happens behind the meter overlap. It turns that complexity into clarity - and gives you the confidence to invest in solar, storage, electrification, and the energy transition.',
+    linkText: 'Read our full mission',
+    linkHref: '/about',
+    accentColor: 'pablo',
   },
 
   letsShow: {

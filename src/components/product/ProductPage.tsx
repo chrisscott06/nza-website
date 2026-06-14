@@ -1,9 +1,11 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
 import { ProductStepsSection } from './ProductStepsSection'
+import { ManifestoBlock, type ManifestoAccent } from './ManifestoBlock'
 import { useContextClass } from '../../hooks/useContextClass'
+import '../../styles/manifesto-block.css'
 
 /**
  * The shared product page template. Renders five sections in order:
@@ -56,10 +58,18 @@ export type ProductPageConfig = {
     ctaHref: string
     screens: BrowserFrameScreen[]
   }
-  /** SECTION 2 - Centred transition headline */
-  transition: {
+  /** SECTION 2 - Full-viewport manifesto block. Replaces the old
+   *  `transition` field as of the manifestos brief
+   *  (docs/briefs/nza-manifestos-and-solutions-brief.md, Movement 2).
+   *  PABLO / decodED / NZ:AI each declare their own manifesto;
+   *  rendered via the shared `ManifestoBlock` component. */
+  manifesto: {
     microLabel: string
-    headline: string
+    headline: string | ReactNode
+    body: string | ReactNode
+    linkText: string
+    linkHref: string
+    accentColor: ManifestoAccent
   }
   /** SECTION 3 - "Let's show you" inline-pill section */
   letsShow: {
@@ -264,18 +274,20 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
       </section>
 
       {/* =========================================================
-          SECTION 2 - CENTRED TRANSITION HEADLINE
+          SECTION 2 - MANIFESTO BLOCK
+          Full-viewport "why" takeover. Replaces the old centred
+          `product-transition` two-liner per the manifestos brief.
+          Per-product accent surface + curved-top anatomy mirrors
+          the home page's coral "We are experts" block.
           ========================================================= */}
-      <section className="product-transition">
-        <div className="product-transition-inner">
-          <MaskReveal as="p" className="product-transition-micro" delay={0}>
-            {config.transition.microLabel}
-          </MaskReveal>
-          <MaskReveal as="h2" className="product-transition-headline" delay={200}>
-            {config.transition.headline}
-          </MaskReveal>
-        </div>
-      </section>
+      <ManifestoBlock
+        microLabel={config.manifesto.microLabel}
+        headline={config.manifesto.headline}
+        body={config.manifesto.body}
+        linkText={config.manifesto.linkText}
+        linkHref={config.manifesto.linkHref}
+        accentColor={config.manifesto.accentColor}
+      />
 
       {/* =========================================================
           SECTION 3 - LET'S SHOW YOU

@@ -1,0 +1,177 @@
+/*
+ * ManifestoBlock - full-viewport "why" takeover.
+ *
+ * Anatomy mirrors the home page's `.how-we-work-page` (the coral "We
+ * are experts in buildings, energy, and climate" block):
+ *   - Full bleed, saturated accent colour
+ *   - Curved top corners (32px desktop, 24px phone)
+ *   - Centred content, ~720px max readable width
+ *   - z-index 1 so it can sit ABOVE a sticky hero behind it later
+ *
+ * This is the static-anatomy chunk - no parallax, no scroll prompt,
+ * no colour transition yet. Those land in Chunk 4 of the
+ * manifestos brief.
+ *
+ * Per-product accent backgrounds: see the placeholder hex values
+ * below. CLAUDE.md forbids coral as a surface, so PABLO uses a
+ * saturated aubergine that lifts away from the hero canvas
+ * (#1F0F2E) rather than the coral accent. decodED uses deep green
+ * per the original product template brief. NZ:AI uses the teal
+ * accent token.
+ *
+ * Spec: docs/briefs/nza-manifestos-and-solutions-brief.md (Movement 2)
+ */
+
+.manifesto-block {
+  position: relative;
+  /* Full viewport takeover. dvh handles iOS Safari's collapsing
+     toolbar; svh as a fallback for older browsers. min- not fixed-
+     so longer copy still reads on narrow screens. */
+  min-height: 100svh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Curved top corners - same "Impilo card pops up" detail as the
+     home page coral block. */
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  /* Above the hero in the z-stack so the manifesto cleanly covers
+     whatever sits behind it once Chunk 4's sticky parallax lands. */
+  z-index: 1;
+  overflow: hidden;
+  /* Default colour for the content - per-product accent classes
+     can override. */
+  color: #FAF5EB;
+}
+
+.manifesto-block-inner {
+  width: 100%;
+  max-width: 720px;
+  padding: clamp(96px, 12vh, 168px) clamp(24px, 5vw, 48px);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* ---------- typography ---------- */
+
+.manifesto-block-micro {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  margin: 0 0 clamp(28px, 3.5vh, 40px) 0;
+}
+
+.manifesto-block-headline {
+  font-family: 'Stolzl', 'Stolzl-Display', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* Italic emphasis fingerprint - DM Serif Display italic, coral,
+   1.12em. Matches the site convention from CLAUDE.md. */
+.manifesto-block-headline em {
+  font-family: 'DM Serif Display', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral, #F75A55);
+  font-size: 1.12em;
+}
+
+.manifesto-block-body {
+  margin-top: clamp(28px, 3.5vh, 40px);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.55;
+  opacity: 0.88;
+}
+
+.manifesto-block-body p {
+  margin: 0;
+}
+
+.manifesto-block-body p + p {
+  margin-top: 1em;
+}
+
+.manifesto-block-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(32px, 4vh, 48px);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 4px;
+  transition: opacity 200ms ease;
+}
+
+.manifesto-block-link:hover {
+  opacity: 0.72;
+}
+
+.manifesto-block-link-arrow {
+  display: inline-block;
+  transition: transform 200ms ease;
+}
+
+.manifesto-block-link:hover .manifesto-block-link-arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- per-product accent backgrounds ---------- */
+/*
+ * Placeholder hex values - flagged in commit for Chris's
+ * confirmation. PABLO can't use coral (locked rule); decodED green
+ * and NZ:AI teal come straight from the existing per-product
+ * tokens in the configs.
+ */
+
+.manifesto-block--pablo {
+  /* Saturated aubergine lifted off PABLO's hero canvas (#1F0F2E).
+     Reads as a distinct PABLO surface without violating the
+     no-coral-as-surface rule. */
+  background: #3D1E5B;
+  color: #FAF5EB;
+}
+
+.manifesto-block--decoded {
+  /* Deep green from the product template brief's decodED tokens. */
+  background: #0F5D43;
+  color: #FAF5EB;
+}
+
+.manifesto-block--nzai {
+  /* NZ:AI accent teal from nzaiConfig.palette.accent. */
+  background: #0F9888;
+  color: #FAF5EB;
+}
+
+/* ---------- phone ---------- */
+
+@media (max-width: 599px) {
+  .manifesto-block {
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+  }
+
+  .manifesto-block-inner {
+    padding: clamp(72px, 12vh, 120px) 20px;
+  }
+}
+
+/* ---------- prefers-reduced-motion ---------- */
+/* No animations in scaffold yet; arrow + link hover transitions are
+   purely interactive and stay even under reduced motion (a 4px
+   translate isn't a vestibular concern). Real entrance animations
+   land in Chunk 4 and will short-circuit there. */

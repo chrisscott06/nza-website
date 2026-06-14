@@ -97,13 +97,20 @@ export const nzaiConfig: ProductPageConfig = {
     ],
   },
 
-  /* v9 BRIDGE - mapped onto the template's transition section.
-     The "tonal-shift work AND narrative-setup work" v9 calls for
-     IS what the transition section does - dark canvas hard-cut into
-     the centred statement that frames the stages below. */
-  transition: {
-    microLabel: 'HOW IT WORKS',
-    headline: 'Three stages. One relationship.',
+  /* SECTION 2 - Manifesto (replaces the v9 bridge / transition slot
+     per the manifestos brief Movement 2). v9's "Three stages. One
+     relationship." was lighter-weight in the old transition spot;
+     the manifesto now carries the full "why" beat at viewport scale.
+     Real copy locked in Chunk 3; this is the brief's scaffold copy
+     verbatim, less italic emphasis. */
+  manifesto: {
+    microLabel: 'WHY NZ:AI',
+    headline: 'Climate action is an inside job.',
+    body:
+      "Real progress on net zero doesn't come from outside reports. It comes from the people inside your organisation - the ones with the relationships, the knowledge, and the context to act. NZ:AI puts NZA's expertise, AI-accelerated tools, and the data you need to act on into your hands. Decode. Build. Partner - three stages, one partnership, kept alive over time.",
+    linkText: 'Read our full mission',
+    linkHref: '/about',
+    accentColor: 'nzai',
   },
 
   letsShow: {

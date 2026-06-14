@@ -55,9 +55,18 @@ export const decodedConfig: ProductPageConfig = {
     ],
   },
 
-  transition: {
+  /* SECTION 2 - Manifesto (replaces the old `transition` two-liner
+     per the manifestos brief Movement 2). Real copy + inline gov.uk
+     link land in Chunk 3; this scaffold uses the brief's locked
+     paragraph 1 body as a plain string for now. */
+  manifesto: {
     microLabel: 'WHY DECODED',
-    headline: 'Making climate action achievable.',
+    headline: 'Good data, in the right hands.',
+    body:
+      "Every educational institution in England is now required to have a climate action plan - covering decarbonisation, adaptation, biodiversity, and education and green careers. Most schools have one person carrying this. Decoded gives them the tools. NZA brings the expertise. And the work doesn't stop at the lead. Decoded puts granular, real, manageable data in the hands of everyone with a part to play - estates teams, teachers, students, parents. Climate action needs every skillset and every perspective, and the data to back them.",
+    linkText: 'Read our full mission',
+    linkHref: '/about',
+    accentColor: 'decoded',
   },
 
   letsShow: {
