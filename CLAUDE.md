@@ -40,7 +40,7 @@ The in-app **DevicePreview** widget (bottom-right floating button, dev-only) ope
 
 - **Preserve the prototype CSS verbatim.** `colors_and_type.css` and `nza-website.css` encode the v2 design system spec — do not refactor into Tailwind utilities. Only add to Tailwind via `@theme` for *new* component work.
 - **Italic emphasis pattern is the typographic fingerprint.** Every headline `<em>` renders as DM Serif Display italic in coral (`#F75A55`), bumped 1.10–1.15em. Never break this rule.
-- **No first-person "we"** in any user-facing copy. Speak about the work, the data, the client.
+- **No first-person "we"** in any user-facing copy. Speak about the work, the data, the client. **One sanctioned exception: `/nz-ai`** — the v9 partnership reframe (see `NZ_AI_Web_Page_Copy_v9.md`) explicitly uses "we" for the human-led Decode/Build/Partner voice. Approved by Chris. The rule still holds everywhere else.
 - **No emoji.** Anywhere — chrome, copy, comments visible to the user.
 - **No gradients in UI chrome.** The NZA logo gradient (orange → pink → purple) is logo-only.
 - **Coral is for moments, never surfaces.** Italic emphasis, the rule lines, accent dots, active-state underlines. Never as a button fill, never as a card or section background. Card #6 on Approach is the *only* sanctioned navy+coral disruption on the paper canvas.
