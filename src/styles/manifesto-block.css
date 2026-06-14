@@ -40,9 +40,11 @@
      whatever sits behind it once Chunk 4's sticky parallax lands. */
   z-index: 1;
   overflow: hidden;
-  /* Default colour for the content - per-product accent classes
-     can override. */
-  color: #FAF5EB;
+  /* Default colour for the content - pure white at full opacity per
+     Chris's post-Chunk-2 feedback: "make sure the text on those
+     manifestos is visible - needs to be white." Per-product accent
+     classes can override. */
+  color: #FFFFFF;
 }
 
 .manifesto-block-inner {
@@ -61,7 +63,8 @@
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  opacity: 0.72;
+  /* Full opacity per Chris's "needs to be white" feedback. */
+  opacity: 1;
   margin: 0 0 clamp(28px, 3.5vh, 40px) 0;
 }
 
@@ -89,7 +92,8 @@
   font-family: 'Inter', system-ui, sans-serif;
   font-size: clamp(17px, 1.4vw, 20px);
   line-height: 1.55;
-  opacity: 0.88;
+  /* Full opacity per Chris's "needs to be white" feedback. */
+  opacity: 1;
 }
 
 .manifesto-block-body p {
@@ -142,19 +146,19 @@
      Reads as a distinct PABLO surface without violating the
      no-coral-as-surface rule. */
   background: #3D1E5B;
-  color: #FAF5EB;
+  color: #FFFFFF;
 }
 
 .manifesto-block--decoded {
   /* Deep green from the product template brief's decodED tokens. */
   background: #0F5D43;
-  color: #FAF5EB;
+  color: #FFFFFF;
 }
 
 .manifesto-block--nzai {
   /* NZ:AI accent teal from nzaiConfig.palette.accent. */
   background: #0F9888;
-  color: #FAF5EB;
+  color: #FFFFFF;
 }
 
 /* ---------- phone ---------- */

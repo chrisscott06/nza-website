@@ -90,20 +90,20 @@ export const pabloConfig: ProductPageConfig = {
      words in each headline; the prefix + suffix render in cream
      around them. Icons are interim placeholders - per the brief, real
      illustrations will be supplied as SVG exports in a follow-up. */
-  /* Step headlines shortened to action phrases per Chris's June 2026
-     review of the rendered page. The legacy headlinePrefix /
-     highlightedVerb / headlineSuffix fields stay populated (empty
-     strings) so the StepData type still satisfies; the new `headline`
-     field is what the renderer uses when present. Bodies are
-     unchanged from the brief's locked copy. */
+  /* Step headlines split into prefix / highlightedVerb / suffix so the
+     verb word renders in PABLO's coral via the template's `.step-verb`
+     class (driven by `palette.stepVerbColour` above). Verb-only colour,
+     no italic. Per Chris's feedback after Chunk 2 of the manifestos
+     brief - on-screen text is identical to the previous `headline`
+     single-string form; only the colour highlight is new. Bodies are
+     unchanged. */
   steps: [
     {
       number: '01',
       iconName: 'ti-receipt',
-      headline: 'Break down your bill',
       headlinePrefix: '',
-      highlightedVerb: '',
-      headlineSuffix: '',
+      highlightedVerb: 'Break down',
+      headlineSuffix: ' your bill',
       body:
         "All PABLO needs is your load shape and a copy of your electricity bill. From those two inputs, it builds a complete picture of your demand and breaks out your costs into every constituent charge.",
       illustrationConcept: 'bill-decomposition',
@@ -111,10 +111,9 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '02',
       iconName: 'ti-activity',
-      headline: 'Understand your demand',
       headlinePrefix: '',
-      highlightedVerb: '',
-      headlineSuffix: '',
+      highlightedVerb: 'Understand',
+      headlineSuffix: ' your demand',
       body:
         "Explore your building's energy profile at half-hourly resolution. See where your peaks are, how weekdays differ from weekends, where the patterns and anomalies hide. Then play with it - model the impact of electrifying heat, installing EV chargers, or shifting your peaks.",
       illustrationConcept: 'demand-profile-half-hourly',
@@ -122,10 +121,9 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '03',
       iconName: 'ti-currency-pound',
-      headline: "See what's actually driving cost",
-      headlinePrefix: '',
-      highlightedVerb: '',
-      headlineSuffix: '',
+      headlinePrefix: "See what's actually ",
+      highlightedVerb: 'driving',
+      headlineSuffix: ' cost',
       body:
         "Your electricity rate isn't one number - it's built from over a dozen separate charges, each escalating at a different rate. PABLO separates every component, shows you which charges are rising fastest, and projects them forward.",
       illustrationConcept: 'charges-stack',
@@ -133,10 +131,9 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '04',
       iconName: 'ti-flask',
-      headline: 'Test every option',
       headlinePrefix: '',
-      highlightedVerb: '',
-      headlineSuffix: '',
+      highlightedVerb: 'Test',
+      headlineSuffix: ' every option',
       body:
         'Solar, wind, battery storage, peak shaving, tariff arbitrage, flexibility revenue. Change an input and watch everything respond - the energy flows, the cost stack, the financial case. See the battery cycling, the solar feeding in, the picture shifting in real time.',
       illustrationConcept: 'options-sandbox',
@@ -144,10 +141,9 @@ export const pabloConfig: ProductPageConfig = {
     {
       number: '05',
       iconName: 'ti-chart-bar',
-      headline: 'Build the investment case',
       headlinePrefix: '',
-      highlightedVerb: '',
-      headlineSuffix: '',
+      highlightedVerb: 'Build',
+      headlineSuffix: ' the investment case',
       body:
         'Layer interventions together, compare scenarios side by side, and see the full financial case over the asset lifetime. The analytical confidence to recommend a strategy - or to challenge one.',
       illustrationConcept: 'investment-case-stack',
