@@ -11,7 +11,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery'
  * Chunks so far:
  *   2 - shell + sticky + layout
  *   3 - logo recolour per context
- *   4 - dropdowns (Our products + About us)
+ *   4 - dropdowns (Our solutions + About us)
  *   5 - CTA variants per context
  *   6 - mobile menu (this chunk)
  *
@@ -133,9 +133,14 @@ export function SiteNav() {
                     )
                   }
                 >
-                  Our products
+                  Our solutions
                   <span className="site-nav-chevron" aria-hidden="true" />
                 </button>
+                {/* Dropdown order per nza-manifestos-and-solutions-brief.md
+                    Movement 1: PABLO / decodED / NZ:AI (was PABLO / NZ:AI /
+                    decodED). The internal key `openMenu === 'products'`
+                    stays for code clarity - only the visible label and
+                    item order change. */}
                 {openMenu === 'products' && (
                   <div className="site-nav-dropdown" role="menu">
                     <Link
@@ -151,18 +156,6 @@ export function SiteNav() {
                       PABLO
                     </Link>
                     <Link
-                      to="/nz-ai"
-                      className="site-nav-dropdown-item"
-                      role="menuitem"
-                      onClick={() => setOpenMenu(null)}
-                    >
-                      <span
-                        className="site-nav-dropdown-swatch site-nav-dropdown-swatch--nzai"
-                        aria-hidden="true"
-                      />
-                      NZ:AI
-                    </Link>
-                    <Link
                       to="/decoded"
                       className="site-nav-dropdown-item"
                       role="menuitem"
@@ -173,6 +166,18 @@ export function SiteNav() {
                         aria-hidden="true"
                       />
                       decodED
+                    </Link>
+                    <Link
+                      to="/nz-ai"
+                      className="site-nav-dropdown-item"
+                      role="menuitem"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      <span
+                        className="site-nav-dropdown-swatch site-nav-dropdown-swatch--nzai"
+                        aria-hidden="true"
+                      />
+                      NZ:AI
                     </Link>
                   </div>
                 )}
@@ -251,7 +256,7 @@ export function SiteNav() {
 type MobileExpanded = 'products' | 'about' | null
 
 function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
-  /* The two top-level dropdowns ("Our products", "About us") now
+  /* The two top-level dropdowns ("Our solutions", "About us") now
      accordion open / closed per Chris's request. Tapping a header
      toggles its section. Tapping "Who we work with" routes directly. */
   const [expanded, setExpanded] = useState<MobileExpanded>(null)
@@ -279,7 +284,7 @@ function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
           </Link>
         </section>
 
-        {/* ===== OUR PRODUCTS ===== */}
+        {/* ===== OUR SOLUTIONS ===== */}
         <section
           className={
             'site-nav-mobile-section site-nav-mobile-section--accordion' +
@@ -292,9 +297,10 @@ function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
             aria-expanded={expanded === 'products'}
             onClick={() => toggleSection('products')}
           >
-            <span>Our products</span>
+            <span>Our solutions</span>
             <span className="site-nav-mobile-section-chevron" aria-hidden="true" />
           </button>
+          {/* Mobile order matches desktop: PABLO / decodED / NZ:AI. */}
           <div className="site-nav-mobile-section-body">
             <Link
               to="/pablo"
@@ -309,18 +315,6 @@ function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
               PABLO
             </Link>
             <Link
-              to="/nz-ai"
-              className="site-nav-mobile-link"
-              onClick={onClose}
-              tabIndex={expanded === 'products' ? 0 : -1}
-            >
-              <span
-                className="site-nav-dropdown-swatch site-nav-dropdown-swatch--nzai"
-                aria-hidden="true"
-              />
-              NZ:AI
-            </Link>
-            <Link
               to="/decoded"
               className="site-nav-mobile-link"
               onClick={onClose}
@@ -331,6 +325,18 @@ function MobileMenuOverlay({ onClose }: { onClose: () => void }) {
                 aria-hidden="true"
               />
               decodED
+            </Link>
+            <Link
+              to="/nz-ai"
+              className="site-nav-mobile-link"
+              onClick={onClose}
+              tabIndex={expanded === 'products' ? 0 : -1}
+            >
+              <span
+                className="site-nav-dropdown-swatch site-nav-dropdown-swatch--nzai"
+                aria-hidden="true"
+              />
+              NZ:AI
             </Link>
           </div>
         </section>

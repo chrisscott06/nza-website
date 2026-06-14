@@ -7,7 +7,7 @@ import { MaskReveal } from '../components/MaskReveal'
  * navy of the hero + Get in touch above and below.
  *
  * Layout (per Chris's revisions):
- *   - Centred heading "Our products" at the hero-headline size in
+ *   - Centred heading "Our solutions" at the hero-headline size in
  *     Stolzl Book coral. Body intro below in Stolzl Thin.
  *   - Three product logos in a triptych using the full frame width.
  *     At rest each logo renders as a NAVY SILHOUETTE so all three
@@ -41,6 +41,8 @@ type Product = {
   promise: string
 }
 
+/* Order per nza-manifestos-and-solutions-brief.md Movement 1:
+   PABLO / decodED / NZ:AI (was PABLO / NZ:AI / decodED). */
 const PRODUCTS: Product[] = [
   {
     id: 'pablo',
@@ -51,6 +53,16 @@ const PRODUCTS: Product[] = [
     question: 'Want to cut your electricity costs?',
     promise:
       'PV, battery and load optimisation modelling for sites that want to spend less on energy.',
+  },
+  {
+    id: 'decoded',
+    name: 'decodED',
+    href: '/decoded',
+    logoSrc: '/assets/logos/decoded-logo.svg',
+    alt: 'decodED',
+    question: 'Running climate action in education?',
+    promise:
+      'A hosted platform helping schools, universities and trusts move from carbon data to climate strategy.',
   },
   {
     id: 'nzai',
@@ -65,16 +77,6 @@ const PRODUCTS: Product[] = [
     question: 'Want to make sense of complex carbon data?',
     promise:
       'An AI advisory partnership for teams who have client relationships but need net zero depth.',
-  },
-  {
-    id: 'decoded',
-    name: 'decodED',
-    href: '/decoded',
-    logoSrc: '/assets/logos/decoded-logo.svg',
-    alt: 'decodED',
-    question: 'Running climate action in education?',
-    promise:
-      'A hosted platform helping schools, universities and trusts move from carbon data to climate strategy.',
   },
 ]
 
@@ -177,8 +179,8 @@ export function ProductsScreen() {
   return (
     <section
       className="screen canvas-paper products-section in-view"
-      id="products"
-      data-screen-label="Products"
+      id="solutions"
+      data-screen-label="Solutions"
     >
       {/* PIN WRAPPER - same scrollytelling pattern as the coral
           "How we work" section. Outer .products-section is now a
@@ -192,7 +194,7 @@ export function ProductsScreen() {
       <div className="frame">
         <div className="products-intro-block">
           <MaskReveal as="h2" className="products-heading" delay={0}>
-            Our products
+            Our solutions
           </MaskReveal>
           <MaskReveal as="p" className="products-intro" delay={200}>
             Three tools we've built to help organisations move on net zero -
