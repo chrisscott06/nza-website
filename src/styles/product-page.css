@@ -205,6 +205,52 @@
   color: #FFFFFF;
 }
 
+/* CTA wrap - holds the primary CTA plus an optional secondary
+   (currently used by decodED for "Search your postcode" + "Join
+   the waitlist" per the manifestos brief Movement 3.1). Stacks
+   on phone for legibility. */
+.product-hero-cta-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+@media (max-width: 599px) {
+  .product-hero-cta-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* Secondary CTA - text-only, no fill, no border. Sits beside the
+   primary as a softer "alternative path" option. */
+.product-hero-cta--secondary {
+  background: transparent;
+  border: none;
+  padding: 12px 8px;
+  color: inherit;
+  opacity: 0.78;
+}
+.product-hero-cta--secondary:hover,
+.product-hero-cta--secondary:focus-visible {
+  background: transparent;
+  border: none;
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.is-light .product-hero-cta--secondary {
+  background: transparent;
+  border: none;
+  color: var(--product-accent);
+}
+.is-light .product-hero-cta--secondary:hover,
+.is-light .product-hero-cta--secondary:focus-visible {
+  background: transparent;
+  border: none;
+  color: var(--product-accent);
+}
+
 /* Scroll-down affordance at the bottom of the hero. */
 .product-hero-scroll-hint {
   position: absolute;

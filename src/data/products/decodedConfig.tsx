@@ -27,15 +27,31 @@ export const decodedConfig: ProductPageConfig = {
     stepVerbColour: '#E8743C',
   },
 
+  /* Hero refreshed per manifestos brief Movement 3.1:
+       - Catchline / tagline tightened to "Climate action in education."
+         (brief calls this "unchanged from whatever currently ships";
+         the prior tagline "Climate action, decoded for education."
+         carried an extra clause and is now trimmed to match).
+       - Pitch line replaced with the free-to-everyone postcode-to-plan
+         line.
+       - Primary CTA: "Search your postcode". No postcode-search route
+         exists yet, so the href points to /contact?product=decoded
+         as an interim fallback. Flag for follow-up when the postcode
+         entry surface is built.
+       - Secondary CTA: "Join the waitlist" - mailto so interested
+         schools land directly in the inbox without a new form. */
   hero: {
     microLabel: 'EDUCATION PLATFORM',
     name: 'decodED',
     logoSrc: '/assets/logos/decoded-logo.svg',
-    tagline: 'Climate action, decoded for education.',
+    tagline: 'Climate action in education.',
     oneLiner:
-      'A platform for schools, colleges, universities and trusts to understand their estates and act on climate. From postcode to plan in minutes.',
-    ctaLabel: 'Get in touch',
-    ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Get%20in%20touch',
+      'Free for every nursery, school, college, and university. Search a postcode, build your digital twin, and start your climate action plan today.',
+    ctaLabel: 'Search your postcode',
+    ctaHref: '/contact?product=decoded',
+    secondaryCtaLabel: 'Join the waitlist',
+    secondaryCtaHref:
+      'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Join%20the%20waitlist',
     screens: [
       {
         /* Real decodED site-loaded / map screen. */
@@ -124,46 +140,67 @@ export const decodedConfig: ProductPageConfig = {
     trailingText: 'how we do it',
   },
 
+  /* Five "how it works" cards per manifestos brief Movement 3.2 -
+     full replacement of the previous four-card flow. Headlines are
+     short action statements (Search. / Data populates. / Input what
+     only you know. / Explore the four pillars. / Draft your plan.)
+     with the action verb highlighted in decodED's orange via the
+     existing `.step-verb` mechanism. Brief flagged italic-on-"only"
+     and italic-on-"clear" as suggestions; per Chris's earlier
+     instruction (no italic, theme colour on verbs), those are not
+     applied and the verb-colour treatment is used consistently
+     across all five cards. Em-dashes in body copy converted to
+     hyphens per CLAUDE.md. */
   steps: [
     {
       number: '01',
-      iconName: 'ti-map-pin',
-      headlinePrefix: 'First, ',
-      highlightedVerb: 'enter',
-      headlineSuffix: ' the postcode.',
+      iconName: 'ti-search',
+      headlinePrefix: '',
+      highlightedVerb: 'Search',
+      headlineSuffix: '.',
       body:
-        'From address to estate in seconds. decodED pulls in your buildings, your boundaries, your fuel data.',
-      illustrationConcept: 'postcode-pin-uk',
+        'Find any educational site - or any building within one. Draw a boundary and watch your 3D model come to life.',
+      illustrationConcept: 'postcode-search-3d',
     },
     {
       number: '02',
-      iconName: 'ti-building',
-      headlinePrefix: 'Then decodED ',
-      highlightedVerb: 'maps',
-      headlineSuffix: ' your estate.',
+      iconName: 'ti-database',
+      headlinePrefix: 'Data ',
+      highlightedVerb: 'populates',
+      headlineSuffix: '.',
       body:
-        'Every building, every floor, every fuel. 3D massing, real footprints, accurate areas.',
-      illustrationConcept: 'building-cluster-axonometric',
+        'Decoded pulls in useful publicly available data - building footprints, floor areas, energy performance certificates, climate projections. Your digital twin starts taking shape in seconds.',
+      illustrationConcept: 'data-streams-populating',
     },
     {
       number: '03',
-      iconName: 'ti-chart-pie',
-      headlinePrefix: 'Next, decodED shows the ',
-      highlightedVerb: 'impact',
-      headlineSuffix: '.',
+      iconName: 'ti-edit',
+      headlinePrefix: '',
+      highlightedVerb: 'Input',
+      headlineSuffix: ' what only you know.',
       body:
-        'Carbon, cost, climate risk. All in one view. With benchmarks against similar estates.',
-      illustrationConcept: 'three-circles-impact',
+        'Heating systems, travel patterns, overheating, flooding, biodiversity on site. A handful of straightforward questions - and the climate risk assessment - where human input matters most.',
+      illustrationConcept: 'human-input-questions',
     },
     {
       number: '04',
-      iconName: 'ti-list-numbers',
-      headlinePrefix: 'Finally, decodED helps you ',
-      highlightedVerb: 'plan',
-      headlineSuffix: ' the action.',
+      iconName: 'ti-layout-grid',
+      headlinePrefix: '',
+      highlightedVerb: 'Explore',
+      headlineSuffix: ' the four pillars.',
       body:
-        'Concrete steps your team can take. Sequenced, prioritised, and tracked.',
-      illustrationConcept: 'sequenced-checkbox-list',
+        'Decarbonisation. Adaptation. Biodiversity. Education and green careers. Decoded walks you through each one - giving you a clear picture of your climate action plan, pillar by pillar.',
+      illustrationConcept: 'four-pillars-grid',
+    },
+    {
+      number: '05',
+      iconName: 'ti-list-numbers',
+      headlinePrefix: '',
+      highlightedVerb: 'Draft',
+      headlineSuffix: ' your plan.',
+      body:
+        'A credible climate action plan, ready to refine, share, and act on. Save it, build on it over time, and bring more of your team in.',
+      illustrationConcept: 'action-plan-document',
     },
   ],
 

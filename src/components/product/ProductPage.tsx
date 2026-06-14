@@ -56,6 +56,12 @@ export type ProductPageConfig = {
     oneLiner: string
     ctaLabel: string
     ctaHref: string
+    /** Optional secondary CTA, rendered beside the primary. decodED
+     *  uses this for "Join the waitlist" alongside the primary
+     *  "Search your postcode" per the manifestos brief Movement 3.1.
+     *  PABLO and NZ:AI don't set these and render a single CTA. */
+    secondaryCtaLabel?: string
+    secondaryCtaHref?: string
     screens: BrowserFrameScreen[]
   }
   /** SECTION 2 - Full-viewport manifesto block. Replaces the old
@@ -250,6 +256,14 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
               <a className="product-hero-cta" href={config.hero.ctaHref}>
                 {config.hero.ctaLabel}
               </a>
+              {config.hero.secondaryCtaLabel && config.hero.secondaryCtaHref && (
+                <a
+                  className="product-hero-cta product-hero-cta--secondary"
+                  href={config.hero.secondaryCtaHref}
+                >
+                  {config.hero.secondaryCtaLabel}
+                </a>
+              )}
             </MaskReveal>
           </div>
 
