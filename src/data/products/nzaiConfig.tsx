@@ -48,7 +48,11 @@ export const nzaiConfig: ProductPageConfig = {
     accent: '#0F9888',
     accentLight: '#5FDDC4',
     canvasElevated: 'rgba(95, 221, 196, 0.06)',
-    stepVerbColour: '#F75A55',
+    /* Step verb colour swapped from coral (#F75A55) to NZ:AI's teal
+       per Chris's "no italic, theme colour on the verbs" direction.
+       The deeper teal #0F9888 reads cleanly against the cream steps
+       section without needing the light variant. */
+    stepVerbColour: '#0F9888',
   },
 
   hero: {
@@ -124,55 +128,57 @@ export const nzaiConfig: ProductPageConfig = {
     trailingText: 'how we do it',
   },
 
-  /* v9 THREE STAGES - Decode, Build, Partner. Three not four (the
-     prior NZ:AI config and the original template assumption was
-     four; PABLO ships with five, so the template handles any count).
-     Each stage's coral-italic verb sits in the highlightedVerb slot:
-       01 inside    - Decode's verb
-       02 actually  - Build's verb (the bespoke-vs-template distinction)
-       03 alongside - Partner's verb (the relationship verb)
-     The step body has its second AI mention on stage 02
-     ("...built fast because AI accelerates the work..."). */
+  /* THREE STAGES - Decode, Build, Partner. Full copy replacement
+     per manifestos brief Movement 4 (supersedes v9's earlier copy
+     in this slot). Each stage's verb sits in the highlightedVerb
+     slot and renders in NZ:AI teal (palette.stepVerbColour above)
+     via the template's `.step-verb` class - colour-only, no italic
+     per Chris's earlier direction.
+
+     AI mention budget per Movement 4:
+       - Card 01 body: "AI accelerates everything downstream"
+       - Card 02 body: "AI accelerates it"
+       - Manifesto body: "AI-accelerated tools"
+     Total: 3 substantive mentions.
+
+     FLAG: the hero one-liner above also contains "AI accelerates
+     the build" (v9 copy, unchanged by this brief because Movement 4
+     explicitly carves out NZ:AI's hero from changes). That puts the
+     page over budget by one. The brief itself asks: "If existing
+     copy elsewhere on the page also names AI, flag it." Flagging
+     for Chris to decide whether to trim the hero or accept the
+     fourth mention. */
   steps: [
     {
       number: '01',
-      /* ti-affiliate - the connection-forming network metaphor v9
-         calls for on the Decode visual. Interim icon; v9 flags a
-         richer SVG (scattered nodes gradually connecting) as a
-         follow-up illustration when the production assets land. */
+      /* ti-affiliate stays - the connection-forming network metaphor
+         still fits "decode your data". Real illustration TBD. */
       iconName: 'ti-affiliate',
-      headlinePrefix: 'First, we get ',
-      highlightedVerb: 'inside',
-      headlineSuffix: ' your organisation.',
+      headlinePrefix: 'First, we ',
+      highlightedVerb: 'decode',
+      headlineSuffix: ' your data.',
       body:
-        "Decode is the foundation. Working sessions with your team. Time inside your data, your operations, your sites or supply chain or estate - whatever shapes the carbon decisions in your business. No tools yet. Just the partnership work that makes everything that follows possible. This is the stage that can't be rushed. AI accelerates everything downstream, but the human work of understanding the organisation properly is what makes the rest of it stick.",
+        "Working sessions with your team. Time inside your data, your operations, the sites or supply chain or estate that shape your carbon decisions. No tools yet - just the work of finding the signal in what you've already got, and what's missing. AI accelerates everything downstream, but this human work is what makes the rest of it stick.",
       illustrationConcept: 'decode-connection-forming-network',
     },
     {
       number: '02',
-      /* ti-stack-2 - bespoke, layered build. v9 calls for a morphing
-         platform-output cycle (dashboard / trajectory / map / supplier
-         hierarchy / scenario tool) when the production asset lands.
-         Static icon is fine for launch. */
       iconName: 'ti-stack-2',
-      headlinePrefix: 'Then we build what your team ',
-      highlightedVerb: 'actually',
-      headlineSuffix: ' needs.',
+      headlinePrefix: 'Then we ',
+      highlightedVerb: 'build',
+      headlineSuffix: ' what your team needs.',
       body:
-        'A carbon inventory. A net zero strategy. A climate risk assessment. A digital twin. The form depends on what Decode revealed and what your team needs to make decisions with. Bespoke to your organisation, built fast because AI accelerates the work, built deep because the foundation makes it possible. Yours from day one - code, data, methodology, and the architecture that holds it together.',
+        'A carbon inventory. A net zero strategy. A climate risk assessment. A digital twin. The form depends on what Decode revealed. We prototype first, then build out what works - fast because AI accelerates it, deep because the foundation makes it possible. Yours from day one: code, data, methodology.',
       illustrationConcept: 'build-morphing-platform-outputs',
     },
     {
       number: '03',
-      /* ti-infinity - continuity, compounding. v9 calls for a
-         timeline-or-concentric-rings visual showing Year 1 / Year 2 /
-         Year 3 expansion when the production asset lands. */
       iconName: 'ti-infinity',
-      headlinePrefix: 'And we keep building, ',
-      highlightedVerb: 'alongside',
-      headlineSuffix: ' you.',
+      headlinePrefix: 'And then we ',
+      highlightedVerb: 'partner',
+      headlineSuffix: ', year on year.',
       body:
-        'Net zero is not a project that finishes. Standards tighten. Data improves. Your organisation evolves. The partnership keeps the platform sharp and the strategy alive - methodology updates, new modules, framework support, and direct advisory whenever you need it. The rhythm is set by you. Some clients want light annual touchpoints. Others want us close in alongside their team. Either way, the platform and the partnership compound year on year.',
+        "Net zero isn't a project that finishes. Standards tighten, data improves, your organisation evolves. The partnership keeps the platform sharp and the strategy alive - methodology updates, new modules, advisory whenever you need it. The rhythm is set by you. The platform and the partnership compound year on year.",
       illustrationConcept: 'partner-compounding-rings',
     },
   ],
