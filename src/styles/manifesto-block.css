@@ -8,16 +8,16 @@
  *   - Centred content, ~720px max readable width
  *   - z-index 1 so it can sit ABOVE a sticky hero behind it later
  *
- * This is the static-anatomy chunk - no parallax, no scroll prompt,
- * no colour transition yet. Those land in Chunk 4 of the
- * manifestos brief.
- *
- * Per-product accent backgrounds: see the placeholder hex values
- * below. CLAUDE.md forbids coral as a surface, so PABLO uses a
- * saturated aubergine that lifts away from the hero canvas
- * (#1F0F2E) rather than the coral accent. decodED uses deep green
- * per the original product template brief. NZ:AI uses the teal
- * accent token.
+ * Chunk 4 adds:
+ *   - The accent colour layer is now a `::before` pseudo-element so it
+ *     can translate independently of the content (subtle parallax).
+ *   - JS-driven `--manifesto-parallax-y` CSS var drives the translate.
+ *   - Bottom-edge tonal blend smooths the cut to the cream let's-show
+ *     section beneath without needing the full observer-driven 600ms
+ *     transition the brief mentions (deferred).
+ *   - Scroll prompt at the bottom with a 2.5s bounce loop. Fades out
+ *     via inline opacity (JS-controlled) past 30% scroll progress.
+ *   - prefers-reduced-motion short-circuits parallax + bounce + reveal.
  *
  * Spec: docs/briefs/nza-manifestos-and-solutions-brief.md (Movement 2)
  */
@@ -25,29 +25,68 @@
 .manifesto-block {
   position: relative;
   /* Full viewport takeover. dvh handles iOS Safari's collapsing
-     toolbar; svh as a fallback for older browsers. min- not fixed-
-     so longer copy still reads on narrow screens. */
+     toolbar; svh as a fallback for older browsers. */
   min-height: 100svh;
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Curved top corners - same "Impilo card pops up" detail as the
-     home page coral block. */
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  /* Above the hero in the z-stack so the manifesto cleanly covers
-     whatever sits behind it once Chunk 4's sticky parallax lands. */
   z-index: 1;
   overflow: hidden;
-  /* Default colour for the content - pure white at full opacity per
-     Chris's post-Chunk-2 feedback: "make sure the text on those
-     manifestos is visible - needs to be white." Per-product accent
-     classes can override. */
   color: #FFFFFF;
+  /* Parallax offset for the bg layer. JS sets this on the inline
+     style attribute; CSS uses it on the ::before pseudo. Default 0
+     so the static layout is correct before JS hydrates. */
+  --manifesto-parallax-y: 0px;
+}
+
+/* Saturated colour layer - drawn as a pseudo-element so it can
+   translate independently of the centred content above. Extends
+   beyond the section bounds on both ends so the parallax never
+   exposes a bare edge. */
+.manifesto-block::before {
+  content: '';
+  position: absolute;
+  /* 15% overhang top and bottom gives the parallax room to drift
+     +/- 200px (the JS clamp) without showing seams. */
+  top: -15%;
+  left: 0;
+  right: 0;
+  bottom: -15%;
+  z-index: -1;
+  transform: translateY(var(--manifesto-parallax-y));
+  will-change: transform;
+  /* Background colour is set by the per-product accent classes
+     below. */
+}
+
+/* Bottom-edge tonal blend - lightweight stand-in for the brief's
+   "background colour transitions smoothly over ~600ms" between the
+   manifesto and the cream let's-show section beneath. A short
+   linear-gradient at the section's bottom edge softens the cut to
+   cream without needing the observer-driven page-root transition. */
+.manifesto-block::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(250, 245, 235, 0.18) 60%,
+    rgba(250, 245, 235, 0.6) 100%
+  );
+  z-index: 0;
 }
 
 .manifesto-block-inner {
+  position: relative;
+  z-index: 2;
   width: 100%;
   max-width: 720px;
   padding: clamp(96px, 12vh, 168px) clamp(24px, 5vw, 48px);
@@ -105,10 +144,7 @@
 }
 
 /* Inline anchors inside the manifesto body (e.g. decodED's gov.uk
-   "climate action plan" link). Underlined white, slight opacity shift
-   on hover. The dotted-style underline distinguishes "explanatory
-   link with tooltip" from a regular hyperlink in body copy without
-   needing a separate visual token. */
+   "climate action plan" link). */
 .manifesto-inline-link {
   color: inherit;
   text-decoration: underline;
@@ -151,32 +187,66 @@
   transform: translateX(4px);
 }
 
+/* ---------- scroll prompt ---------- */
+
+.manifesto-block-scroll-prompt {
+  position: absolute;
+  bottom: clamp(24px, 4vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  /* Inline `style.opacity` from JS controls the scroll-driven fade.
+     Default 1 here so the static state is correct before JS hydrates. */
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.manifesto-block-scroll-prompt-label {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.manifesto-block-scroll-prompt-chevron {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  /* 2.5s bounce loop. translateY of -6px at the peak gives a
+     readable bob without being attention-stealing. */
+  animation: manifesto-scroll-bounce 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes manifesto-scroll-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
 /* ---------- per-product accent backgrounds ---------- */
-/*
- * Placeholder hex values - flagged in commit for Chris's
- * confirmation. PABLO can't use coral (locked rule); decodED green
- * and NZ:AI teal come straight from the existing per-product
- * tokens in the configs.
- */
 
-.manifesto-block--pablo {
-  /* Saturated aubergine lifted off PABLO's hero canvas (#1F0F2E).
-     Reads as a distinct PABLO surface without violating the
-     no-coral-as-surface rule. */
+.manifesto-block--pablo::before {
   background: #3D1E5B;
-  color: #FFFFFF;
 }
 
-.manifesto-block--decoded {
-  /* Deep green from the product template brief's decodED tokens. */
+.manifesto-block--decoded::before {
   background: #0F5D43;
-  color: #FFFFFF;
 }
 
-.manifesto-block--nzai {
-  /* NZ:AI accent teal from nzaiConfig.palette.accent. */
+.manifesto-block--nzai::before {
   background: #0F9888;
-  color: #FFFFFF;
 }
 
 /* ---------- phone ---------- */
@@ -190,10 +260,38 @@
   .manifesto-block-inner {
     padding: clamp(72px, 12vh, 120px) 20px;
   }
+
+  /* Phone: no parallax, no scroll prompt. Cards beneath the
+     manifesto are already visible by the time the user is reading,
+     and the parallax is over-egged on a small screen. */
+  .manifesto-block::before {
+    transform: none;
+  }
+
+  .manifesto-block-scroll-prompt {
+    display: none;
+  }
 }
 
 /* ---------- prefers-reduced-motion ---------- */
-/* No animations in scaffold yet; arrow + link hover transitions are
-   purely interactive and stay even under reduced motion (a 4px
-   translate isn't a vestibular concern). Real entrance animations
-   land in Chunk 4 and will short-circuit there. */
+/* The JS scroll listener already short-circuits when the user
+   prefers reduced motion. Belt-and-braces CSS: kill the bounce
+   keyframe + the parallax translate + any link/arrow transitions.
+   MaskReveal handles its own reduced-motion path - revealed content
+   appears in place. */
+
+@media (prefers-reduced-motion: reduce) {
+  .manifesto-block::before {
+    transform: none;
+  }
+
+  .manifesto-block-scroll-prompt-chevron {
+    animation: none;
+  }
+
+  .manifesto-block-link,
+  .manifesto-block-link-arrow,
+  .manifesto-inline-link {
+    transition: none;
+  }
+}
