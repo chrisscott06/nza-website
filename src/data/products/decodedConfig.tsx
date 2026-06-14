@@ -256,13 +256,23 @@ export const decodedConfig: ProductPageConfig = {
       'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Going%20further%20with%20NZA',
   },
 
+  /* Closer refreshed per manifestos brief Movement 3.4. The brief
+     gives two sentences: a long inclusive "Built for everyone..."
+     statement and the short brand signature "Climate action,
+     decoded." Mapping:
+       - microLabel dropped (matches PABLO's June 2026 redesign).
+       - headline = the long sentence (substantive close-out).
+       - subhead = "Climate action, decoded." (small final stamp
+         that punctuates the page like a brand signature).
+       - CTA "Get in touch" -> "Search your postcode" matching the
+         hero's primary CTA. Same href - same interim destination
+         until the postcode entry surface ships.
+     No client logo row for decodED. */
   closer: {
-    microLabel: 'JOIN THE PILOT',
-    headline: 'Be part of the early decodED programme.',
-    subhead:
-      'decodED is currently in early development with select education partners. Get in touch to join the pilot programme.',
-    /* No client logo row for decodED per brief. */
-    ctaLabel: 'Get in touch',
-    ctaHref: 'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Get%20in%20touch',
+    headline:
+      'Built for everyone in education - nurseries to universities - who wants to understand their estate, plan for the future, and act on what matters.',
+    subhead: 'Climate action, decoded.',
+    ctaLabel: 'Search your postcode',
+    ctaHref: '/contact?product=decoded',
   },
 }
