@@ -104,6 +104,24 @@
   margin-top: 1em;
 }
 
+/* Inline anchors inside the manifesto body (e.g. decodED's gov.uk
+   "climate action plan" link). Underlined white, slight opacity shift
+   on hover. The dotted-style underline distinguishes "explanatory
+   link with tooltip" from a regular hyperlink in body copy without
+   needing a separate visual token. */
+.manifesto-inline-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 200ms ease;
+}
+
+.manifesto-inline-link:hover {
+  opacity: 0.78;
+}
+
 .manifesto-block-link {
   display: inline-flex;
   align-items: center;

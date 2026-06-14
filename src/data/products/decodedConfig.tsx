@@ -1,4 +1,13 @@
 import type { ProductPageConfig } from '../../components/product/ProductPage'
+import { Tooltip } from '../../components/Tooltip'
+
+/* DfE Sustainability and Climate Change Strategy (2022) source URL +
+   tooltip summary for the inline "climate action plan" link in the
+   decodED manifesto. Copy locked per manifestos brief Movement 2. */
+const DFE_STRATEGY_URL =
+  'https://www.gov.uk/government/publications/sustainability-and-climate-change-strategy'
+const DFE_TOOLTIP_BODY =
+  'DfE Sustainability and Climate Change Strategy (2022). By 2025, all education settings nominate a sustainability lead and publish a climate action plan covering decarbonisation, adaptation, biodiversity, and climate education and green careers.'
 
 export const decodedConfig: ProductPageConfig = {
   slug: 'decoded',
@@ -56,14 +65,53 @@ export const decodedConfig: ProductPageConfig = {
   },
 
   /* SECTION 2 - Manifesto (replaces the old `transition` two-liner
-     per the manifestos brief Movement 2). Real copy + inline gov.uk
-     link land in Chunk 3; this scaffold uses the brief's locked
-     paragraph 1 body as a plain string for now. */
+     per the manifestos brief Movement 2). Chunk 3 adds:
+       - Italic emphasis on "right" in the headline per the brief's
+         locked emphasis list.
+       - Inline gov.uk hyperlink on "climate action plan" in the
+         first paragraph of the body, wrapped in the Tooltip
+         primitive that surfaces the DfE Sustainability and Climate
+         Change Strategy summary on desktop hover. Touch users see
+         the link as standard; tap opens gov.uk in a new tab.
+       - Body split into two paragraphs at the natural break (was
+         a single run-on string in the scaffold). */
   manifesto: {
     microLabel: 'WHY DECODED',
-    headline: 'Good data, in the right hands.',
-    body:
-      "Every educational institution in England is now required to have a climate action plan - covering decarbonisation, adaptation, biodiversity, and education and green careers. Most schools have one person carrying this. Decoded gives them the tools. NZA brings the expertise. And the work doesn't stop at the lead. Decoded puts granular, real, manageable data in the hands of everyone with a part to play - estates teams, teachers, students, parents. Climate action needs every skillset and every perspective, and the data to back them.",
+    headline: (
+      <>
+        Good data, in the <em>right</em> hands.
+      </>
+    ),
+    body: (
+      <>
+        <p>
+          Every educational institution in England is now required to have a{' '}
+          <Tooltip
+            body={DFE_TOOLTIP_BODY}
+            footerHref={DFE_STRATEGY_URL}
+            footerText="Read on gov.uk"
+          >
+            <a
+              href={DFE_STRATEGY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="manifesto-inline-link"
+            >
+              climate action plan
+            </a>
+          </Tooltip>{' '}
+          - covering decarbonisation, adaptation, biodiversity, and education
+          and green careers. Most schools have one person carrying this.
+          Decoded gives them the tools. NZA brings the expertise.
+        </p>
+        <p>
+          And the work doesn't stop at the lead. Decoded puts granular, real,
+          manageable data in the hands of everyone with a part to play -
+          estates teams, teachers, students, parents. Climate action needs
+          every skillset and every perspective, and the data to back them.
+        </p>
+      </>
+    ),
     linkText: 'Read our full mission',
     linkHref: '/about',
     accentColor: 'decoded',

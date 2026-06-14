@@ -101,11 +101,15 @@ export const nzaiConfig: ProductPageConfig = {
      per the manifestos brief Movement 2). v9's "Three stages. One
      relationship." was lighter-weight in the old transition spot;
      the manifesto now carries the full "why" beat at viewport scale.
-     Real copy locked in Chunk 3; this is the brief's scaffold copy
-     verbatim, less italic emphasis. */
+     Italic emphasis on "inside" per Movement 2's locked emphasis
+     list (Chunk 3 of the manifestos brief). */
   manifesto: {
     microLabel: 'WHY NZ:AI',
-    headline: 'Climate action is an inside job.',
+    headline: (
+      <>
+        Climate action is an <em>inside</em> job.
+      </>
+    ),
     body:
       "Real progress on net zero doesn't come from outside reports. It comes from the people inside your organisation - the ones with the relationships, the knowledge, and the context to act. NZ:AI puts NZA's expertise, AI-accelerated tools, and the data you need to act on into your hands. Decode. Build. Partner - three stages, one partnership, kept alive over time.",
     linkText: 'Read our full mission',

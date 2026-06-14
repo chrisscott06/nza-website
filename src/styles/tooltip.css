@@ -1,0 +1,88 @@
+/*
+ * Tooltip primitive - used by the decodED manifesto's gov.uk link
+ * and any other inline references that want an explanatory popover.
+ *
+ * Spec: docs/briefs/nza-manifestos-and-solutions-brief.md Movement 2
+ *   "solid background, hairline border, comfortable padding,
+ *    max-width ~360px"
+ *
+ * Suppressed on touch devices via the matchMedia check in Tooltip.tsx.
+ * No CSS-only fallback because the popover contains a focusable
+ * footer link that touch users can't reach without an explicit
+ * tap-to-open primitive - out of scope here.
+ */
+
+.tooltip-wrap {
+  position: relative;
+  display: inline;
+}
+
+.tooltip-popover {
+  position: absolute;
+  /* Position the popover beneath the trigger, centred horizontally.
+     transform: translateX(-50%) centres relative to left: 50% on
+     the trigger wrapper. */
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Brief: "solid background, hairline border, comfortable padding,
+     max-width ~360px." Solid navy on cream so it reads as a tooltip
+     not a card. */
+  background: #1B1B1B;
+  color: #FAF5EB;
+  border: 1px solid rgba(250, 245, 235, 0.18);
+  border-radius: 8px;
+  padding: 16px 18px;
+  width: max-content;
+  max-width: 360px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  /* Drop shadow lifts the popover off whatever sits underneath - the
+     decodED manifesto's deep-green surface, in practice. */
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.5);
+  /* Pointer events ON so the user can hover into the popover and
+     click the footer link. The grace timer in Tooltip.tsx handles
+     the trigger -> popover transit. */
+  pointer-events: auto;
+}
+
+.tooltip-popover-body {
+  display: block;
+  color: inherit;
+}
+
+.tooltip-popover-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #FAF5EB;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(250, 245, 235, 0.4);
+  padding-bottom: 2px;
+  align-self: flex-start;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.tooltip-popover-link:hover {
+  color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+
+/* Suppress on phone - matchMedia check in Tooltip.tsx already keeps
+   the popover from opening on touch, but a belt-and-braces CSS rule
+   ensures it never appears even if state leaks through. */
+@media (max-width: 599px) {
+  .tooltip-popover {
+    display: none;
+  }
+}
