@@ -4,8 +4,13 @@ import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
 import { ProductStepsSection } from './ProductStepsSection'
 import { ManifestoBlock, type ManifestoAccent } from './ManifestoBlock'
+import {
+  GoingFurtherSection,
+  type GoingFurtherCard,
+} from './GoingFurtherSection'
 import { useContextClass } from '../../hooks/useContextClass'
 import '../../styles/manifesto-block.css'
+import '../../styles/going-further-section.css'
 
 /**
  * The shared product page template. Renders five sections in order:
@@ -104,6 +109,18 @@ export type ProductPageConfig = {
      *  progress through the block (per Chris's June 2026 direction). */
     scrollytell?: boolean
   }>
+  /** SECTION 4.5 - Optional "Going Further with NZA" triptych. Used
+   *  by decodED per the manifestos brief Movement 3.3 to frame the
+   *  free digital twin as the foundation NZA can build further on.
+   *  PABLO + NZ:AI don't set this and the section is skipped. */
+  goingFurther?: {
+    microLabel: string
+    headline: string | ReactNode
+    intro: string | ReactNode
+    cards: [GoingFurtherCard, GoingFurtherCard, GoingFurtherCard]
+    ctaText: string
+    ctaHref: string
+  }
   /** SECTION 5 - Closer */
   closer: {
     /** Optional - dropped from PABLO per the June 2026 redesign
@@ -335,6 +352,24 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           />
         </div>
       </section>
+
+      {/* =========================================================
+          SECTION 4.5 - GOING FURTHER (optional)
+          Currently only decodED uses this slot - the brief's
+          triptych framing Decoded as a free foundation that NZA
+          builds further on. PABLO + NZ:AI don't declare
+          `goingFurther` and this section is skipped.
+          ========================================================= */}
+      {config.goingFurther && (
+        <GoingFurtherSection
+          microLabel={config.goingFurther.microLabel}
+          headline={config.goingFurther.headline}
+          intro={config.goingFurther.intro}
+          cards={config.goingFurther.cards}
+          ctaText={config.goingFurther.ctaText}
+          ctaHref={config.goingFurther.ctaHref}
+        />
+      )}
 
       {/* =========================================================
           SECTION 5 - CLOSER / CREDIBILITY

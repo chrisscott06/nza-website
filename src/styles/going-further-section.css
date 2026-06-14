@@ -1,0 +1,181 @@
+/*
+ * GoingFurtherSection - decodED's triptych slot between the
+ * how-it-works cards and the closer. Brief flagged it as cream/warm
+ * register, cards as light surfaces, CTA as a single-line link.
+ *
+ * Spec: docs/briefs/nza-manifestos-and-solutions-brief.md (Movement 3.3)
+ */
+
+.going-further-section {
+  position: relative;
+  /* Decoded's canvas-warm `#F3EFE3` is set on .product-page; the
+     section inherits it. The cards are lifted on top using a
+     slightly lighter cream surface so they read as actionable
+     panels. */
+  padding: clamp(96px, 12vw, 168px) clamp(24px, 5vw, 96px);
+  color: #1B1B1B;
+}
+
+.going-further-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.going-further-micro {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--product-accent, #0F5D43);
+  margin: 0 0 clamp(20px, 2.4vw, 32px) 0;
+}
+
+.going-further-headline {
+  font-family: 'Stolzl', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(32px, 4.6vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(20px, 2.4vw, 32px) 0;
+  max-width: 22ch;
+}
+
+.going-further-headline em {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral, #F75A55);
+  font-size: 1.12em;
+}
+
+.going-further-intro {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(16px, 1.2vw, 18px);
+  line-height: 1.6;
+  color: rgba(27, 27, 27, 0.78);
+  max-width: 64ch;
+  margin: 0 0 clamp(48px, 6vw, 80px) 0;
+}
+
+.going-further-intro p {
+  margin: 0;
+}
+
+/* ---------- card grid ---------- */
+
+.going-further-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: clamp(48px, 5vw, 64px);
+}
+
+@media (min-width: 800px) {
+  .going-further-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+.going-further-card {
+  /* Light surface against the decodED canvas-warm. Hairline border
+     in the accent green at low opacity gives the card a defined edge
+     without competing with the page accent. */
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 93, 67, 0.12);
+  border-radius: 12px;
+  padding: clamp(28px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Thin coral rule at top per the site convention used elsewhere
+     (browser frames, hero visual). One-line accent without coral
+     becoming a surface. */
+  position: relative;
+}
+
+.going-further-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: var(--coral, #F75A55);
+  opacity: 0.7;
+}
+
+.going-further-card-number {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--product-accent, #0F5D43);
+  margin: 0;
+}
+
+.going-further-card-title {
+  font-family: 'Stolzl', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(20px, 1.8vw, 24px);
+  line-height: 1.16;
+  letter-spacing: -0.005em;
+  margin: 0;
+  color: #1B1B1B;
+}
+
+.going-further-card-body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(27, 27, 27, 0.72);
+}
+
+/* Bold "PABLO" mention inside card 02 - per brief, "should be its
+   own typographic moment - bold or with a small PABLO mark." Bold
+   serves; if a PABLO wordmark inline is wanted later, swap in. */
+.going-further-card-body .pablo-mark {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1B1B1B;
+}
+
+/* ---------- CTA ---------- */
+
+.going-further-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--product-accent, #0F5D43);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 4px;
+  transition: opacity 200ms ease;
+}
+
+.going-further-cta:hover {
+  opacity: 0.78;
+}
+
+.going-further-cta-arrow {
+  display: inline-block;
+  transition: transform 200ms ease;
+}
+
+.going-further-cta:hover .going-further-cta-arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- prefers-reduced-motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .going-further-cta,
+  .going-further-cta-arrow {
+    transition: none;
+  }
+}

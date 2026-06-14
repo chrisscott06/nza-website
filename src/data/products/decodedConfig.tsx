@@ -204,6 +204,58 @@ export const decodedConfig: ProductPageConfig = {
     },
   ],
 
+  /* SECTION 4.5 - "Going Further with NZA" triptych per the
+     manifestos brief Movement 3.3. Sits between the how-it-works
+     cards and the closer. Frames Decoded as the free foundation
+     that NZA takes further over time. PABLO mention in Card 02
+     gets a typographic moment via the `.pablo-mark` bold span
+     per the brief's "should be its own typographic moment"
+     guidance. Em-dashes converted to hyphens per CLAUDE.md. */
+  goingFurther: {
+    microLabel: 'GOING FURTHER WITH NZA',
+    headline: 'Build your plan for free. Take it further with NZA.',
+    intro:
+      'The digital twin you start with Decoded - once a capability reserved for big commercial estates - is now the foundation for your institution. Free to keep, with the digital twin growing into the operating system for your whole estate as NZA works alongside you.',
+    cards: [
+      {
+        title: 'Estate data management',
+        body: (
+          <p>
+            Centralised data. Real-world monitoring through sub-metering and
+            sensors. AI-native interrogation of your estate. The kind of
+            operational visibility most institutions have never had - built on
+            the same digital twin you started for free.
+          </p>
+        ),
+      },
+      {
+        title: 'Energy cost optimisation',
+        body: (
+          <p>
+            <span className="pablo-mark">PABLO</span>, NZA's energy strategy
+            tool, plugs directly into your digital twin. Optimise costs, model
+            renewables and storage, prepare for the energy transition. Make
+            every electrification decision a confident one.
+          </p>
+        ),
+      },
+      {
+        title: 'Specialist expertise',
+        body: (
+          <p>
+            NZA's decarbonisation, climate, and biodiversity specialists work
+            alongside your sustainability lead, estates team, teachers, and
+            students. Detailed assessments, real engineering, and the experts
+            the digital twin needs to grow.
+          </p>
+        ),
+      },
+    ],
+    ctaText: 'Get in touch to find out more',
+    ctaHref:
+      'mailto:chrisscott@thenza.co.uk?subject=decodED%20-%20Going%20further%20with%20NZA',
+  },
+
   closer: {
     microLabel: 'JOIN THE PILOT',
     headline: 'Be part of the early decodED programme.',
