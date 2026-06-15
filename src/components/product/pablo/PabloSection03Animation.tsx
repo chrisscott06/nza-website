@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bar,
   ComposedChart,
+  Legend,
   Line,
   XAxis,
   YAxis,
@@ -191,7 +192,9 @@ export function PabloSection03Animation({
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={projectionData}
-              margin={{ top: 28, right: 24, bottom: 18, left: 0 }}
+              /* Extra bottom margin leaves room for the Legend
+                 below the X axis. */
+              margin={{ top: 28, right: 24, bottom: 32, left: 0 }}
             >
               <CartesianGrid
                 strokeDasharray="2 4"
@@ -209,6 +212,20 @@ export function PabloSection03Animation({
                 tickMargin={8}
                 interval={0}
               />
+              {/* Legend at the bottom showing each component's
+                  colour + name. Recharts uses the Bar dataKey as
+                  the label by default. */}
+              <Legend
+                verticalAlign="bottom"
+                iconType="square"
+                iconSize={10}
+                wrapperStyle={{
+                  paddingTop: 8,
+                  fontSize: 10,
+                  fontFamily: 'Stolzl, system-ui, sans-serif',
+                  color: 'rgba(26, 37, 64, 0.7)',
+                }}
+              />
               <YAxis
                 /* Values in this dataset are already in thousands -
                    the domain + ticks are kept in those units and
@@ -224,8 +241,14 @@ export function PabloSection03Animation({
                 tickMargin={6}
               />
               {/* Stacked components - bottom-up Wholesale, DUoS,
-                  TNUoS, Levies, Other, Cost Gap. All animate
-                  together in the first 1500ms. */}
+                  TNUoS, Levies, Other, Cost Gap. Recharts native
+                  bar animation is DISABLED so a CSS keyframe can
+                  grow each year's column from the bottom AND
+                  stagger them right-to-left (2040 first, 2026
+                  last) per Chris's "growing upwards and then
+                  growing horizontally to the left" ask. The
+                  stagger lives in product-page.css against
+                  .pablo-s03 .recharts-bar-rectangle:nth-child(N). */}
               {COMPONENTS.map((c) => (
                 <Bar
                   key={c.key}
@@ -233,10 +256,7 @@ export function PabloSection03Animation({
                   stackId="proj"
                   fill={c.fill}
                   fillOpacity={c.fillOpacity}
-                  isAnimationActive={!reduced}
-                  animationDuration={1500}
-                  animationBegin={0}
-                  animationEasing="ease-out"
+                  isAnimationActive={false}
                 />
               ))}
               {/* Dashed coral total-trajectory line - draws in after
