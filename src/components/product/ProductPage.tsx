@@ -160,15 +160,19 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
   }, [config.slug])
 
   /* Scroll-driven parallax on the Let's Show section's inner content.
-     Per Chris's June 2026 ask: "the white card zooms in and scrolls
-     in first, then the text scrolls in". The CARD (outer section)
-     moves with natural scroll; the TEXT INSIDE translates at a
-     slower rate so it lags during entry AND exit, creating the
-     depth feel of card and text moving at different speeds.
-
-     Formula: text translateY is positive (below card position) when
-     the section is entering from below the viewport, returns to 0
-     when fully in view, then goes positive again on the way out. */
+     Two regimes:
+       Entry  (rect.top > 0)         small lag, 32px, like the
+                                     manifesto entry
+       Exit   (rect.bottom < vh)     STRONG parallax: the inner gets
+                                     +50% of the exit progress in
+                                     viewport-height pixels, so the
+                                     headline appears to scroll off
+                                     at ~0.5x rate while the Steps
+                                     section catches up from below
+                                     at natural 1x scroll rate
+     Per Chris's latest ask: "On 'Let's show you how Pablo works',
+     make that scroll off, but at a slower rate as the other stuff
+     is scrolling in. It gives it that kind of parallax effect." */
   const letsShowRef = useRef<HTMLElement | null>(null)
   useEffect(() => {
     const section = letsShowRef.current
@@ -188,15 +192,20 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
         let textY = 0
         if (rect.top > 0) {
           /* Entry phase - section's top is still below viewport top.
-             textY starts at LETS_SHOW_TEXT_LAG when section is fresh
-             below the viewport, eases toward 0 as section centres. */
+             Small lag so the card edge arrives slightly before the
+             text settles. */
           const t = Math.min(1, rect.top / vh)
-          textY = t * 64
+          textY = t * 32
         } else if (rect.bottom < vh) {
-          /* Exit phase - section's bottom has crossed above viewport
-             bottom. Same magnitude lag in the opposite direction. */
-          const t = Math.min(1, (vh - rect.bottom) / vh)
-          textY = t * 64
+          /* Exit phase - amplified to half-a-viewport max so the
+             text noticeably lags as Steps slides up from below.
+             (vh - rect.bottom) is the distance the section's bottom
+             has scrolled above viewport bottom. Multiplied by 0.5
+             gives a positive translateY (downward shift) on the
+             inner, effectively halving its apparent upward scroll
+             rate against the page. */
+          const exitDistance = vh - rect.bottom
+          textY = exitDistance * 0.5
         }
         section.style.setProperty('--lets-show-text-y', `${textY}px`)
       })

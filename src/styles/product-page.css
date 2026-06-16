@@ -781,19 +781,24 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   padding: 80px 0 140px;
-  /* Same card-slide pattern as the manifesto -> Let's Show
-     handoff: higher z-index than the sticky-pinned Let's Show
-     above (which is z-index 2), curved-top corners + -130vh so
-     the Steps section sits inside Let's Show's content area at
-     scroll-start (matches the manifesto -> Let's Show overlap
-     for visual consistency). The Steps frame (with the coral
-     Request Demo pill in its top-right) is what visibly rises
-     up over the held Let's Show headline. */
+  /* Let's Show -> Steps is a SLOW-SCROLL PARALLAX, not the
+     overlap-card pattern used on manifesto -> Let's Show.
+     Per Chris: "On 'Let's show you how Pablo works', make that
+     scroll off, but at a slower rate as the other stuff is
+     scrolling in. It gives it that kind of parallax effect."
+     Steps comes in at NORMAL scroll rate from below; Let's Show
+     text scrolls off at 0.5x rate via the JS-driven
+     --lets-show-text-y translateY (amplified on exit in
+     ProductPage.tsx). So Steps catches up from below as the
+     headline drifts upward slowly.
+     The small -48px overlap is kept just so the curved-top
+     corners visibly cut across Let's Show's bottom edge at the
+     transition, matching the manifesto -> Let's Show silhouette. */
   position: relative;
   z-index: 3;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -130vh;
+  margin-top: -48px;
 }
 @media (max-width: 767px) { .product-steps { padding: 64px 0 96px; } }
 @media (max-width: 599px) {
