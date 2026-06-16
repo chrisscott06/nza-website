@@ -80,26 +80,21 @@ const PHASES: Array<{
   },
 ]
 
-/* Scroll thresholds (as fraction of progress through the 300vh
-   section) at which each phase block reveals. Tuned so the user
-   sees block 1 just after the pin engages, then blocks 2 + 3 over
-   the next stretch of scroll. Per Chris: "have them come up as part
-   of the scroll" rather than fire on a timer the user can outrun. */
-const BLOCK_REVEAL_THRESHOLDS = [0.30, 0.48, 0.66] as const
+/* Timed cascade per Chris's June 2026 ask: rather than make the
+   user scroll through 300vh to see each phase block reveal, all
+   three blocks reveal in a paced sequence after the section enters
+   view. User sees the whole infographic without working for it,
+   then scrolls past to leave the section. */
+const BLOCK_REVEAL_DELAYS_MS = [2800, 3500, 4200] as const
 
 export function HowWeWorkSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
-  /* `revealed` still tracks the section-level IO trigger - paragraphs
-     and underlines use it (their MaskReveal + .highlight-coral
-     animations fire on a timeline once the section enters view, and
-     Chris said "the animation on the text with the underlinings is
-     good"). */
+  /* `revealed` tracks the section-level IO trigger - paragraphs +
+     underlines + the timed phase cascade all key off this. */
   const [revealed, setRevealed] = useState(false)
-  /* The three phase blocks are now SCROLL-DRIVEN - each block flips
-     to true as the user passes its threshold within the pinned
-     section. They reveal IN STEP with the scroll instead of waiting
-     on the old time-based --reveal-delay cascade, so the user can
-     never scroll past them before they've shown. */
+  /* Each block flips to true on its own setTimeout once the section
+     has been revealed - timed cascade replaces the previous
+     scroll-driven thresholds. */
   const [blocksRevealed, setBlocksRevealed] = useState<boolean[]>([false, false, false])
 
   useEffect(() => {
@@ -121,50 +116,26 @@ export function HowWeWorkSection() {
     return () => obs.disconnect()
   }, [])
 
-  /* Scroll listener for the per-block reveals. Runs from mount;
-     RAF-throttled so we don't thrash on fast scrolls. Progress is
-     measured against the section's full scrollable range (its height
-     minus the viewport), so 0 = section's top at viewport top,
-     1 = section's bottom at viewport bottom. */
+  /* Timed phase cascade. Fires once when the section is first
+     revealed - each block flips to .is-revealed at its own offset.
+     Phases are spaced 700ms apart so each gets its own moment
+     before the next one slides in. */
   useEffect(() => {
-    const section = sectionRef.current
-    if (!section) return
-
-    let rafPending = false
-    const onScroll = () => {
-      if (rafPending) return
-      rafPending = true
-      window.requestAnimationFrame(() => {
-        rafPending = false
-        const rect = section.getBoundingClientRect()
-        const scrollRange = rect.height - window.innerHeight
-        if (scrollRange <= 0) return
-        const scrolled = -rect.top
-        const progress = Math.max(0, Math.min(1, scrolled / scrollRange))
+    if (!revealed) return
+    const timers = BLOCK_REVEAL_DELAYS_MS.map((delay, i) =>
+      window.setTimeout(() => {
         setBlocksRevealed((curr) => {
-          /* Monotonic: blocks only go false -> true. Once a block has
-             revealed it STAYS revealed even if the user scrolls back
-             up past its threshold - prevents the animation from
-             playing in reverse and matches expected UX. */
-          const next = BLOCK_REVEAL_THRESHOLDS.map(
-            (t, i) => curr[i] || progress >= t,
-          )
-          if (curr[0] === next[0] && curr[1] === next[1] && curr[2] === next[2]) {
-            return curr
-          }
+          if (curr[i]) return curr
+          const next = curr.slice()
+          next[i] = true
           return next
         })
-      })
-    }
-
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+      }, delay),
+    )
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      timers.forEach((t) => window.clearTimeout(t))
     }
-  }, [])
+  }, [revealed])
 
   return (
     <section
@@ -177,7 +148,12 @@ export function HowWeWorkSection() {
     >
       <div className="how-we-work-page-pin">
         <div className="how-we-work-page-grid">
-          {/* ===== LEFT - intro paragraphs ===== */}
+          {/* ===== LEFT - intro paragraphs =====
+              Split into TWO sentences per Chris's June 2026 ask -
+              "could we have the sentences appear one at a time" -
+              so sentence 1 (the specialist statement) reveals first
+              with its three underline animations, then sentence 2
+              follows with its own MaskReveal a beat later. */}
           <div className="how-we-work-page-left">
             <MaskReveal as="p" className="how-we-work-page-para" delay={0}>
               We are specialists in{' '}
@@ -210,7 +186,13 @@ export function HowWeWorkSection() {
                   climate
                 </span>
                 .
-              </span>{' '}
+              </span>
+            </MaskReveal>
+            <MaskReveal
+              as="p"
+              className="how-we-work-page-para how-we-work-page-para--two"
+              delay={2000}
+            >
               We cut through the complexity of decarbonisation - and build
               the tools your people need to act on it.
             </MaskReveal>

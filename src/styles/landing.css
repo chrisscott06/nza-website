@@ -31,6 +31,14 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Slight bottom padding so the client logo carousel sits a touch
+     above the viewport bottom edge instead of being flush against it,
+     per Chris's June 2026 ask. Mobile gets a smaller offset since
+     viewport real estate is tighter. */
+  padding-bottom: 28px;
+}
+@media (max-width: 599px) {
+  .landing-screen { padding-bottom: 18px; }
 }
 
 /* =========================================================================
@@ -781,7 +789,13 @@
    ========================================================================= */
 .how-we-work-page {
   position: relative;
-  height: 300vh;
+  /* Was 300vh - reduced per Chris's "you're not having to scroll
+     the whole way through" ask now that the three phase blocks
+     reveal on a TIMED cascade instead of needing the user to
+     scroll past three separate scroll-progress thresholds. 220vh
+     = ~120vh of held-pin scroll, enough for the ~4s reveal
+     sequence to play out before the user scrolls past. */
+  height: 220vh;
   background: var(--coral);
   color: #fff;
   /* Curved top edge - the Impilo "curve pops up" detail. As the user
