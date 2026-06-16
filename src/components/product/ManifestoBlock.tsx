@@ -121,25 +121,46 @@ export function ManifestoBlock({
           `${parallaxY}px`,
         )
 
-        /* Text parallax - the inner content gets an additional
-           translateY relative to the card on entry and exit, so
-           the text appears to lag behind the card edge (which is
-           moving at natural scroll). Per Chris's June 2026 ask
-           for the "card and text at different speeds" effect. The
-           manifesto's inner is sticky-pinned during its 60vh hold
-           so during the hold the formula resolves to 0px and the
-           sticky pin remains correct. */
+        /* Text parallax. Three regimes:
+           - Entry  (rect.top > 0)              small lag (+32px),
+                                                 text settles into
+                                                 place as section
+                                                 enters viewport.
+           - Held   (rect.top in [-vh, 0])      text translates UP at
+                                                 0.5x of the scroll
+                                                 past the manifesto's
+                                                 top. Sticky pins the
+                                                 inner at top:0, so
+                                                 textY = 0.5 *
+                                                 rect.top (negative)
+                                                 drifts the text up
+                                                 while the cream
+                                                 Let's Show card
+                                                 rises at natural 1x
+                                                 rate from below.
+           - Exit   (rect.top < -vh)            inner has released
+                                                 sticky and is moving
+                                                 with the container
+                                                 at 1x. textY = -vh -
+                                                 0.5 * rect.top
+                                                 (continues the 0.5x
+                                                 effective rate by
+                                                 countering the 1x
+                                                 release motion with
+                                                 a +0.5x downward
+                                                 translate).
+           At rect.top = 0, -vh, and -2*vh the formulas all agree, so
+           the transitions between regimes are seamless. Per Chris:
+           "the text moves away at a slightly slower speed so it
+           gives it that parallax effect." */
         let textY = 0
         if (rect.top > 0) {
-          /* Entry - section's top is below viewport top, text lags
-             behind the card. */
           const t = Math.min(1, rect.top / viewportH)
-          textY = t * 56
-        } else if (rect.bottom < viewportH) {
-          /* Exit - section's bottom has scrolled past viewport
-             bottom edge, text lags behind the card on the way out. */
-          const t = Math.min(1, (viewportH - rect.bottom) / viewportH)
-          textY = t * 56
+          textY = t * 32
+        } else if (rect.top >= -viewportH) {
+          textY = 0.5 * rect.top
+        } else {
+          textY = -viewportH - 0.5 * rect.top
         }
         section.style.setProperty('--manifesto-text-y', `${textY}px`)
 
