@@ -613,8 +613,26 @@
   color: var(--product-text-on-cream);
   padding: 120px 0;
   text-align: center;
+  /* Curved-top "card sliding on top" effect per Chris's June 2026
+     ask. Sits above the manifesto block via z-index; the negative
+     top margin pulls it up so its rounded corners visibly overlap
+     the manifesto's bottom edge as the user scrolls. The manifesto
+     ::after gradient fade was removed for the same change - the
+     curved card edge is the new transition between sections. */
+  position: relative;
+  z-index: 2;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  margin-top: -48px;
 }
 @media (max-width: 767px) { .product-lets-show { padding: 88px 0; } }
+@media (max-width: 599px) {
+  .product-lets-show {
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    margin-top: -24px;
+  }
+}
 .product-lets-show-inner {
   max-width: 1100px;
   margin: 0 auto;

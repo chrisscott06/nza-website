@@ -24,13 +24,15 @@
 
 .manifesto-block {
   position: relative;
-  /* Full viewport takeover. dvh handles iOS Safari's collapsing
-     toolbar; svh as a fallback for older browsers. */
-  min-height: 100svh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Taller than viewport so the sticky inner content has scroll
+     runway to "hold" - the section stays in view while the user
+     scrolls ~60vh of extra runway, then the next cream section
+     slides up over its bottom edge. Per Chris's June 2026 ask
+     for the curved-card slide-over + parallax-hold effect. */
+  min-height: 160vh;
+  /* Block layout (not flex) so the inner can be sticky-pinned
+     and the bg ::before / scroll prompt can sit alongside. */
+  display: block;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
   z-index: 1;
@@ -62,36 +64,41 @@
      below. */
 }
 
-/* Bottom-edge tonal blend - lightweight stand-in for the brief's
-   "background colour transitions smoothly over ~600ms" between the
-   manifesto and the cream let's-show section beneath. A short
-   linear-gradient at the section's bottom edge softens the cut to
-   cream without needing the observer-driven page-root transition. */
-.manifesto-block::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 96px;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(250, 245, 235, 0.18) 60%,
-    rgba(250, 245, 235, 0.6) 100%
-  );
-  z-index: 0;
-}
+/* The earlier ::after cream gradient fade was removed - Chris asked
+   for the "weird blur at the bottom" to go and to replace it with
+   the cream Let's Show section's curved-top edge sliding up over
+   the manifesto. That edge lives in product-page.css now
+   (.product-lets-show negative margin-top + border-top-radius). */
 
 .manifesto-block-inner {
-  position: relative;
-  z-index: 2;
+  /* Sticky-pin the content so it stays in view while the user
+     scrolls through the section's extra 60vh of runway - this is
+     the "hold" Chris wants. Combined with the bg parallax (the
+     ::before still translates at 0.3x scroll), this gives the
+     "text parallax" feel: text held still, background drifting. */
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 720px;
+  max-width: none;
+  margin: 0 auto;
   padding: clamp(96px, 12vh, 168px) clamp(24px, 5vw, 48px);
   text-align: center;
   box-sizing: border-box;
+  z-index: 2;
+}
+
+.manifesto-block-inner > * {
+  /* Each child carries the 720px max readable width since the
+     sticky parent now spans the full viewport. */
+  max-width: 720px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ---------- typography ---------- */
@@ -116,14 +123,18 @@
   margin: 0;
 }
 
-/* Italic emphasis fingerprint - DM Serif Display italic, coral,
-   1.12em. Matches the site convention from CLAUDE.md. */
+/* Italic emphasis fingerprint - Times New Roman italic, coral,
+   1.15em. Matches the home page's .landing-hero-headline em
+   convention (NOT DM Serif Display - per the user's memory note,
+   the site uses Times New Roman for italics even when briefs say
+   otherwise). */
 .manifesto-block-headline em {
-  font-family: 'DM Serif Display', 'Times New Roman', serif;
+  font-family: 'Times New Roman', serif;
   font-style: italic;
   font-weight: 400;
   color: var(--coral, #F75A55);
-  font-size: 1.12em;
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
 }
 
 .manifesto-block-body {
@@ -133,10 +144,18 @@
   line-height: 1.55;
   /* Full opacity per Chris's "needs to be white" feedback. */
   opacity: 1;
+  /* Belt-and-braces white - the global colors_and_type.css rule
+     `p { color: var(--ink-2) }` (line 287) was painting the body
+     dark grey on the saturated manifesto card, making it unreadable.
+     This + the nested `p` override below keep the body white. */
+  color: #FFFFFF;
 }
 
 .manifesto-block-body p {
   margin: 0;
+  /* Override the global p colour rule so body text stays white
+     against the saturated accent backgrounds. */
+  color: inherit;
 }
 
 .manifesto-block-body p + p {
@@ -190,8 +209,14 @@
 /* ---------- scroll prompt ---------- */
 
 .manifesto-block-scroll-prompt {
-  position: absolute;
+  /* Sticky inside the section so the prompt sits at the bottom of
+     the viewport while the manifesto holds, instead of being
+     stuck at the bottom of the 160vh-tall section (which the user
+     wouldn't see until they'd already scrolled past). */
+  position: sticky;
   bottom: clamp(24px, 4vh, 48px);
+  margin-top: -64px; /* counter the sticky reserve so it sits cleanly */
+  margin-bottom: clamp(24px, 4vh, 48px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
@@ -199,6 +224,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  width: max-content;
   color: inherit;
   /* Inline `style.opacity` from JS controls the scroll-driven fade.
      Default 1 here so the static state is correct before JS hydrates. */
@@ -255,9 +281,18 @@
   .manifesto-block {
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
+    /* No extra runway on phone - the sticky-hold effect doesn't
+       translate to a small screen and just makes the page feel
+       longer. Revert to single-viewport height. */
+    min-height: 100svh;
+    min-height: 100dvh;
   }
 
   .manifesto-block-inner {
+    /* Phone: drop the sticky pin too - no scroll runway to hold
+       against. Inner becomes a normal centred flex container. */
+    position: static;
+    min-height: auto;
     padding: clamp(72px, 12vh, 120px) 20px;
   }
 
