@@ -612,21 +612,22 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   text-align: center;
-  /* Card-stack pattern per Chris's June 2026 brief.
-     Negative margin-top of -100vh pulls Let's Show up so its top
-     edge sits AT the bottom of the manifesto's sticky-pinned text
-     - no purple gap between them. As the user scrolls past the
-     manifesto's 200vh container, this cream card rises up over
-     the held text. 200vh container + 100vh sticky inner gives the
-     same 100vh-of-held-pin behaviour as the manifesto, so the
-     Let's Show headline holds centred in viewport for a beat
-     before the Steps section slides up over IT (with its own
-     -100vh margin). */
+  /* Card-stack pattern. -130vh pulls the cream card up far enough
+     that its TOP edge sits inside the manifesto's content area at
+     scroll-start (manifesto is 200vh, so 200vh - 130vh = 70vh
+     from the manifesto's top in document coords - that lands the
+     cream top about 70vh down in the viewport at scrollY=0, right
+     where the manifesto body paragraph ends). As the user scrolls,
+     the cream top rises further up over the still-pinned text -
+     there's no "wait at the bottom of the viewport" moment any
+     more. -100vh was leaving a 30vh purple void between the
+     pinned text and the cream top at scroll start (Chris: "huge
+     purple between the two"). */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -100vh;
+  margin-top: -130vh;
   min-height: 200vh;
 }
 @media (max-width: 599px) {
@@ -697,6 +698,17 @@
   /* A touch of negative bottom margin keeps descenders inside
      the inline-block instead of getting clipped at rest. */
   padding-bottom: 0.05em;
+  /* The inter-word space ' ' I was rendering between mapped spans
+     was getting collapsed by white-space: normal at the boundary
+     of each inline-block wrapper, which produced
+     "Let'sshowyouhowPABLOworks" with no gaps. Use explicit
+     margin-right per word instead so the gap is structural and
+     doesn't depend on text whitespace. 0.25em ~= a normal word
+     space at this font weight. */
+  margin-right: 0.25em;
+}
+.product-lets-show-headline .lets-show-word:last-child {
+  margin-right: 0;
 }
 .product-lets-show-headline .lets-show-word-inner {
   display: inline-block;
@@ -771,16 +783,17 @@
   padding: 80px 0 140px;
   /* Same card-slide pattern as the manifesto -> Let's Show
      handoff: higher z-index than the sticky-pinned Let's Show
-     above (which is z-index 2), curved-top corners + a -100vh
-     margin-top so the steps section sits AT the bottom of the
-     held Let's Show headline (no cream gap). As the user scrolls
-     past Let's Show's sticky pin, this section rises up over the
-     held headline. */
+     above (which is z-index 2), curved-top corners + -130vh so
+     the Steps section sits inside Let's Show's content area at
+     scroll-start (matches the manifesto -> Let's Show overlap
+     for visual consistency). The Steps frame (with the coral
+     Request Demo pill in its top-right) is what visibly rises
+     up over the held Let's Show headline. */
   position: relative;
   z-index: 3;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -100vh;
+  margin-top: -130vh;
 }
 @media (max-width: 767px) { .product-steps { padding: 64px 0 96px; } }
 @media (max-width: 599px) {

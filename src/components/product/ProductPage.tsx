@@ -645,7 +645,6 @@ function LetsShowHeadline({
           >
             {word}
           </span>
-          {i < words.length - 1 ? ' ' : null}
         </span>
       ))}
     </h2>
