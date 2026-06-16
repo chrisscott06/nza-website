@@ -840,10 +840,16 @@
   flex-direction: column;
 }
 
-/* One step's text block - viewport-tall on desktop so the inner
-   .product-step-text-sticky has scroll range to pin against. */
+/* One step's text block - 150vh on desktop per the scrollytelling
+   pacing brief (docs/briefs/nza-scrollytelling-pacing-brief.md,
+   Knob 1). Was 100vh; the +50% runway lets each card "own" the
+   viewport for longer before the active-flip kicks in, so the
+   reader has a real settled moment to land on the step instead of
+   feeling rushed to the next one.
+   Total scroll length of a five-card section is now ~750vh
+   (was ~500vh), matching the brief's 40-60% target. */
 .product-step-text-block {
-  min-height: 100vh;
+  min-height: 150vh;
   padding: 60px 0;
   /* No flex on the block itself - sticky needs to size against a
      regular block parent. The inner sticky element handles its own
@@ -858,11 +864,18 @@
 
 
 /* THE STICKY TEXT - the content that page-locks during a step's
-   scroll range. The Impilo mechanic Chris asked for: text stays
-   pinned at top: 22vh until the user has scrolled the block's full
-   height, then sticky releases and the next step's text takes over.
-   Both columns (text + frame illustration) sticky-together = the
-   page-lock feel. */
+   scroll range. Pinned at top: 22vh until the user has scrolled
+   the block's full height (now 150vh), then sticky releases and
+   the next step's text takes over. Both columns (text + frame
+   illustration) sticky-together = the page-lock feel.
+   Knob 2 of the pacing brief: inactive cards are essentially
+   invisible (opacity 0.08) and sit 12px below their natural
+   position, so the active card OWNS the viewport on its own.
+   Previously inactive was 0.45 - readable enough that the user
+   could see Card N exiting at the top WHILE Card N+1 was
+   already on screen below. Killing the inactive readability
+   makes the handoff sequential: Card N fades + rises away, brief
+   empty viewport, Card N+1 rises in. */
 .product-step-text-sticky {
   position: sticky;
   top: 22vh;
@@ -870,19 +883,23 @@
   flex-direction: column;
   gap: 20px;
   max-width: 460px;
-  /* Inactive blocks dim slightly so the active one carries focus.
-     is-active is added to the OUTER .product-step-text-block by
-     ProductStepsSection. */
-  opacity: 0.45;
-  transition: opacity 500ms var(--product-ease);
+  /* Inactive: nearly invisible + slight downward offset for a
+     rise-into-place feel when this card becomes active. */
+  opacity: 0.08;
+  transform: translate3d(0, 12px, 0);
+  transition: opacity 600ms var(--product-ease),
+              transform 600ms var(--product-ease);
+  will-change: opacity, transform;
 }
 .product-step-text-block.is-active .product-step-text-sticky {
   opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 @media (max-width: 1023px) {
   .product-step-text-sticky {
     position: static;
     opacity: 1; /* no dimming when stacked */
+    transform: none;
     max-width: none;
     gap: 24px;
   }
@@ -987,8 +1004,14 @@
   justify-content: center;
   opacity: 0;
   transform: scale(0.96);
-  transition: opacity 520ms var(--product-ease),
-              transform 520ms var(--product-ease);
+  /* Knob 3 of the pacing brief (docs/briefs/nza-scrollytelling-
+     pacing-brief.md): illustration transition slower (800ms) than
+     the text transition (600ms). When the active step flips, the
+     text switches first and the new visualisation arrives slightly
+     later, so the visual feels "held" - last to leave, last to
+     settle. Creates the rest beat the brief asks for. */
+  transition: opacity 800ms var(--product-ease),
+              transform 800ms var(--product-ease);
   /* All N illustrations are stacked at the same absolute position;
      only the active one is opacity:1. The inactive ones (opacity:0)
      still receive pointer events by default, which means whichever
@@ -1189,6 +1212,31 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  /* Scrollytelling pacing brief: "pinned scroll becomes a normal
+     section, transitions become hard cuts" for users who prefer
+     reduced motion. Drop the sticky pin on both columns (text +
+     shared frame), show every card at full opacity (since they're
+     no longer page-locked the active-only fade would just hide
+     content as the user scrolls past), and kill the cross-fade on
+     the frame illustration so the active one is the only thing
+     visible. */
+  .product-step-text-sticky {
+    position: static;
+    top: auto;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .product-steps-frame-col {
+    position: static;
+    top: auto;
+    height: auto;
+  }
+  .product-steps-frame-illustration {
+    transition: none;
+    transform: none;
   }
 }
 

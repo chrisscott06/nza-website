@@ -53,9 +53,13 @@ export function ProductStepsSection({
   const textRefs = useRef<(HTMLDivElement | null)[]>([])
 
   // IntersectionObserver with a narrow active-band in the middle of
-  // the viewport. rootMargin -40% top + -40% bottom shrinks the IO
-  // root rect to a 20vh-tall band in the middle of the viewport; a
+  // the viewport. rootMargin -45% top + -45% bottom shrinks the IO
+  // root rect to a 10vh-tall band in the middle of the viewport; a
   // block is "active" when its bounding rect intersects that band.
+  // Tightened from -40% (20vh band) per the scrollytelling pacing
+  // brief (Knob 2): the wider band let two blocks intersect at
+  // once during the handoff, causing both cards to appear "active"
+  // for a moment. 10vh band makes the active-flip cleaner.
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => {
@@ -66,7 +70,7 @@ export function ProductStepsSection({
           }
         }
       },
-      { threshold: 0, rootMargin: '-40% 0px -40% 0px' },
+      { threshold: 0, rootMargin: '-45% 0px -45% 0px' },
     )
     textRefs.current.forEach((el) => {
       if (el) obs.observe(el)
