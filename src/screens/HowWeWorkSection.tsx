@@ -80,20 +80,20 @@ const PHASES: Array<{
   },
 ]
 
-/* Timed cascade per Chris's June 2026 ask. Two-stage reveal:
-   - Stage 1 (t=0..~2800ms): two sentences reveal on the LEFT.
-     Sentence 1 (MaskReveal delay=0) lands ~600ms in; sentence 2
-     (MaskReveal delay=2000ms) lands ~2600ms in. The right column
-     stays empty during this stage - user sees the left text settle
-     before anything on the right appears.
-   - Stage 2 (t=2900ms onward): right side reveals. Tagline first,
-     then the three Decode/Build/Partner blocks at 700ms apart.
-   Chris's "Don't let them scroll past until the text on the left
-   is fully appeared, and then... not until [the right] is fully
-   appeared" is handled by the section's 300vh sticky-pin runway -
-   user can keep scrolling but the visual stays put while the
-   cascade fires. */
-const BLOCK_REVEAL_DELAYS_MS = [3400, 4100, 4800] as const
+/* Timed cascade. MaskReveal's CSS transition is 900ms transform +
+   700ms opacity, so each MaskReveal "settles" ~900ms after its
+   delay fires. Per Chris's June 2026 pacing ask ("just want it all
+   to appear as if you didn't speak there, which you'd read it -
+   nice order rather than a big gap between the two"), the reveal
+   chain is tight:
+     Sentence 1   delay   0ms,  settles ~900ms
+     Sentence 2   delay 1300ms, settles ~2200ms      (~400ms gap)
+     Tagline      delay 2500ms                       (right side opens)
+     Phase 1      delay 3100ms
+     Phase 2      delay 3700ms
+     Phase 3      delay 4300ms
+   Total to last phase: ~4.3s, ~5.2s including settle. */
+const BLOCK_REVEAL_DELAYS_MS = [3100, 3700, 4300] as const
 
 export function HowWeWorkSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
@@ -184,7 +184,7 @@ export function HowWeWorkSection() {
             <MaskReveal
               as="p"
               className="how-we-work-page-para how-we-work-page-para--two"
-              delay={2000}
+              delay={1300}
             >
               We cut through the complexity of decarbonisation - and build
               the tools your people need to act on it.
@@ -201,7 +201,7 @@ export function HowWeWorkSection() {
             <MaskReveal
               as="p"
               className="how-we-work-page-phases-intro"
-              delay={2900}
+              delay={2500}
             >
               Every engagement follows three phases.
             </MaskReveal>
