@@ -75,7 +75,11 @@
      scrolls through the section's extra 60vh of runway - this is
      the "hold" Chris wants. Combined with the bg parallax (the
      ::before still translates at 0.3x scroll), this gives the
-     "text parallax" feel: text held still, background drifting. */
+     "text parallax" feel: text held still, background drifting.
+     The JS-driven --manifesto-text-y CSS var adds an additional
+     translateY on entry + exit so the text lags behind the card
+     edge as it scrolls in / out. During the sticky hold the var
+     resolves to 0px so the pin stays correct. */
   position: sticky;
   top: 0;
   min-height: 100vh;
@@ -90,6 +94,8 @@
   text-align: center;
   box-sizing: border-box;
   z-index: 2;
+  transform: translate3d(0, var(--manifesto-text-y, 0px), 0);
+  will-change: transform;
 }
 
 .manifesto-block-inner > * {

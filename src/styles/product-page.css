@@ -637,6 +637,13 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 48px;
+  /* Scroll parallax - text lags the card edge on entry + exit so
+     the white card "scrolls in first, then the text scrolls in"
+     per Chris's June 2026 ask. JS in ProductPage.tsx sets the CSS
+     var; this transform applies it. 0 during the middle of the
+     section's traverse so the text sits at its natural position. */
+  transform: translate3d(0, var(--lets-show-text-y, 0px), 0);
+  will-change: transform;
 }
 @media (max-width: 599px) { .product-lets-show-inner { padding: 0 20px; } }
 .product-lets-show-inner {

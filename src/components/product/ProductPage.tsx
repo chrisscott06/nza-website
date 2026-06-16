@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
@@ -155,6 +155,58 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [config.slug])
+
+  /* Scroll-driven parallax on the Let's Show section's inner content.
+     Per Chris's June 2026 ask: "the white card zooms in and scrolls
+     in first, then the text scrolls in". The CARD (outer section)
+     moves with natural scroll; the TEXT INSIDE translates at a
+     slower rate so it lags during entry AND exit, creating the
+     depth feel of card and text moving at different speeds.
+
+     Formula: text translateY is positive (below card position) when
+     the section is entering from below the viewport, returns to 0
+     when fully in view, then goes positive again on the way out. */
+  const letsShowRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    const section = letsShowRef.current
+    if (!section) return
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (reducedMotion.matches) return
+
+    let rafPending = false
+    const onScroll = () => {
+      if (rafPending) return
+      rafPending = true
+      window.requestAnimationFrame(() => {
+        rafPending = false
+        const rect = section.getBoundingClientRect()
+        const vh = window.innerHeight
+        let textY = 0
+        if (rect.top > 0) {
+          /* Entry phase - section's top is still below viewport top.
+             textY starts at LETS_SHOW_TEXT_LAG when section is fresh
+             below the viewport, eases toward 0 as section centres. */
+          const t = Math.min(1, rect.top / vh)
+          textY = t * 64
+        } else if (rect.bottom < vh) {
+          /* Exit phase - section's bottom has crossed above viewport
+             bottom. Same magnitude lag in the opposite direction. */
+          const t = Math.min(1, (vh - rect.bottom) / vh)
+          textY = t * 64
+        }
+        section.style.setProperty('--lets-show-text-y', `${textY}px`)
+      })
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
 
   /* Case studies single-expand state - only one card open at a time.
      Null = all collapsed. Click the open card to collapse, click a
@@ -323,7 +375,7 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
       {/* =========================================================
           SECTION 3 - LET'S SHOW YOU
           ========================================================= */}
-      <section className="product-lets-show">
+      <section ref={letsShowRef} className="product-lets-show">
         <div className="product-lets-show-inner">
           {/* Headline now stands alone - the Request Demo pill is no
               longer inline. Per Chris: a single confident statement,

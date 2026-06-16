@@ -117,6 +117,28 @@ export function ManifestoBlock({
           `${parallaxY}px`,
         )
 
+        /* Text parallax - the inner content gets an additional
+           translateY relative to the card on entry and exit, so
+           the text appears to lag behind the card edge (which is
+           moving at natural scroll). Per Chris's June 2026 ask
+           for the "card and text at different speeds" effect. The
+           manifesto's inner is sticky-pinned during its 60vh hold
+           so during the hold the formula resolves to 0px and the
+           sticky pin remains correct. */
+        let textY = 0
+        if (rect.top > 0) {
+          /* Entry - section's top is below viewport top, text lags
+             behind the card. */
+          const t = Math.min(1, rect.top / viewportH)
+          textY = t * 56
+        } else if (rect.bottom < viewportH) {
+          /* Exit - section's bottom has scrolled past viewport
+             bottom edge, text lags behind the card on the way out. */
+          const t = Math.min(1, (viewportH - rect.bottom) / viewportH)
+          textY = t * 56
+        }
+        section.style.setProperty('--manifesto-text-y', `${textY}px`)
+
         /* Scroll prompt fade: when the user has scrolled past
            SCROLL_PROMPT_FADE_THRESHOLD of the section's height, the
            prompt is fully invisible. Linear fade between 0 and the
