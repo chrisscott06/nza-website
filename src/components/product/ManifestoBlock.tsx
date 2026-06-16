@@ -121,46 +121,27 @@ export function ManifestoBlock({
           `${parallaxY}px`,
         )
 
-        /* Text parallax. Three regimes:
-           - Entry  (rect.top > 0)              small lag (+32px),
-                                                 text settles into
-                                                 place as section
-                                                 enters viewport.
-           - Held   (rect.top in [-vh, 0])      text translates UP at
-                                                 0.5x of the scroll
-                                                 past the manifesto's
-                                                 top. Sticky pins the
-                                                 inner at top:0, so
-                                                 textY = 0.5 *
-                                                 rect.top (negative)
-                                                 drifts the text up
-                                                 while the cream
-                                                 Let's Show card
-                                                 rises at natural 1x
-                                                 rate from below.
-           - Exit   (rect.top < -vh)            inner has released
-                                                 sticky and is moving
-                                                 with the container
-                                                 at 1x. textY = -vh -
-                                                 0.5 * rect.top
-                                                 (continues the 0.5x
-                                                 effective rate by
-                                                 countering the 1x
-                                                 release motion with
-                                                 a +0.5x downward
-                                                 translate).
-           At rect.top = 0, -vh, and -2*vh the formulas all agree, so
-           the transitions between regimes are seamless. Per Chris:
-           "the text moves away at a slightly slower speed so it
-           gives it that parallax effect." */
+        /* Text positioning - kept minimal on Chris's latest reversal:
+           "leave the text there and let the white bit overlap it.
+           Almost like we're lifting a page on top of it."
+           - Entry  (rect.top > 0)        small lag (32px) so the
+                                          text settles into place
+                                          as the section enters
+                                          viewport (existing reveal
+                                          feel).
+           - Held + Exit (rect.top <= 0)  text stays at its sticky-
+                                          pinned natural position
+                                          (textY = 0). The cream
+                                          Let's Show card rises up
+                                          over the top while the
+                                          text stays still
+                                          underneath - the "page
+                                          being lifted on top of it"
+                                          effect, no parallax drift. */
         let textY = 0
         if (rect.top > 0) {
           const t = Math.min(1, rect.top / viewportH)
           textY = t * 32
-        } else if (rect.top >= -viewportH) {
-          textY = 0.5 * rect.top
-        } else {
-          textY = -viewportH - 0.5 * rect.top
         }
         section.style.setProperty('--manifesto-text-y', `${textY}px`)
 
