@@ -80,12 +80,20 @@ const PHASES: Array<{
   },
 ]
 
-/* Timed cascade per Chris's June 2026 ask: rather than make the
-   user scroll through 300vh to see each phase block reveal, all
-   three blocks reveal in a paced sequence after the section enters
-   view. User sees the whole infographic without working for it,
-   then scrolls past to leave the section. */
-const BLOCK_REVEAL_DELAYS_MS = [2800, 3500, 4200] as const
+/* Timed cascade per Chris's June 2026 ask. Two-stage reveal:
+   - Stage 1 (t=0..~2800ms): two sentences reveal on the LEFT.
+     Sentence 1 (MaskReveal delay=0) lands ~600ms in; sentence 2
+     (MaskReveal delay=2000ms) lands ~2600ms in. The right column
+     stays empty during this stage - user sees the left text settle
+     before anything on the right appears.
+   - Stage 2 (t=2900ms onward): right side reveals. Tagline first,
+     then the three Decode/Build/Partner blocks at 700ms apart.
+   Chris's "Don't let them scroll past until the text on the left
+   is fully appeared, and then... not until [the right] is fully
+   appeared" is handled by the section's 300vh sticky-pin runway -
+   user can keep scrolling but the visual stays put while the
+   cascade fires. */
+const BLOCK_REVEAL_DELAYS_MS = [3400, 4100, 4800] as const
 
 export function HowWeWorkSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
@@ -157,35 +165,20 @@ export function HowWeWorkSection() {
           <div className="how-we-work-page-left">
             <MaskReveal as="p" className="how-we-work-page-para" delay={0}>
               We are specialists in{' '}
-              {/* Each highlight word is wrapped together with its
-                  trailing punctuation in a white-space: nowrap group
-                  so the comma after "buildings" and the period after
-                  "climate" can never fall to a new line on their own
-                  (Chris flagged the orphan comma after "buildings"). */}
+              {/* Each highlight word + its trailing punctuation sit in
+                  a white-space: nowrap group so the comma after
+                  "buildings" and the period after "climate" can never
+                  fall to a new line on their own. The highlight-coral
+                  words render in Stolzl 600 (bold) per Chris's June
+                  2026 ask - the per-word underline draw animation that
+                  used to live on these spans is gone. */}
               <span className="highlight-nobr">
-                <span
-                  className="highlight-coral"
-                  style={{ '--highlight-delay': '950ms' } as React.CSSProperties}
-                >
-                  buildings
-                </span>
-                ,
+                <span className="highlight-coral">buildings</span>,
               </span>{' '}
-              <span
-                className="highlight-coral"
-                style={{ '--highlight-delay': '1300ms' } as React.CSSProperties}
-              >
-                energy
-              </span>
+              <span className="highlight-coral">energy</span>
               {' '}and{' '}
               <span className="highlight-nobr">
-                <span
-                  className="highlight-coral"
-                  style={{ '--highlight-delay': '1650ms' } as React.CSSProperties}
-                >
-                  climate
-                </span>
-                .
+                <span className="highlight-coral">climate</span>.
               </span>
             </MaskReveal>
             <MaskReveal
@@ -208,7 +201,7 @@ export function HowWeWorkSection() {
             <MaskReveal
               as="p"
               className="how-we-work-page-phases-intro"
-              delay={2200}
+              delay={2900}
             >
               Every engagement follows three phases.
             </MaskReveal>

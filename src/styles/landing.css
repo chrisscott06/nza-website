@@ -789,13 +789,15 @@
    ========================================================================= */
 .how-we-work-page {
   position: relative;
-  /* Was 300vh - reduced per Chris's "you're not having to scroll
-     the whole way through" ask now that the three phase blocks
-     reveal on a TIMED cascade instead of needing the user to
-     scroll past three separate scroll-progress thresholds. 220vh
-     = ~120vh of held-pin scroll, enough for the ~4s reveal
-     sequence to play out before the user scrolls past. */
-  height: 220vh;
+  /* 300vh runway - the sticky inner is 100vh, so the user gets
+     ~200vh of held-pin scroll while the timed reveals play out.
+     Per Chris: "Don't let you scroll past until the text on the
+     left is fully appeared, and then don't let them scroll past
+     until [the right side animation is] fully appeared." A long
+     sticky pin gives the held-in-place feel while the timed
+     cascade (sentence 1 -> sentence 2 -> tagline -> three phases)
+     fires over ~5.5 seconds. */
+  height: 300vh;
   background: var(--coral);
   color: #fff;
   /* Curved top edge - the Impilo "curve pops up" detail. As the user
@@ -808,12 +810,6 @@
   /* Above the sticky hero in the stack so the coral covers the navy
      as it rises. */
   z-index: 1;
-  /* Highlight underline colour - dark navy per Chris ("can we make
-     the three underlined words ... have dark blue underlines to
-     make them stand out a bit more"). Was #fff which read as a
-     quiet white-on-coral; --ink-navy is the deep brand navy and
-     reads as a confident dark-blue mark on coral. */
-  --underline-color: var(--ink-navy);
 }
 
 /* ===== HERO + CORAL PARALLAX STACK =====
@@ -929,36 +925,13 @@
 .highlight-nobr {
   white-space: nowrap;
 }
+/* Underline removed per Chris's June 2026 ask - the three highlight
+   words now read as Stolzl Medium/bold to stand out from the
+   surrounding Book weight, no decoration needed. */
 .highlight-coral {
   position: relative;
   display: inline-block;
-}
-.highlight-coral::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  /* Sits just below the text - 0.18em above the inline-block's
-     bottom is roughly the descender baseline for Stolzl Book. */
-  bottom: 0.18em;
-  height: 0.06em;
-  /* Pulls colour from --underline-color set by the parent context
-     (white on the new coral page). Falls back to the original
-     coral if no override is set. */
-  background: var(--underline-color, var(--coral));
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-.mask-reveal.is-revealed .highlight-coral::after {
-  animation: highlight-underline-draw 520ms cubic-bezier(0.7, 0, 0.3, 1) var(--highlight-delay, 0ms) forwards;
-}
-@keyframes highlight-underline-draw {
-  to { transform: scaleX(1); }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* Skip the draw - just show the underline at rest. */
-  .highlight-coral::after { transform: scaleX(1); }
-  .mask-reveal.is-revealed .highlight-coral::after { animation: none; }
+  font-weight: 600;
 }
 
 /* RIGHT column - small intro line + three phase blocks STACKED
