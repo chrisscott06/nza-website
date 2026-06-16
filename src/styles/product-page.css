@@ -611,39 +611,50 @@
 .product-lets-show {
   background: var(--product-cream);
   color: var(--product-text-on-cream);
-  /* Bottom padding halved per the manifesto-exit-mechanics brief -
-     the previous 120px below the headline created an empty scroll
-     moment between "Let's show you how we do it" and Section 01
-     ("Break down your bill" on PABLO). 60px below keeps the
-     headline a clean transition rather than its own page. Top
-     padding stays at 120px so the manifesto -> Let's Show curved
-     card transition still has room to breathe. */
-  padding: 120px 0 60px 0;
   text-align: center;
-  /* Curved-top "card sliding on top" effect per Chris's June 2026
-     ask. Sits above the manifesto block via z-index; the negative
-     top margin pulls it up so its rounded corners visibly overlap
-     the manifesto's bottom edge as the user scrolls. The manifesto
-     ::after gradient fade was removed for the same change - the
-     curved card edge is the new transition between sections. */
+  /* Card-stack pattern per Chris's June 2026 brief: this is the
+     SECOND held card in the manifesto -> Let's Show -> Steps
+     sequence. The headline sits sticky-pinned centred in the
+     viewport for ~60vh of scroll, then the cream Steps section
+     (Section 01 "Break down your bill") slides up OVER it via
+     its own curved-top edge - same overlap effect as the
+     manifesto -> Let's Show handoff. Section is 160vh tall,
+     inner sticky 100vh. */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
   margin-top: -48px;
+  min-height: 160vh;
 }
-@media (max-width: 767px) { .product-lets-show { padding: 88px 0 44px 0; } }
 @media (max-width: 599px) {
   .product-lets-show {
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
     margin-top: -24px;
+    /* Phone reverts to single-viewport - the sticky-pin hold reads
+       as over-engineered on small screens. */
+    min-height: auto;
+    padding: 88px 0 44px 0;
   }
 }
 .product-lets-show-inner {
+  /* Sticky-pin the headline content for the section's 60vh of
+     extra scroll runway. Reads as the headline holding centred
+     in the viewport for ~1s while the user scrolls, then the
+     next section slides up over it. */
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 48px;
+  box-sizing: border-box;
   /* Scroll parallax - text lags the card edge on entry + exit so
      the white card "scrolls in first, then the text scrolls in"
      per Chris's June 2026 ask. JS in ProductPage.tsx sets the CSS
@@ -652,12 +663,13 @@
   transform: translate3d(0, var(--lets-show-text-y, 0px), 0);
   will-change: transform;
 }
-@media (max-width: 599px) { .product-lets-show-inner { padding: 0 20px; } }
-.product-lets-show-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 36px;
+@media (max-width: 599px) {
+  .product-lets-show-inner {
+    /* Phone: drop the sticky pin, normal flow. */
+    position: static;
+    min-height: auto;
+    padding: 0 20px;
+  }
 }
 .product-lets-show-headline {
   font-family: var(--font-display);
@@ -719,8 +731,25 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   padding: 80px 0 140px;
+  /* Same card-slide pattern as the manifesto -> Let's Show
+     handoff: a higher z-index than the sticky-pinned Let's Show
+     above (which is z-index 2), curved-top corners + a negative
+     top margin pull the steps section up so it visibly slides
+     OVER the held Let's Show headline as the user scrolls. */
+  position: relative;
+  z-index: 3;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  margin-top: -48px;
 }
 @media (max-width: 767px) { .product-steps { padding: 64px 0 96px; } }
+@media (max-width: 599px) {
+  .product-steps {
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    margin-top: -24px;
+  }
+}
 .product-steps-inner {
   max-width: 1280px;
   margin: 0 auto;
