@@ -612,22 +612,21 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   text-align: center;
-  /* Card-stack pattern. -130vh pulls the cream card up far enough
-     that its TOP edge sits inside the manifesto's content area at
-     scroll-start (manifesto is 200vh, so 200vh - 130vh = 70vh
-     from the manifesto's top in document coords - that lands the
-     cream top about 70vh down in the viewport at scrollY=0, right
-     where the manifesto body paragraph ends). As the user scrolls,
-     the cream top rises further up over the still-pinned text -
-     there's no "wait at the bottom of the viewport" moment any
-     more. -100vh was leaving a 30vh purple void between the
-     pinned text and the cream top at scroll start (Chris: "huge
-     purple between the two"). */
+  /* Card-stack pattern. -100vh puts the cream card's TOP edge
+     exactly at viewport bottom at scrollY=0 (200vh manifesto
+     container, -100vh pull = cream top at 100vh in document =
+     viewport bottom). So the manifesto reads as a full purple
+     screen first, with NO cream peeking up. As the user starts
+     scrolling, the cream rises into view from below and slides
+     over the held manifesto text. Per Chris: "It should be a
+     full purple screen, and then as you scroll, the white comes
+     over it." -130vh was too aggressive - showed cream in the
+     bottom 30vh at scroll-start. */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -130vh;
+  margin-top: -100vh;
   min-height: 200vh;
 }
 @media (max-width: 599px) {
