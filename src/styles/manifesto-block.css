@@ -27,11 +27,10 @@
   /* 200vh runway: sticky inner is 100vh, so the user gets a full
      100vh of "the text is locked" while the cream Let's Show card
      rises up over it from below (-100vh margin-top on Let's Show
-     in product-page.css). Previous 160vh runway left a 60vh purple
-     gap below the held text before Let's Show arrived; doubling
-     the runway to 200vh + pulling Let's Show up 100vh eliminates
-     it - the cream card is always touching the bottom of the
-     manifesto text as the user scrolls. */
+     in product-page.css). The 100vh held window is where the 3D
+     parallax happens - text drifts up at 0.5x via the JS in
+     ManifestoBlock.tsx, cream rises at 1x via the negative
+     margin-top. */
   min-height: 200vh;
   /* Block layout (not flex) so the inner can be sticky-pinned
      and the bg ::before / scroll prompt can sit alongside. */
@@ -39,7 +38,22 @@
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
   z-index: 1;
-  overflow: hidden;
+  /* IMPORTANT: overflow: clip, NOT overflow: hidden.
+     overflow: hidden establishes a scroll container, and CSS
+     position: sticky inside a non-scrolling scroll container
+     does NOT pin to the viewport - it rides with the parent at
+     1x rate. That's why every earlier attempt at the "text holds
+     in place" effect was silently failing: the inner was scrolling
+     at 1x with the page, never actually pinning. The held phase
+     looked like a long purple gap because the text was just
+     scrolling past quickly, not holding.
+     overflow: clip gives us the same clipping (needed because
+     the ::before bg layer overhangs by 15% top/bottom for its
+     own parallax drift) WITHOUT establishing a scroll container,
+     so the inner's position: sticky pins to the viewport like
+     a normal page-scroll-driven sticky. Safari 16+, Chrome 90+,
+     Firefox 81+ - covers our modern-browser baseline. */
+  overflow: clip;
   color: #FFFFFF;
   /* Parallax offset for the bg layer. JS sets this on the inline
      style attribute; CSS uses it on the ::before pseudo. Default 0

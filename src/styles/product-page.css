@@ -612,24 +612,26 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   text-align: center;
-  /* Same recipe as Let's Show -> Steps so the manifesto -> Let's
-     Show transition reads identically (held lock -> slow text
-     exit + cream rising at 1x). Previous -100vh pulled the cream
-     card up to fully cover the manifesto inner the instant the
-     held phase ended at scrollY=100vh, so the 0.5x slow-exit
-     parallax on the manifesto inner was happening completely
-     hidden behind the cream - that's why Chris couldn't see it.
-     Now -48px (matching .product-steps' overlap with Let's Show)
-     keeps the cream below the viewport during the entire 100vh
-     held phase, then rises into view at natural 1x rate during
-     the manifesto's 100vh exit phase. The manifesto inner exits
-     at 0.5x rate visible above the rising cream - same slow-text-
-     vs-fast-card effect Chris likes on the second handoff. */
+  /* margin-top: -100vh on purpose, NOT the -48px we use for the
+     Let's Show -> Steps handoff. Reason: the manifesto's bright
+     purple makes "stuck" time read as dead space, where on cream-
+     on-cream the same hold is invisible. Pulling the cream up by
+     a full viewport means it sits at the doc position of the
+     manifesto inner's bottom edge - so as soon as the manifesto
+     text settles (sticky engages at top:0) and the user scrolls,
+     the cream is RIGHT THERE rising up over the purple at natural
+     1x rate. Combined with the manifesto-block.css text-y JS that
+     drifts the text upward at 0.5x rate during the held phase
+     (see ManifestoBlock.tsx), the user sees a 3D parallax: cream
+     card scrolls up fast, text on the purple drifts slowly. No
+     purple gap, no "stuck" moment. The 200vh runway is what gives
+     the held phase its 100vh of scroll for the parallax to play
+     out across. */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -48px;
+  margin-top: -100vh;
   min-height: 200vh;
 }
 @media (max-width: 599px) {

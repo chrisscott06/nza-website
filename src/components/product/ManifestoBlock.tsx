@@ -121,31 +121,57 @@ export function ManifestoBlock({
           `${parallaxY}px`,
         )
 
-        /* Matches the Let's Show -> Steps parallax exactly per
-           Chris's "exact same parallax scroll" ask:
-           - Entry  (rect.top > 0)         small +32px lag, text
-                                           settles into place.
-           - Held   (sticky engaged,       textY = 0. Text stays
-                    rect.top <= 0 AND      static via the sticky
-                    rect.bottom >= vh)     pin. Cream Let's Show
-                                           rises up over it at
-                                           natural 1x rate.
-           - Exit   (rect.bottom < vh)     textY = (vh - rect.bottom)
-                                           * 0.5. The downward
-                                           translate counters half
-                                           the inner's natural
-                                           upward motion after
-                                           sticky releases, so the
-                                           text exits at ~0.5x rate
-                                           while Steps comes in at
-                                           1x from below. */
+        /* 3D parallax handoff per Chris: "as soon as we start
+           scrolling past [the text], the cream below should scroll
+           up... the text in the purple box was moving at the same
+           rate as the white box was moving up. That's all I wanted
+           was a slight difference - so it felt like there's a 3D
+           layer where the purple background is and the white text
+           on it is moving slower than the white curved background
+           that's now moving over it."
+
+           Three regimes, all smoothly continuous at the boundaries:
+           - Entry  (rect.top > 0)        small +32px downward lag
+                                          so text settles into place
+                                          slightly behind the section
+                                          edge.
+           - Held   (sticky engaged,      textY = 0.5 * rect.top.
+                    rect.top <= 0 AND     rect.top is negative, so
+                    rect.bottom >= vh)    textY is negative - inner
+                                          drifts UP at 0.5x rate.
+                                          Meanwhile Let's Show has
+                                          margin-top: -100vh so the
+                                          cream rises from below at
+                                          natural 1x rate. Visible
+                                          parallax: cream-fast,
+                                          text-slow.
+           - Exit   (rect.bottom < vh)    Continues the 0.5x net
+                                          rate seamlessly. Natural
+                                          inner position during exit
+                                          is (rect.bottom - vh)
+                                          (sticky has released, inner
+                                          rides at the bottom of the
+                                          container). To keep net
+                                          movement at 0.5x:
+                                          textY = 0.5*rect.top -
+                                                  (rect.bottom - vh)
+                                          Continuous with held at
+                                          the boundary (both give
+                                          -50vh at rect.top=-100vh).
+                                          Mostly invisible at this
+                                          point - the cream has fully
+                                          covered the viewport by
+                                          scrollY = M + 100vh - but
+                                          the continuity prevents any
+                                          edge-case snap glitch. */
         let textY = 0
         if (rect.top > 0) {
           const t = Math.min(1, rect.top / viewportH)
           textY = t * 32
-        } else if (rect.bottom < viewportH) {
-          const exitDistance = viewportH - rect.bottom
-          textY = exitDistance * 0.5
+        } else if (rect.bottom >= viewportH) {
+          textY = 0.5 * rect.top
+        } else {
+          textY = 0.5 * rect.top - (rect.bottom - viewportH)
         }
         section.style.setProperty('--manifesto-text-y', `${textY}px`)
 
