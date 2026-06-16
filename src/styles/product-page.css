@@ -611,7 +611,14 @@
 .product-lets-show {
   background: var(--product-cream);
   color: var(--product-text-on-cream);
-  padding: 120px 0;
+  /* Bottom padding halved per the manifesto-exit-mechanics brief -
+     the previous 120px below the headline created an empty scroll
+     moment between "Let's show you how we do it" and Section 01
+     ("Break down your bill" on PABLO). 60px below keeps the
+     headline a clean transition rather than its own page. Top
+     padding stays at 120px so the manifesto -> Let's Show curved
+     card transition still has room to breathe. */
+  padding: 120px 0 60px 0;
   text-align: center;
   /* Curved-top "card sliding on top" effect per Chris's June 2026
      ask. Sits above the manifesto block via z-index; the negative
@@ -625,7 +632,7 @@
   border-top-right-radius: 32px;
   margin-top: -48px;
 }
-@media (max-width: 767px) { .product-lets-show { padding: 88px 0; } }
+@media (max-width: 767px) { .product-lets-show { padding: 88px 0 44px 0; } }
 @media (max-width: 599px) {
   .product-lets-show {
     border-top-left-radius: 24px;

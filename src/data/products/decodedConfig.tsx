@@ -128,8 +128,6 @@ export const decodedConfig: ProductPageConfig = {
         </p>
       </>
     ),
-    linkText: 'Read our full mission',
-    linkHref: '/about',
     accentColor: 'decoded',
   },
 

@@ -76,8 +76,6 @@ export const pabloConfig: ProductPageConfig = {
     ),
     body:
       'Commercial electricity is one of the most complex purchases an organisation makes - dynamic markets, more than a dozen separate charges, regulation that keeps moving. PABLO sits at the intersection where the market, the grid, and what happens behind the meter overlap. It turns that complexity into clarity - and gives you the confidence to invest in solar, storage, electrification, and the energy transition.',
-    linkText: 'Read our full mission',
-    linkHref: '/about',
     accentColor: 'pablo',
   },
 

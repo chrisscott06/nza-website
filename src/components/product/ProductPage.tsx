@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { MaskReveal } from '../MaskReveal'
 import { BrowserFrame, type BrowserFrameScreen } from './BrowserFrame'
 import { ProductStepsSection } from './ProductStepsSection'
@@ -78,8 +77,12 @@ export type ProductPageConfig = {
     microLabel: string
     headline: string | ReactNode
     body: string | ReactNode
-    linkText: string
-    linkHref: string
+    /* linkText + linkHref were removed per the
+       manifesto-exit-mechanics brief (no useful destination yet);
+       kept optional in the underlying ManifestoBlock component so a
+       caller can reinstate the link without rewiring the type. */
+    linkText?: string
+    linkHref?: string
     accentColor: ManifestoAccent
   }
   /** SECTION 3 - "Let's show you" inline-pill section */
@@ -374,21 +377,19 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
 
       {/* =========================================================
           SECTION 3 - LET'S SHOW YOU
+          The standalone Request Demo pill used to live here under
+          the headline. Per the manifesto-exit-mechanics brief
+          it's been removed: the browser-frame CTA at the top-
+          right of Section 04's shared frame already carries the
+          contextual coral "Request Demo" button, so the inline
+          one was duplicate. Headline now stands alone as the
+          transition into the steps.
           ========================================================= */}
       <section ref={letsShowRef} className="product-lets-show">
         <div className="product-lets-show-inner">
-          {/* Headline now stands alone - the Request Demo pill is no
-              longer inline. Per Chris: a single confident statement,
-              then the CTA beneath it. */}
           <h2 className="product-lets-show-headline">
             {`${config.letsShow.leadingText} ${config.letsShow.trailingText}`}
           </h2>
-          <Link
-            to={config.letsShow.pillHref}
-            className="product-lets-show-pill product-lets-show-pill--standalone"
-          >
-            {config.letsShow.pillLabel}
-          </Link>
         </div>
       </section>
 

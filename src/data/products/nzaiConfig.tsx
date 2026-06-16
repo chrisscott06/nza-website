@@ -116,8 +116,6 @@ export const nzaiConfig: ProductPageConfig = {
     ),
     body:
       "Real progress on net zero doesn't come from outside reports. It comes from the people inside your organisation - the ones with the relationships, the knowledge, and the context to act. NZ:AI puts NZA's expertise, AI-accelerated tools, and the data you need to act on into your hands. Decode. Build. Partner - three stages, one partnership, kept alive over time.",
-    linkText: 'Read our full mission',
-    linkHref: '/about',
     accentColor: 'nzai',
   },
 

@@ -49,11 +49,15 @@ export interface ManifestoBlockProps {
    *  that need inline JSX (e.g. decodED's gov.uk hyperlink + tooltip
    *  on "climate action plan"). */
   body: string | ReactNode
-  /** Small link beneath the body. e.g. "Read our full mission". The
-   *  arrow glyph is appended by the component. */
-  linkText: string
+  /** Optional small link beneath the body. e.g. "Read our full
+   *  mission". The arrow glyph is appended by the component. Per
+   *  the manifesto-exit-mechanics brief the link was removed from
+   *  all three product pages (no useful destination yet, adds
+   *  clutter to the pinned moment) - kept as optional in the type
+   *  so the component still supports it for any future caller. */
+  linkText?: string
   /** Where the link points. e.g. "/about#mission". */
-  linkHref: string
+  linkHref?: string
   /** Drives the background colour + frame styling. */
   accentColor: ManifestoAccent
 }
@@ -183,14 +187,16 @@ export function ManifestoBlock({
         <MaskReveal as="div" className="manifesto-block-body" delay={300}>
           {typeof body === 'string' ? <p>{body}</p> : body}
         </MaskReveal>
-        <MaskReveal as="div" delay={450}>
-          <a className="manifesto-block-link" href={linkHref}>
-            {linkText}
-            <span className="manifesto-block-link-arrow" aria-hidden="true">
-              →
-            </span>
-          </a>
-        </MaskReveal>
+        {linkText && linkHref && (
+          <MaskReveal as="div" delay={450}>
+            <a className="manifesto-block-link" href={linkHref}>
+              {linkText}
+              <span className="manifesto-block-link-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </MaskReveal>
+        )}
       </div>
 
       {/* Scroll-down affordance, fades out as the user scrolls into
