@@ -121,27 +121,31 @@ export function ManifestoBlock({
           `${parallaxY}px`,
         )
 
-        /* Text positioning - kept minimal on Chris's latest reversal:
-           "leave the text there and let the white bit overlap it.
-           Almost like we're lifting a page on top of it."
-           - Entry  (rect.top > 0)        small lag (32px) so the
-                                          text settles into place
-                                          as the section enters
-                                          viewport (existing reveal
-                                          feel).
-           - Held + Exit (rect.top <= 0)  text stays at its sticky-
-                                          pinned natural position
-                                          (textY = 0). The cream
-                                          Let's Show card rises up
-                                          over the top while the
-                                          text stays still
-                                          underneath - the "page
-                                          being lifted on top of it"
-                                          effect, no parallax drift. */
+        /* Matches the Let's Show -> Steps parallax exactly per
+           Chris's "exact same parallax scroll" ask:
+           - Entry  (rect.top > 0)         small +32px lag, text
+                                           settles into place.
+           - Held   (sticky engaged,       textY = 0. Text stays
+                    rect.top <= 0 AND      static via the sticky
+                    rect.bottom >= vh)     pin. Cream Let's Show
+                                           rises up over it at
+                                           natural 1x rate.
+           - Exit   (rect.bottom < vh)     textY = (vh - rect.bottom)
+                                           * 0.5. The downward
+                                           translate counters half
+                                           the inner's natural
+                                           upward motion after
+                                           sticky releases, so the
+                                           text exits at ~0.5x rate
+                                           while Steps comes in at
+                                           1x from below. */
         let textY = 0
         if (rect.top > 0) {
           const t = Math.min(1, rect.top / viewportH)
           textY = t * 32
+        } else if (rect.bottom < viewportH) {
+          const exitDistance = viewportH - rect.bottom
+          textY = exitDistance * 0.5
         }
         section.style.setProperty('--manifesto-text-y', `${textY}px`)
 
