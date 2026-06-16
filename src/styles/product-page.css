@@ -612,21 +612,24 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   text-align: center;
-  /* Card-stack pattern. -100vh puts the cream card's TOP edge
-     exactly at viewport bottom at scrollY=0 (200vh manifesto
-     container, -100vh pull = cream top at 100vh in document =
-     viewport bottom). So the manifesto reads as a full purple
-     screen first, with NO cream peeking up. As the user starts
-     scrolling, the cream rises into view from below and slides
-     over the held manifesto text. Per Chris: "It should be a
-     full purple screen, and then as you scroll, the white comes
-     over it." -130vh was too aggressive - showed cream in the
-     bottom 30vh at scroll-start. */
+  /* Same recipe as Let's Show -> Steps so the manifesto -> Let's
+     Show transition reads identically (held lock -> slow text
+     exit + cream rising at 1x). Previous -100vh pulled the cream
+     card up to fully cover the manifesto inner the instant the
+     held phase ended at scrollY=100vh, so the 0.5x slow-exit
+     parallax on the manifesto inner was happening completely
+     hidden behind the cream - that's why Chris couldn't see it.
+     Now -48px (matching .product-steps' overlap with Let's Show)
+     keeps the cream below the viewport during the entire 100vh
+     held phase, then rises into view at natural 1x rate during
+     the manifesto's 100vh exit phase. The manifesto inner exits
+     at 0.5x rate visible above the rising cream - same slow-text-
+     vs-fast-card effect Chris likes on the second handoff. */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -100vh;
+  margin-top: -48px;
   min-height: 200vh;
 }
 @media (max-width: 599px) {
