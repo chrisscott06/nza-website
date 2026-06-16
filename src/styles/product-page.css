@@ -612,20 +612,22 @@
   background: var(--product-cream);
   color: var(--product-text-on-cream);
   text-align: center;
-  /* Card-stack pattern per Chris's June 2026 brief: this is the
-     SECOND held card in the manifesto -> Let's Show -> Steps
-     sequence. The headline sits sticky-pinned centred in the
-     viewport for ~60vh of scroll, then the cream Steps section
-     (Section 01 "Break down your bill") slides up OVER it via
-     its own curved-top edge - same overlap effect as the
-     manifesto -> Let's Show handoff. Section is 160vh tall,
-     inner sticky 100vh. */
+  /* Card-stack pattern per Chris's June 2026 brief.
+     Negative margin-top of -100vh pulls Let's Show up so its top
+     edge sits AT the bottom of the manifesto's sticky-pinned text
+     - no purple gap between them. As the user scrolls past the
+     manifesto's 200vh container, this cream card rises up over
+     the held text. 200vh container + 100vh sticky inner gives the
+     same 100vh-of-held-pin behaviour as the manifesto, so the
+     Let's Show headline holds centred in viewport for a beat
+     before the Steps section slides up over IT (with its own
+     -100vh margin). */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -48px;
-  min-height: 160vh;
+  margin-top: -100vh;
+  min-height: 200vh;
 }
 @media (max-width: 599px) {
   .product-lets-show {
@@ -681,6 +683,42 @@
   margin: 0;
   text-align: center;
 }
+/* Per-word reveal: each word sits in an inline-block clipping
+   wrapper, with an inner span that starts translated below its
+   own line-box and fades in. When the h2 gains .is-revealed
+   (IntersectionObserver in LetsShowHeadline), each inner rises
+   into place with its own --word-delay offset so the headline
+   reads as a paced word-by-word cascade rather than appearing
+   in one block. */
+.product-lets-show-headline .lets-show-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* A touch of negative bottom margin keeps descenders inside
+     the inline-block instead of getting clipped at rest. */
+  padding-bottom: 0.05em;
+}
+.product-lets-show-headline .lets-show-word-inner {
+  display: inline-block;
+  transform: translateY(102%);
+  opacity: 0;
+  transition:
+    transform 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 540ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--word-delay, 0ms);
+  will-change: transform, opacity;
+}
+.product-lets-show-headline.is-revealed .lets-show-word-inner {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-lets-show-headline .lets-show-word-inner {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
+}
 /* Standalone CTA below the headline - replaces the inline-pill
    pattern from the brief per Chris's revision. */
 .product-lets-show-pill {
@@ -732,15 +770,17 @@
   color: var(--product-text-on-cream);
   padding: 80px 0 140px;
   /* Same card-slide pattern as the manifesto -> Let's Show
-     handoff: a higher z-index than the sticky-pinned Let's Show
-     above (which is z-index 2), curved-top corners + a negative
-     top margin pull the steps section up so it visibly slides
-     OVER the held Let's Show headline as the user scrolls. */
+     handoff: higher z-index than the sticky-pinned Let's Show
+     above (which is z-index 2), curved-top corners + a -100vh
+     margin-top so the steps section sits AT the bottom of the
+     held Let's Show headline (no cream gap). As the user scrolls
+     past Let's Show's sticky pin, this section rises up over the
+     held headline. */
   position: relative;
   z-index: 3;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
-  margin-top: -48px;
+  margin-top: -100vh;
 }
 @media (max-width: 767px) { .product-steps { padding: 64px 0 96px; } }
 @media (max-width: 599px) {

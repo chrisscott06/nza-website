@@ -80,10 +80,10 @@ export const pabloConfig: ProductPageConfig = {
   },
 
   letsShow: {
-    leadingText: "Let's show you",
+    leadingText: "Let's show you how",
     pillLabel: 'Request Demo',
     pillHref: '/contact?product=pablo',
-    trailingText: 'how we do it',
+    trailingText: 'PABLO works',
   },
 
   /* Five "how it works" sections per nza-pablo-page-brief.md Change 1.

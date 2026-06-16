@@ -387,9 +387,10 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
           ========================================================= */}
       <section ref={letsShowRef} className="product-lets-show">
         <div className="product-lets-show-inner">
-          <h2 className="product-lets-show-headline">
-            {`${config.letsShow.leadingText} ${config.letsShow.trailingText}`}
-          </h2>
+          <LetsShowHeadline
+            leadingText={config.letsShow.leadingText}
+            trailingText={config.letsShow.trailingText}
+          />
         </div>
       </section>
 
@@ -585,5 +586,68 @@ export function ProductPage({ config }: { config: ProductPageConfig }) {
         </div>
       </section>
     </div>
+  )
+}
+
+/* =========================================================================
+   LetsShowHeadline - word-by-word reveal for the "Let's show you how
+   PABLO works" headline. Each word sits inside a clipping wrapper +
+   masked inner span; when the h2 enters viewport the words rise
+   into place with a small per-word delay. Per Chris's "can we come
+   up with a clever animation for how that shows up" ask.
+   ========================================================================= */
+function LetsShowHeadline({
+  leadingText,
+  trailingText,
+}: {
+  leadingText: string
+  trailingText: string
+}) {
+  const ref = useRef<HTMLHeadingElement | null>(null)
+  const [revealed, setRevealed] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setRevealed(true)
+            obs.disconnect()
+            break
+          }
+        }
+      },
+      { threshold: 0.35 },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  /* Build the word list from leading + trailing copy. Empty strings
+     filtered out so a config without a trailing fragment doesn't
+     leave a phantom word with no content. */
+  const words = `${leadingText} ${trailingText}`.split(/\s+/).filter(Boolean)
+
+  return (
+    <h2
+      ref={ref}
+      className={
+        'product-lets-show-headline' + (revealed ? ' is-revealed' : '')
+      }
+    >
+      {words.map((word, i) => (
+        <span key={`${word}-${i}`} className="lets-show-word">
+          <span
+            className="lets-show-word-inner"
+            style={{ '--word-delay': `${i * 110}ms` } as CSSProperties}
+          >
+            {word}
+          </span>
+          {i < words.length - 1 ? ' ' : null}
+        </span>
+      ))}
+    </h2>
   )
 }

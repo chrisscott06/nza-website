@@ -24,12 +24,15 @@
 
 .manifesto-block {
   position: relative;
-  /* Taller than viewport so the sticky inner content has scroll
-     runway to "hold" - the section stays in view while the user
-     scrolls ~60vh of extra runway, then the next cream section
-     slides up over its bottom edge. Per Chris's June 2026 ask
-     for the curved-card slide-over + parallax-hold effect. */
-  min-height: 160vh;
+  /* 200vh runway: sticky inner is 100vh, so the user gets a full
+     100vh of "the text is locked" while the cream Let's Show card
+     rises up over it from below (-100vh margin-top on Let's Show
+     in product-page.css). Previous 160vh runway left a 60vh purple
+     gap below the held text before Let's Show arrived; doubling
+     the runway to 200vh + pulling Let's Show up 100vh eliminates
+     it - the cream card is always touching the bottom of the
+     manifesto text as the user scrolls. */
+  min-height: 200vh;
   /* Block layout (not flex) so the inner can be sticky-pinned
      and the bg ::before / scroll prompt can sit alongside. */
   display: block;

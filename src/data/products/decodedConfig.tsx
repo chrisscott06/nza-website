@@ -132,10 +132,10 @@ export const decodedConfig: ProductPageConfig = {
   },
 
   letsShow: {
-    leadingText: "Let's show you",
+    leadingText: "Let's show you how",
     pillLabel: 'Request Demo',
     pillHref: '/contact?product=decoded',
-    trailingText: 'how we do it',
+    trailingText: 'decodED works',
   },
 
   /* Five "how it works" cards per manifestos brief Movement 3.2 -

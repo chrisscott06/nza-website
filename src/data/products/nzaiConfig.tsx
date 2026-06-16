@@ -120,10 +120,10 @@ export const nzaiConfig: ProductPageConfig = {
   },
 
   letsShow: {
-    leadingText: "Let's show you",
+    leadingText: "Let's show you how",
     pillLabel: 'Request Demo',
     pillHref: '/contact?product=nzai',
-    trailingText: 'how we do it',
+    trailingText: 'NZ:AI works',
   },
 
   /* THREE STAGES - Decode, Build, Partner. Full copy replacement
