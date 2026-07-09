@@ -80,3 +80,8 @@ After every chunk:
 - **Co-Work (Claude Code, this session)** — primary builder. Codes, commits, pushes.
 - **Tony** — not yet wired in for this project. Until then, Chris does verification himself or the architect verifies on GitHub.
 - **Claude Chat / Claude Design** — already produced the source brief (`nza-design-system.md`, `nza-handoff.md`) and the prototype. May be re-engaged for new screens or design iterations.
+
+## API keys / environment
+
+No external APIs — no keys or environment variables required to build or run this
+project.
