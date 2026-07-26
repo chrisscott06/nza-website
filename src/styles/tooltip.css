@@ -1,15 +1,15 @@
 /*
- * Tooltip primitive - used by the decodED manifesto's gov.uk link
- * and any other inline references that want an explanatory popover.
+ * Tooltip primitive - inline reference popover used by the decodED
+ * manifesto's "climate action plan" reference.
  *
- * Spec: docs/briefs/nza-manifestos-and-solutions-brief.md Movement 2
- *   "solid background, hairline border, comfortable padding,
- *    max-width ~360px"
- *
- * Suppressed on touch devices via the matchMedia check in Tooltip.tsx.
- * No CSS-only fallback because the popover contains a focusable
- * footer link that touch users can't reach without an explicit
- * tap-to-open primitive - out of scope here.
+ * Redesigned July 2026 (Chris):
+ *   - On-brand card in decodED's palette: cream surface, deep-green
+ *     text, hairline green border, orange "Read on gov.uk" link. Reads
+ *     as part of the site, not a browser-default dark tooltip.
+ *   - Opens on hover OR click/tap (see Tooltip.tsx). The trigger is a
+ *     button, not a link - it never navigates. Works on touch, so the
+ *     old `@media (max-width:599px){display:none}` suppression is gone.
+ *   - Small caret points back up at the trigger word.
  */
 
 .tooltip-wrap {
@@ -17,38 +17,94 @@
   display: inline;
 }
 
+/* Inline trigger. A button reset to read like the surrounding body
+   copy with a dotted underline - the same affordance the inline gov.uk
+   link used to carry, so the term still reads as "there's more here."
+   Inherits colour from the manifesto body (white on the green card). */
+.tooltip-trigger {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: opacity 200ms ease;
+}
+
+.tooltip-trigger:hover,
+.tooltip-wrap.is-open .tooltip-trigger {
+  opacity: 0.82;
+}
+
+.tooltip-trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 .tooltip-popover {
   position: absolute;
-  /* Position the popover beneath the trigger, centred horizontally.
-     transform: translateX(-50%) centres relative to left: 50% on
-     the trigger wrapper. */
-  top: calc(100% + 8px);
+  /* Beneath the trigger, centred. translateX(-50%) centres against
+     left: 50%. */
+  top: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 80;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  /* Brief: "solid background, hairline border, comfortable padding,
-     max-width ~360px." Solid navy on cream so it reads as a tooltip
-     not a card. */
-  background: #1B1B1B;
-  color: #FAF5EB;
-  border: 1px solid rgba(250, 245, 235, 0.18);
-  border-radius: 8px;
+  /* decodED palette: cream card, deep-green text, hairline green
+     border. Reads as the site, not a system tooltip. */
+  background: #FAF5EB;
+  color: #0F5D43;
+  border: 1px solid rgba(15, 93, 67, 0.22);
+  border-radius: 10px;
   padding: 16px 18px;
   width: max-content;
-  max-width: 360px;
+  max-width: min(340px, calc(100vw - 32px));
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 13px;
-  line-height: 1.5;
-  /* Drop shadow lifts the popover off whatever sits underneath - the
-     decodED manifesto's deep-green surface, in practice. */
-  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.5);
-  /* Pointer events ON so the user can hover into the popover and
-     click the footer link. The grace timer in Tooltip.tsx handles
-     the trigger -> popover transit. */
+  line-height: 1.55;
+  /* Green-tinted shadow lifts the cream card off the deep-green
+     manifesto surface underneath. */
+  box-shadow: 0 14px 34px -14px rgba(9, 46, 33, 0.55);
   pointer-events: auto;
+  /* Gentle entrance - fade + slight rise. */
+  animation: tooltip-pop-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tooltip-pop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Caret pointing back up at the trigger. A rotated square whose top +
+   left edges pick up the card's border, so it reads as a seamless
+   pointer off the top edge of the cream card. */
+.tooltip-popover-caret {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  transform: translateX(-50%) rotate(45deg);
+  background: #FAF5EB;
+  border-left: 1px solid rgba(15, 93, 67, 0.22);
+  border-top: 1px solid rgba(15, 93, 67, 0.22);
+  border-top-left-radius: 2px;
 }
 
 .tooltip-popover-body {
@@ -60,29 +116,32 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 4px;
+  margin-top: 2px;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #FAF5EB;
+  /* decodED orange - the only navigation out of the popover. */
+  color: #E8743C;
   text-decoration: none;
-  border-bottom: 1px solid rgba(250, 245, 235, 0.4);
+  border-bottom: 1px solid rgba(232, 116, 60, 0.4);
   padding-bottom: 2px;
   align-self: flex-start;
   transition: color 200ms ease, border-color 200ms ease;
 }
 
-.tooltip-popover-link:hover {
-  color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
+.tooltip-popover-link:hover,
+.tooltip-popover-link:focus-visible {
+  color: #C95E2C;
+  border-bottom-color: #C95E2C;
+  outline: none;
 }
 
-/* Suppress on phone - matchMedia check in Tooltip.tsx already keeps
-   the popover from opening on touch, but a belt-and-braces CSS rule
-   ensures it never appears even if state leaks through. */
-@media (max-width: 599px) {
+@media (prefers-reduced-motion: reduce) {
   .tooltip-popover {
-    display: none;
+    animation: none;
+  }
+  .tooltip-trigger {
+    transition: none;
   }
 }

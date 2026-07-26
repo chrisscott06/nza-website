@@ -24,14 +24,18 @@
 
 .manifesto-block {
   position: relative;
-  /* 200vh runway: sticky inner is 100vh, so the user gets a full
-     100vh of "the text is locked" while the cream Let's Show card
-     rises up over it from below (-100vh margin-top on Let's Show
-     in product-page.css). The 100vh held window is where the 3D
-     parallax happens - text drifts up at 0.5x via the JS in
-     ManifestoBlock.tsx, cream rises at 1x via the negative
-     margin-top. */
-  min-height: 200vh;
+  /* 260vh runway: sticky inner is 100vh, so the inner pins for 160vh
+     of scroll. That pin splits into two phases (see ManifestoBlock.tsx):
+       - LOCK   first 60vh - text static, dead-centre, FULLY visible.
+                Nothing rises over it. The "snap full screen and hold
+                until the text has appeared" beat Chris asked for.
+       - HANDOFF last 100vh - the 3D parallax: text drifts up at 0.5x
+                while the cream Let's Show card rises from below at 1x
+                (-100vh margin-top on Let's Show in product-page.css).
+                The cream's -100vh offset against this 260vh runway is
+                timed so the cream first enters the viewport exactly as
+                the 60vh lock ends. */
+  min-height: 260vh;
   /* Block layout (not flex) so the inner can be sticky-pinned
      and the bg ::before / scroll prompt can sit alongside. */
   display: block;
@@ -158,6 +162,16 @@
   color: var(--coral, #F75A55);
   font-size: 1.15em;
   letter-spacing: -0.01em;
+}
+
+/* decodED override: the italic emphasis renders in decodED's ORANGE
+   rather than the site-default coral, per Chris (July 2026) - matches
+   the orange verbs + solid orange CTAs that give decodED its own
+   accent identity. Italic + Times fingerprint is preserved; only the
+   colour changes. Scoped to the decodED manifesto so PABLO / NZ:AI
+   keep the coral fingerprint. */
+.manifesto-block--decoded .manifesto-block-headline em {
+  color: #E8743C;
 }
 
 .manifesto-block-body {

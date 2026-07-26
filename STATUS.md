@@ -2,6 +2,45 @@
 
 ## Last completed chunk
 
+**decodED + landing polish (July 2026, Co-Work session).** Five requests
+from Chris:
+1. **Landing "How we work" — Decode infographic reworked.** The 5×5
+   Decode grid no longer just fades in; the 25 dots start scattered
+   (golden-angle offsets) and drift in from all directions to assemble
+   into the grid with a staggered, eased cascade.
+   `HowWeWorkVisuals.tsx` (dots are now `<g>` wrappers) + `landing.css`
+   (`decode-dot-assemble` keyframe).
+2. **decodED manifesto emphasis → orange.** `<em>right hands</em>` (was
+   just "right") now renders in decodED orange `#E8743C` instead of the
+   site-default coral, scoped via `.manifesto-block--decoded ... em`.
+   Italic + Times fingerprint preserved. `decodedConfig.tsx` +
+   `manifesto-block.css`.
+3. **Tooltip redesigned.** The "climate action plan" trigger is now a
+   button that opens an on-brand popover (cream card, green text, orange
+   gov.uk link) on hover OR click/tap — and no longer navigates itself;
+   only the in-popover link goes to gov.uk. Closes on outside-click /
+   Escape; works on touch. `Tooltip.tsx` + `tooltip.css` (new API:
+   `label` prop replaces the child `<a>`).
+4. **Manifesto full-screen lock.** The coloured manifesto block now
+   holds static + fully visible for a 60vh beat (runway 200vh→260vh)
+   before the existing cream/parallax handoff runs, so it reads as a
+   deliberate "snap and hold" like the landing between-screen snap.
+   `ManifestoBlock.tsx` (LOCK phase in the text-y JS) +
+   `manifesto-block.css` + `product-page.css` comment. Applies to all
+   three product pages. *Lock duration is tunable — flag from Chris:
+   he was unsure of the exact feel; may push toward a harder snap.*
+5. **Landing solutions reorder + copy.** Order is now PABLO / NZ:AI /
+   decodED (was PABLO / decodED / NZ:AI); intro reworded away from
+   "Three tools we've built…" to "Different challenges call for
+   different answers…". `ProductsScreen.tsx`.
+
+Typecheck + prod build clean. Verified in-DOM (computed styles) — live
+animation/IO couldn't be screenshotted in the headless pane.
+
+---
+
+## Previous chunk
+
 **Product page template — overnight build, 3 pages live.** New shared
 `<ProductPage>` template populates `/pablo`, `/nz-ai`, `/decoded` from
 per-product config objects. All five sections per brief

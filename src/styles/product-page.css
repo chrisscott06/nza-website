@@ -613,20 +613,19 @@
   color: var(--product-text-on-cream);
   text-align: center;
   /* margin-top: -100vh on purpose, NOT the -48px we use for the
-     Let's Show -> Steps handoff. Reason: the manifesto's bright
-     purple makes "stuck" time read as dead space, where on cream-
-     on-cream the same hold is invisible. Pulling the cream up by
-     a full viewport means it sits at the doc position of the
-     manifesto inner's bottom edge - so as soon as the manifesto
-     text settles (sticky engages at top:0) and the user scrolls,
-     the cream is RIGHT THERE rising up over the purple at natural
-     1x rate. Combined with the manifesto-block.css text-y JS that
-     drifts the text upward at 0.5x rate during the held phase
-     (see ManifestoBlock.tsx), the user sees a 3D parallax: cream
-     card scrolls up fast, text on the purple drifts slowly. No
-     purple gap, no "stuck" moment. The 200vh runway is what gives
-     the held phase its 100vh of scroll for the parallax to play
-     out across. */
+     Let's Show -> Steps handoff. The manifesto is now a 260vh runway
+     (manifesto-block.css) whose 160vh pin splits into a 60vh LOCK
+     (text static + fully visible - the hold Chris asked for) and a
+     100vh HANDOFF. Pulling the cream up by a full viewport places its
+     top edge at the doc position of (manifesto bottom - 100vh), which
+     is exactly where the 60vh lock ends - so the cream stays BELOW the
+     viewport during the lock, then rises up over the manifesto at
+     natural 1x during the handoff. Combined with the manifesto-block.css
+     text-y JS that drifts the text upward at 0.5x through the handoff
+     (see ManifestoBlock.tsx), the user sees: a clean full-screen hold,
+     then a 3D parallax - cream card scrolls up fast, text drifts slow.
+     The 200vh runway on THIS section gives the Let's Show headline its
+     own held phase downstream. */
   position: relative;
   z-index: 2;
   border-top-left-radius: 32px;

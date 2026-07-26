@@ -121,57 +121,49 @@ export function ManifestoBlock({
           `${parallaxY}px`,
         )
 
-        /* 3D parallax handoff per Chris: "as soon as we start
-           scrolling past [the text], the cream below should scroll
-           up... the text in the purple box was moving at the same
-           rate as the white box was moving up. That's all I wanted
-           was a slight difference - so it felt like there's a 3D
-           layer where the purple background is and the white text
-           on it is moving slower than the white curved background
-           that's now moving over it."
+        /* Full-screen LOCK, then 3D parallax handoff.
 
-           Three regimes, all smoothly continuous at the boundaries:
-           - Entry  (rect.top > 0)        small +32px downward lag
-                                          so text settles into place
-                                          slightly behind the section
-                                          edge.
-           - Held   (sticky engaged,      textY = 0.5 * rect.top.
-                    rect.top <= 0 AND     rect.top is negative, so
-                    rect.bottom >= vh)    textY is negative - inner
-                                          drifts UP at 0.5x rate.
-                                          Meanwhile Let's Show has
-                                          margin-top: -100vh so the
-                                          cream rises from below at
-                                          natural 1x rate. Visible
-                                          parallax: cream-fast,
-                                          text-slow.
-           - Exit   (rect.bottom < vh)    Continues the 0.5x net
-                                          rate seamlessly. Natural
-                                          inner position during exit
-                                          is (rect.bottom - vh)
-                                          (sticky has released, inner
-                                          rides at the bottom of the
-                                          container). To keep net
-                                          movement at 0.5x:
-                                          textY = 0.5*rect.top -
-                                                  (rect.bottom - vh)
-                                          Continuous with held at
-                                          the boundary (both give
-                                          -50vh at rect.top=-100vh).
-                                          Mostly invisible at this
-                                          point - the cream has fully
-                                          covered the viewport by
-                                          scrollY = M + 100vh - but
-                                          the continuity prevents any
-                                          edge-case snap glitch. */
+           Per Chris (July 2026): the manifesto should "snap full screen
+           and then you can scroll past once the animation is complete /
+           text appears" - like the landing page's between-screen snap.
+           So the pin now opens with a genuine static hold: the text sits
+           locked, dead-centre, fully visible (nothing rising over it)
+           for LOCK_PX of scroll, giving the reader a clear beat to read
+           it. AFTER that, the existing 3D parallax handoff runs - text
+           drifts up at 0.5x while the cream Let's Show card rises from
+           below at 1x (its margin-top: -100vh in product-page.css is
+           timed so the cream first appears exactly as the lock ends).
+
+           The manifesto section is 60vh taller than the pin window (see
+           manifesto-block.css min-height) so LOCK_PX of pin happens
+           before the cream can enter the viewport.
+
+           Four regimes, all continuous at the boundaries:
+           - Entry  (rect.top > 0)        small +32px downward lag so
+                                          the text settles just behind
+                                          the section edge on the way in.
+           - LOCK   (0 >= rect.top >      textY = 0. Pinned, static,
+                    -LOCK_PX)             fully visible. The hold.
+           - Drift  (rect.top <= -LOCK_PX textY = 0.5*(rect.top+LOCK_PX).
+                    AND rect.bottom >= vh) 0 at the lock boundary, then
+                                          drifts UP at 0.5x as the cream
+                                          rises at 1x. The 3D handoff.
+           - Exit   (rect.bottom < vh)    textY = 0.5*(rect.top+LOCK_PX)
+                                          - (rect.bottom - vh). Keeps the
+                                          net 0.5x rate once sticky has
+                                          released; continuous with Drift
+                                          at the boundary. */
+        const LOCK_PX = viewportH * 0.6
         let textY = 0
         if (rect.top > 0) {
           const t = Math.min(1, rect.top / viewportH)
           textY = t * 32
+        } else if (rect.top > -LOCK_PX) {
+          textY = 0
         } else if (rect.bottom >= viewportH) {
-          textY = 0.5 * rect.top
+          textY = 0.5 * (rect.top + LOCK_PX)
         } else {
-          textY = 0.5 * rect.top - (rect.bottom - viewportH)
+          textY = 0.5 * (rect.top + LOCK_PX) - (rect.bottom - viewportH)
         }
         section.style.setProperty('--manifesto-text-y', `${textY}px`)
 

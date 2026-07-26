@@ -82,20 +82,23 @@ export const decodedConfig: ProductPageConfig = {
 
   /* SECTION 2 - Manifesto (replaces the old `transition` two-liner
      per the manifestos brief Movement 2). Chunk 3 adds:
-       - Italic emphasis on "right" in the headline per the brief's
-         locked emphasis list.
-       - Inline gov.uk hyperlink on "climate action plan" in the
-         first paragraph of the body, wrapped in the Tooltip
-         primitive that surfaces the DfE Sustainability and Climate
-         Change Strategy summary on desktop hover. Touch users see
-         the link as standard; tap opens gov.uk in a new tab.
+       - Italic emphasis on "right hands" in the headline. Per Chris
+         (July 2026) the emphasis renders in decodED ORANGE, not the
+         site's default coral, to match decodED's orange accent + CTAs.
+         Colour override lives in .manifesto-block--decoded ... em in
+         manifesto-block.css.
+       - Inline gov.uk reference on "climate action plan" in the first
+         paragraph, wrapped in the Tooltip primitive. Per Chris (July
+         2026) the trigger no longer navigates on its own - hover OR
+         click opens an on-brand popover; the reader only lands on
+         gov.uk if they click the link inside it.
        - Body split into two paragraphs at the natural break (was
          a single run-on string in the scaffold). */
   manifesto: {
     microLabel: 'WHY DECODED',
     headline: (
       <>
-        Good data, in the <em>right</em> hands.
+        Good data, in the <em>right hands</em>.
       </>
     ),
     body: (
@@ -103,19 +106,11 @@ export const decodedConfig: ProductPageConfig = {
         <p>
           Every educational institution in England is now required to have a{' '}
           <Tooltip
+            label="climate action plan"
             body={DFE_TOOLTIP_BODY}
             footerHref={DFE_STRATEGY_URL}
             footerText="Read on gov.uk"
-          >
-            <a
-              href={DFE_STRATEGY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="manifesto-inline-link"
-            >
-              climate action plan
-            </a>
-          </Tooltip>{' '}
+          />{' '}
           - covering decarbonisation, adaptation, biodiversity, and education
           and green careers. Most schools have one person carrying this.
           Decoded gives them the tools. NZA brings the expertise.
