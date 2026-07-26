@@ -41,8 +41,9 @@ type Product = {
   promise: string
 }
 
-/* Order per nza-manifestos-and-solutions-brief.md Movement 1:
-   PABLO / decodED / NZ:AI (was PABLO / NZ:AI / decodED). */
+/* Order per Chris (July 2026): PABLO / NZ:AI / decodED - lead with the
+   flagship software, then the partnership model, then the emerging
+   platform (was PABLO / decodED / NZ:AI). */
 const PRODUCTS: Product[] = [
   {
     id: 'pablo',
@@ -53,16 +54,6 @@ const PRODUCTS: Product[] = [
     question: 'Want to cut your electricity costs?',
     promise:
       'PV, battery and load optimisation modelling for sites that want to spend less on energy.',
-  },
-  {
-    id: 'decoded',
-    name: 'decodED',
-    href: '/decoded',
-    logoSrc: '/assets/logos/decoded-logo.svg',
-    alt: 'decodED',
-    question: 'Running climate action in education?',
-    promise:
-      'A hosted platform helping schools, universities and trusts move from carbon data to climate strategy.',
   },
   {
     id: 'nzai',
@@ -77,6 +68,16 @@ const PRODUCTS: Product[] = [
     question: 'Want to make sense of complex carbon data?',
     promise:
       'An AI advisory partnership for teams who have client relationships but need net zero depth.',
+  },
+  {
+    id: 'decoded',
+    name: 'decodED',
+    href: '/decoded',
+    logoSrc: '/assets/logos/decoded-logo.svg',
+    alt: 'decodED',
+    question: 'Running climate action in education?',
+    promise:
+      'A hosted platform helping schools, universities and trusts move from carbon data to climate strategy.',
   },
 ]
 
@@ -197,8 +198,8 @@ export function ProductsScreen() {
             Our solutions
           </MaskReveal>
           <MaskReveal as="p" className="products-intro" delay={200}>
-            Three tools we've built to help organisations move on net zero -
-            each one solving a different piece of the puzzle.
+            Different challenges call for different answers. Each of these moves
+            organisations forward on net zero - explore where you fit.
           </MaskReveal>
         </div>
 
