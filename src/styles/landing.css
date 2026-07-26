@@ -1107,9 +1107,15 @@
    The 600ms buffer is the "vis-start" offset used in calc() below.
    ============================================================ */
 
-/* ---------- DECODE: 25 dots fade in one by one, reading order. ----- */
+/* ---------- DECODE: 25 dots drift in from scattered positions and
+   assemble into the 5x5 grid. Each .decode-dot is a <g> wrapper
+   translated by its per-dot scatter offset (--from-x / --from-y);
+   the animation eases that offset back to (0,0) so the dot settles
+   onto its grid cell. Staggered by --dot-index so the grid pieces
+   itself together in a flowing cascade. ----------------------------- */
 .decode-dot {
   opacity: 0;
+  transform: translate(var(--from-x, 0), var(--from-y, 0));
 }
 /* Visual animations now key off the per-block .is-revealed (set by
    the scroll-driven reveal in HowWeWorkSection.tsx) rather than the
@@ -1117,12 +1123,21 @@
    offset is the wait for the block's separator + content-rise to
    land before the SVG starts animating inside it. */
 .how-we-work-phase-block.is-revealed .decode-dot {
-  animation: decode-dot-appear 180ms linear forwards;
-  animation-delay: calc(600ms + var(--dot-index, 0) * 35ms);
+  animation: decode-dot-assemble 720ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(600ms + var(--dot-index, 0) * 32ms);
 }
-@keyframes decode-dot-appear {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes decode-dot-assemble {
+  from {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), var(--from-y, 0));
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 }
 
 /* ---------- BUILD: outlined dots > perimeter fills > square draws. */
@@ -1207,6 +1222,11 @@
   .how-we-work-phase-block.is-revealed .partner-overlap {
     animation: none;
     opacity: 1;
+  }
+  /* Decode dots are <g> wrappers translated off-grid at rest - reset
+     the transform so they snap onto their cells with no motion. */
+  .decode-dot {
+    transform: none;
   }
   .how-we-work-phase-block.is-revealed .build-line {
     animation: none;
